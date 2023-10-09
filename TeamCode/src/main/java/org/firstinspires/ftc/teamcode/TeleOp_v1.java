@@ -8,8 +8,7 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 public class TeleOp_v1 extends LinearOpMode {
     @Override
     public void runOpMode() throws InterruptedException {
-        Hardware_v1 robot = new Hardware_v1();
-        robot.init(hardwareMap);
+        Hardware_v1 robot = new Hardware_v1(hardwareMap);
 
         // Variables.
         boolean leftArmExtended = false;
@@ -39,20 +38,20 @@ public class TeleOp_v1 extends LinearOpMode {
                 robot.imu.resetYaw();
             }
             if (gamepad1.left_bumper && !(gamepad1.left_trigger > 0.2)) {
-                // L1, left claw close
-                robot.servoClawLeft.setPosition(Constants.clawLeftClosed);
+                // L1, left intake close
+                robot.servoIntakeLeft.setPosition(Constants.intakeLeftClosed);
             }
             if (gamepad1.left_trigger >= Constants.leftTriggerFullyDown) {
-                // L2, left claw open
-                robot.servoClawLeft.setPosition(Constants.clawLeftOpen);
+                // L2, left intake open
+                robot.servoIntakeLeft.setPosition(Constants.intakeLeftOpen);
             }
             if (gamepad1.right_bumper && !(gamepad1.right_trigger > 0.2)) {
-                // R1, right claw close
-                robot.servoClawRight.setPosition(Constants.clawRightClosed);
+                // R1, right intake close
+                robot.servoIntakeRight.setPosition(Constants.intakeRightClosed);
             }
             if (gamepad1.right_trigger >= Constants.rightTriggerFullyDown) {
-                // R2, right claw open
-                robot.servoClawRight.setPosition(Constants.clawRightOpen);
+                // R2, right intake open
+                robot.servoIntakeRight.setPosition(Constants.intakeRightOpen);
             }
             if (gamepad1.left_bumper && (gamepad1.left_trigger >= Constants.leftTriggerFullyDown)) {
                 // L1 + L2, left arm toggle

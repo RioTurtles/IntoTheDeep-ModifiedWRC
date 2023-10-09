@@ -17,13 +17,13 @@ public class Hardware_v1 {
     DcMotor motorArmRight;
     DcMotor motorRiggingLinearActuatorLeft;
     DcMotor motorRiggingLinearActuatorRight;
-    Servo servoClawLeft;
-    Servo servoClawRight;
+    Servo servoIntakeLeft;
+    Servo servoIntakeRight;
     Servo servoDroneLauncher;
     DistanceSensor sensorDistance;
     IMU imu;
 
-    public void init(HardwareMap hardwareMap) {
+    public Hardware_v1(HardwareMap hardwareMap) {
         this.motorFrontLeft = hardwareMap.get(DcMotor.class, "motorFrontLeft");
         this.motorFrontRight = hardwareMap.get(DcMotor.class, "motorFrontRight");
         this.motorBackLeft = hardwareMap.get(DcMotor.class, "motorBackLeft");
@@ -32,8 +32,8 @@ public class Hardware_v1 {
         this.motorArmRight = hardwareMap.get(DcMotor.class, "motorArmRight");
         this.motorRiggingLinearActuatorLeft = hardwareMap.get(DcMotor.class, "motorRiggingLinearActuatorLeft");
         this.motorRiggingLinearActuatorRight = hardwareMap.get(DcMotor.class, "motorRiggingLinearActuatorRight");
-        this.servoClawLeft = hardwareMap.get(Servo.class, "servoClawLeft");
-        this.servoClawRight = hardwareMap.get(Servo.class, "servoClawRight");
+        this.servoIntakeLeft = hardwareMap.get(Servo.class, "servoIntakeLeft");
+        this.servoIntakeRight = hardwareMap.get(Servo.class, "servoIntakeRight");
         this.servoDroneLauncher = hardwareMap.get(Servo.class, "servoDroneLauncher");
         this.sensorDistance = hardwareMap.get(DistanceSensor.class, "sensorDistance");
         this.imu = hardwareMap.get(IMU.class, "imu");
