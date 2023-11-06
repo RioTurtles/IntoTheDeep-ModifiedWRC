@@ -2,8 +2,6 @@ package org.firstinspires.ftc.teamcode;
 
 import android.annotation.SuppressLint;
 
-import com.fasterxml.jackson.databind.jsonFormatVisitors.JsonStringFormatVisitor;
-import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 import org.openftc.apriltag.AprilTagDetection;
@@ -12,8 +10,8 @@ import org.openftc.easyopencv.OpenCvCameraFactory;
 import org.openftc.easyopencv.OpenCvCameraRotation;
 import java.util.ArrayList;
 
-@Autonomous
-public class Autonomous_v1 extends LinearOpMode {
+@com.qualcomm.robotcore.eventloop.opmode.Autonomous
+public class Autonomous extends LinearOpMode {
     OpenCvCamera camera;
     AprilTagDetectionPipeline aprilTagDetectionPipeline;
     AprilTagDetection tagOfInterest = null;

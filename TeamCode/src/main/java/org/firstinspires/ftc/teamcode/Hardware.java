@@ -7,9 +7,8 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.hardware.IMU;
-import com.qualcomm.robotcore.hardware.DistanceSensor;
 
-public class Hardware_v1 {
+public class Hardware {
     DcMotor motorFrontLeft;
     DcMotor motorFrontRight;
     DcMotor motorBackLeft;
@@ -25,7 +24,7 @@ public class Hardware_v1 {
     Servo servoDroneLauncher;
     IMU imu;
 
-    public Hardware_v1(HardwareMap hardwareMap) {
+    public Hardware(HardwareMap hardwareMap) {
         this.motorFrontLeft = hardwareMap.get(DcMotor.class, "motorFrontLeft");
         this.motorFrontRight = hardwareMap.get(DcMotor.class, "motorFrontRight");
         this.motorBackLeft = hardwareMap.get(DcMotor.class, "motorBackLeft");

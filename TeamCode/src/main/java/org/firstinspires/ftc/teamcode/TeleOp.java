@@ -2,13 +2,12 @@ package org.firstinspires.ftc.teamcode;
 
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
-import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
-@TeleOp
-public class TeleOp_v1 extends LinearOpMode {
+@com.qualcomm.robotcore.eventloop.opmode.TeleOp
+public class TeleOp extends LinearOpMode {
     @Override
     public void runOpMode() throws InterruptedException {
-        Hardware_v1 robot = new Hardware_v1(hardwareMap);
+        Hardware robot = new Hardware(hardwareMap);
 
         // variables
         int sliderHeight = 1;
