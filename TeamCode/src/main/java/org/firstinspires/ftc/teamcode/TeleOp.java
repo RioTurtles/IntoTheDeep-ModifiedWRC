@@ -15,7 +15,7 @@ public class TeleOp extends LinearOpMode {
 
         telemetry.addData("Status", "Initialized");  // Robot finishes initialization. Here we output a debug message.
         telemetry.update();
-        robot.reset();  // Reset robot?
+        robot.reset();  // Reset robot
         waitForStart();
 
         while (opModeIsActive()) {
@@ -40,13 +40,20 @@ public class TeleOp extends LinearOpMode {
                 robot.resetIMU();
             }
 
-            if (gamepad1.right_bumper) {
+            while (gamepad1.right_bumper) {
                 // Control arm with right stick and intake pitch (vertical) with left stick when R1
                 robot.servoArmRight.setPosition(robot.servoArmRight.getPosition() + right_y / 10);
                 robot.servoArmLeft.setPosition(robot.servoArmLeft.getPosition() + right_y / 10);
                 robot.servoIntakePitchLeft.setPosition(robot.servoIntakePitchLeft.getPosition() + left_y / 10);
                 robot.servoIntakePitchRight.setPosition(robot.servoIntakePitchRight.getPosition() + left_y / 10);
-            } else {
+            }
+            if (!gamepad1.right_bumper) {
+                robot.servoArmRight.setPosition(0);
+                robot.servoArmLeft.setPosition(0);
+                robot.servoIntakePitchLeft.setPosition(0);
+                robot.servoIntakePitchRight.setPosition(0);
+            }
+            while (!gamepad1.right_bumper) {
                 robot.motorFrontLeft.setPower((lx + ly + rot_x) / denominator);
                 robot.motorBackLeft.setPower((-lx + ly + rot_x) / denominator);
                 robot.motorFrontRight.setPower((ly - lx - rot_x) / denominator);
