@@ -1,7 +1,7 @@
 package org.firstinspires.ftc.teamcode;
 
-import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
+import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 
 @com.qualcomm.robotcore.eventloop.opmode.TeleOp(name="v1 TeleOp")
 public class TeleOp extends LinearOpMode {
@@ -17,13 +17,15 @@ public class TeleOp extends LinearOpMode {
         telemetry.update();
         robot.reset();  // Reset robot?
         waitForStart();
+        telemetry.addData("Status", "Running");
+        telemetry.update();
 
         while (opModeIsActive()) {
             // Fieldcentric
             double bot_heading = robot.imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.RADIANS);
             double left_x = gamepad1.left_stick_x;
             double left_y = -gamepad1.left_stick_y;
-            double rot_x = gamepad1.right_stick_x*0.6;  // Make rotation less intense (60%)
+            double rot_x = gamepad1.right_stick_x*0.8;  // Make rotation less intense (80%)
             double lx = left_x * Math.cos(-bot_heading) - left_y * Math.sin(-bot_heading);
             double ly = left_x * Math.sin(-bot_heading) + left_y * Math.cos(-bot_heading);
             double denominator = Math.max(Math.abs(left_x) + Math.abs(left_y) + Math.abs(rot_x), 1);
@@ -39,6 +41,7 @@ public class TeleOp extends LinearOpMode {
                 robot.resetIMU();
             }
 
+            /*
             if (gamepad1.right_bumper) {
                 // Control arm with right stick and intake pitch (vertical) with left stick when R1
                 robot.servoArmRight.setPosition(robot.servoArmRight.getPosition() + right_y / 10);
@@ -102,7 +105,9 @@ public class TeleOp extends LinearOpMode {
                 // launch drone
                 robot.servoDroneLauncher.setPosition(Constants.droneRelease);
             }
+            */
 
+            telemetry.addData("Heading", robot.imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.DEGREES));
             telemetry.update();
         }
     }

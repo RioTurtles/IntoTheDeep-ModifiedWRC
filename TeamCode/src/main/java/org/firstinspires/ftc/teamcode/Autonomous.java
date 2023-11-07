@@ -104,8 +104,8 @@ public class Autonomous extends LinearOpMode {
     @SuppressLint("DefaultLocale")
     void tagToTelemetry(AprilTagDetection detection) {
         telemetry.addLine(String.format("\nTag ID %d", detection.id));
-        telemetry.addLine(String.format("Tag X: %.2f ft", detection.pose.x*Constants.feetPerMetre));
-        telemetry.addLine(String.format("Tag Y: %.2f ft", detection.pose.y*Constants.feetPerMetre));
-        telemetry.addLine(String.format("Tag Z: %.2f ft", detection.pose.z*Constants.feetPerMetre));
+        telemetry.addLine(String.format("Tag X: %.2f ft", detection.pose.x*3.28084));
+        telemetry.addLine(String.format("Tag Y: %.2f ft", detection.pose.y*3.28084));
+        telemetry.addLine(String.format("Tag Z: %.2f ft", detection.pose.z*3.28084));
     }
 }

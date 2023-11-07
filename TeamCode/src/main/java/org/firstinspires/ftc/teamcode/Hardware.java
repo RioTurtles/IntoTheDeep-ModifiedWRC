@@ -30,7 +30,6 @@ public class Hardware {
         this.motorFrontRight = hardwareMap.get(DcMotor.class, "motorFrontRight");
         this.motorBackLeft = hardwareMap.get(DcMotor.class, "motorBackLeft");
         this.motorBackRight = hardwareMap.get(DcMotor.class, "motorBackRight");
-        this.servoTest = hardwareMap.get(CRServo.class, "motorTest");
         /*
         this.motorArmLeft = hardwareMap.get(DcMotor.class, "motorArmLeft");
         this.motorArmRight = hardwareMap.get(DcMotor.class, "motorArmRight");
