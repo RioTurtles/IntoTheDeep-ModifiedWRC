@@ -3,7 +3,7 @@ package org.firstinspires.ftc.teamcode;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
-@com.qualcomm.robotcore.eventloop.opmode.TeleOp(name="v1 TeleOp")
+@com.qualcomm.robotcore.eventloop.opmode.TeleOp(name="TeleOp")
 public class TeleOp extends LinearOpMode {
     @Override
     public void runOpMode() throws InterruptedException {
@@ -23,6 +23,7 @@ public class TeleOp extends LinearOpMode {
             double bot_heading = robot.imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.RADIANS);
             double left_x = gamepad1.left_stick_x;
             double left_y = -gamepad1.left_stick_y;
+            double right_y = -gamepad1.left_stick_y;
             double rot_x = gamepad1.right_stick_x*0.6;  // Make rotation less intense (60%)
             double lx = left_x * Math.cos(-bot_heading) - left_y * Math.sin(-bot_heading);
             double ly = left_x * Math.sin(-bot_heading) + left_y * Math.cos(-bot_heading);
@@ -52,55 +53,55 @@ public class TeleOp extends LinearOpMode {
                 robot.motorBackRight.setPower((lx + ly - rot_x) / denominator);
             }
 
-            if (gamepad1.right_trigger >= Constants.rightTriggerFullyDown) {
+            if (gamepad1.right_trigger >= 0.2) {
                 // R2, open intake
-                robot.servoIntakeLeft.setPower(-gamepad1.right_trigger);
-                robot.servoIntakeRight.setPower(gamepad1.right_trigger);
-            } else if (gamepad1.left_trigger >= Constants.leftTriggerFullyDown) {
+                robot.servoIntakeLeft.setPosition(-gamepad1.right_trigger);
+                robot.servoIntakeRight.setPosition(gamepad1.right_trigger);
+            } else if (gamepad1.left_trigger >= 0.2) {
                 // L2, close intake
-                robot.servoIntakeLeft.setPower(gamepad1.left_trigger);
-                robot.servoIntakeRight.setPower(-gamepad1.left_trigger);
+                robot.servoIntakeLeft.setPosition(gamepad1.left_trigger);
+                robot.servoIntakeRight.setPosition(-gamepad1.left_trigger);
             }
 
             if (gamepad1.dpad_left) {
                 // dpad left, extend intake
-                robot.servoArmLeft.setPosition(Constants.armLeftExtended);
-                robot.servoArmRight.setPosition(Constants.armRightExtended);
+                robot.servoArmLeft.setPosition(0);
+                robot.servoArmRight.setPosition(0);
             } else if (gamepad1.dpad_right) {
                 // dpad right, retract intake
-                robot.servoArmLeft.setPosition(Constants.armLeftRetracted);
-                robot.servoArmRight.setPosition(Constants.armRightRetracted);
+                robot.servoArmLeft.setPosition(0);
+                robot.servoArmRight.setPosition(0);
             }
 
             if (gamepad1.dpad_down) {
                 // dpad down, intake position
                 if (sliderHeight == 2) {
-                    robot.motorHeightLeft.setTargetPosition(Constants.heightLeftHigh);
-                    robot.motorHeightRight.setTargetPosition(Constants.heightRightHigh);
-                    robot.servoIntakePitchLeft.setPosition(Constants.intakePitchLeftGrab);
-                    robot.servoIntakePitchRight.setPosition(Constants.intakePitchRightGrab);
+                    robot.motorHeightLeft.setTargetPosition(0);
+                    robot.motorHeightRight.setTargetPosition(0);
+                    robot.servoIntakePitchLeft.setPosition(0);
+                    robot.servoIntakePitchRight.setPosition(0);
                     sliderHeight = 1; }
             } else if (gamepad1.dpad_up) {
                 // dpad up, scoring position
                 if (sliderHeight == 1) {
-                    robot.motorHeightLeft.setTargetPosition(Constants.heightLeftDown);
-                    robot.motorHeightRight.setTargetPosition(Constants.heightRightDown);
-                    robot.servoIntakePitchLeft.setPosition(Constants.intakePitchLeftScore);
-                    robot.servoIntakePitchRight.setPosition(Constants.intakePitchRightScore);
+                    robot.motorHeightLeft.setTargetPosition(0);
+                    robot.motorHeightRight.setTargetPosition(0);
+                    robot.servoIntakePitchLeft.setPosition(0);
+                    robot.servoIntakePitchRight.setPosition(0);
                     sliderHeight = 2; }
             } else if (gamepad1.square) {
                 // square, max height
-                robot.motorHeightLeft.setTargetPosition(Constants.maxLeftHeight);
-                robot.motorHeightRight.setTargetPosition(Constants.maxRightHeight);
+                robot.motorHeightLeft.setTargetPosition(0);
+                robot.motorHeightRight.setTargetPosition(0);
             } else if (gamepad1.circle) {
                 // circle, min height
-                robot.motorHeightLeft.setTargetPosition(Constants.minLeftHeight);
-                robot.motorHeightRight.setTargetPosition(Constants.minRightHeight);
+                robot.motorHeightLeft.setTargetPosition(0);
+                robot.motorHeightRight.setTargetPosition(0);
             }
 
             if (gamepad1.triangle) {
                 // launch drone
-                robot.servoDroneLauncher.setPosition(Constants.droneRelease);
+                robot.servoDroneLauncher.setPosition(0);
             }
 
             telemetry.update();

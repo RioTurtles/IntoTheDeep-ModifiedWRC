@@ -14,11 +14,12 @@ public class Hardware {
     DcMotor motorFrontRight;
     DcMotor motorBackLeft;
     DcMotor motorBackRight;
-    DcMotor motorArmLeft;
-    DcMotor motorArmRight;
-    DcMotor motorRiggingLinearActuatorLeft;
-    DcMotor motorRiggingLinearActuatorRight;
-    CRServo servoTest;
+    DcMotor motorHeightLeft;
+    DcMotor motorHeightRight;
+    Servo servoArmRight;
+    Servo servoArmLeft;
+    Servo servoIntakePitchLeft;
+    Servo servoIntakePitchRight;
     Servo servoIntakeLeft;
     Servo servoIntakeRight;
     Servo servoDroneLauncher;
@@ -30,17 +31,14 @@ public class Hardware {
         this.motorFrontRight = hardwareMap.get(DcMotor.class, "motorFrontRight");
         this.motorBackLeft = hardwareMap.get(DcMotor.class, "motorBackLeft");
         this.motorBackRight = hardwareMap.get(DcMotor.class, "motorBackRight");
-        this.servoTest = hardwareMap.get(CRServo.class, "motorTest");
-        /*
-        this.motorArmLeft = hardwareMap.get(DcMotor.class, "motorArmLeft");
-        this.motorArmRight = hardwareMap.get(DcMotor.class, "motorArmRight");
-        this.motorRiggingLinearActuatorLeft = hardwareMap.get(DcMotor.class, "motorRiggingLinearActuatorLeft");
-        this.motorRiggingLinearActuatorRight = hardwareMap.get(DcMotor.class, "motorRiggingLinearActuatorRight");
+        this.motorHeightLeft = hardwareMap.get(DcMotor.class, "motorHeightLeft");
+        this.motorHeightRight = hardwareMap.get(DcMotor.class, "motorHeightRight");
+        this.servoArmLeft = hardwareMap.get(Servo.class, "servoArmLeft");
+        this.servoArmRight = hardwareMap.get(Servo.class, "servoArmRight");
         this.servoIntakeLeft = hardwareMap.get(Servo.class, "servoIntakeLeft");
         this.servoIntakeRight = hardwareMap.get(Servo.class, "servoIntakeRight");
         this.servoDroneLauncher = hardwareMap.get(Servo.class, "servoDroneLauncher");
         this.sensorDistance = hardwareMap.get(DistanceSensor.class, "sensorDistance");
-         */
         this.imu = hardwareMap.get(IMU.class, "imu");
     }
 
