@@ -31,10 +31,8 @@ public class TeleOp extends LinearOpMode {
             double denominator = Math.max(Math.abs(left_x) + Math.abs(left_y) + Math.abs(rot_x), 1);
 
             robot.motorFrontLeft.setPower(-(lx + ly + rot_x) / denominator);
-            // The below 2 have been reversed.
-            robot.motorBackLeft.setPower(-(-lx + ly + rot_x) / denominator);
-            robot.motorFrontRight.setPower(-(ly - lx - rot_x) / denominator);
-            // The above 2 have been reversed.
+            robot.motorBackLeft.setPower((-lx + ly + rot_x) / denominator);
+            robot.motorFrontRight.setPower((ly - lx - rot_x) / denominator);
             robot.motorBackRight.setPower(-(lx + ly - rot_x) / denominator);
 
             if (gamepad1.options) {  // Reset IMU

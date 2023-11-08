@@ -43,7 +43,9 @@ public class Hardware {
     }
 
     public void reset() {
+        this.motorBackLeft.setDirection(DcMotorSimple.Direction.REVERSE);
         this.motorFrontRight.setDirection(DcMotorSimple.Direction.REVERSE);
+        this.motorBackLeft.setDirection(DcMotorSimple.Direction.REVERSE);
         this.motorBackRight.setDirection(DcMotorSimple.Direction.REVERSE);
         this.imu.initialize(new IMU.Parameters(new RevHubOrientationOnRobot(RevHubOrientationOnRobot.LogoFacingDirection.UP, RevHubOrientationOnRobot.UsbFacingDirection.FORWARD)));
     }
