@@ -45,8 +45,16 @@ public class TwoWheelTrackingLocalizer extends TwoTrackingWheelLocalizer {
     public static double PERPENDICULAR_X = 1.25;
     public static double PERPENDICULAR_Y = 0.0625;
 
-    public static double X_MULTIPLIER = 1;
-    public static double Y_MULTIPLIER = 1;
+    // Results were as follows:
+    // X: 124.897
+    // X: 124.982
+    // X: 125.240
+    // Y: 124.836
+    // Y: 124.904
+    // Y: 124.993
+    // Measured distance: 125
+    public static double X_MULTIPLIER = 0.99968276733;
+    public static double Y_MULTIPLIER = 0.9980491466;
 
     // Parallel/Perpendicular to the forward axis
     // Parallel wheel is parallel to the forward axis
@@ -67,6 +75,7 @@ public class TwoWheelTrackingLocalizer extends TwoTrackingWheelLocalizer {
         perpendicularEncoder = new Encoder(hardwareMap.get(DcMotorEx.class, "motorFrontRight"));
 
         // Finished to-do: reverse any encoders using Encoder.setDirection(Encoder.Direction.REVERSE)
+        parallelEncoder.setDirection(Encoder.Direction.REVERSE);
         perpendicularEncoder.setDirection(Encoder.Direction.REVERSE);
     }
 
@@ -99,7 +108,6 @@ public class TwoWheelTrackingLocalizer extends TwoTrackingWheelLocalizer {
         // TODO: If your encoder velocity can exceed 32767 counts / second (such as the REV Through Bore and other
         //  competing magnetic encoders), change Encoder.getRawVelocity() to Encoder.getCorrectedVelocity() to enable a
         //  compensation method
-
         return Arrays.asList(
                 encoderTicksToInches(parallelEncoder.getRawVelocity()) * X_MULTIPLIER,
                 encoderTicksToInches(perpendicularEncoder.getRawVelocity()) * Y_MULTIPLIER

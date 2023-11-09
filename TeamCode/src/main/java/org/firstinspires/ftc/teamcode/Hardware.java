@@ -31,6 +31,7 @@ public class Hardware {
         this.motorFrontRight = hardwareMap.get(DcMotor.class, "motorFrontRight");
         this.motorBackLeft = hardwareMap.get(DcMotor.class, "motorBackLeft");
         this.motorBackRight = hardwareMap.get(DcMotor.class, "motorBackRight");
+        /*
         this.motorHeightLeft = hardwareMap.get(DcMotor.class, "motorHeightLeft");
         this.motorHeightRight = hardwareMap.get(DcMotor.class, "motorHeightRight");
         this.servoArmLeft = hardwareMap.get(Servo.class, "servoArmLeft");
@@ -39,14 +40,20 @@ public class Hardware {
         this.servoIntakeRight = hardwareMap.get(Servo.class, "servoIntakeRight");
         this.servoDroneLauncher = hardwareMap.get(Servo.class, "servoDroneLauncher");
         this.sensorDistance = hardwareMap.get(DistanceSensor.class, "sensorDistance");
+        */
         this.imu = hardwareMap.get(IMU.class, "imu");
     }
 
     public void reset() {
         this.motorBackLeft.setDirection(DcMotorSimple.Direction.REVERSE);
-        this.motorFrontRight.setDirection(DcMotorSimple.Direction.REVERSE);
+        // this.motorFrontRight.setDirection(DcMotorSimple.Direction.REVERSE);
         this.motorBackLeft.setDirection(DcMotorSimple.Direction.REVERSE);
         this.motorBackRight.setDirection(DcMotorSimple.Direction.REVERSE);
+        // Brake
+        this.motorFrontLeft.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        this.motorFrontRight.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        this.motorBackLeft.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        this.motorBackRight.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         this.imu.initialize(new IMU.Parameters(new RevHubOrientationOnRobot(RevHubOrientationOnRobot.LogoFacingDirection.UP, RevHubOrientationOnRobot.UsbFacingDirection.FORWARD)));
     }
 
