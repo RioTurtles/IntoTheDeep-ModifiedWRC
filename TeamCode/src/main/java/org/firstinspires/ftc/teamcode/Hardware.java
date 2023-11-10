@@ -14,16 +14,16 @@ public class Hardware {
     DcMotor motorFrontRight;
     DcMotor motorBackLeft;
     DcMotor motorBackRight;
-    DcMotor motorHeightLeft;
-    DcMotor motorHeightRight;
+    //DcMotor motorHeightLeft;
+    //DcMotor motorHeightRight;
     Servo servoArmRight;
     Servo servoArmLeft;
     Servo servoIntakePitchLeft;
     Servo servoIntakePitchRight;
-    Servo servoIntakeLeft;
-    Servo servoIntakeRight;
+    CRServo servoIntakeLeft;
+    CRServo servoIntakeRight;
     Servo servoDroneLauncher;
-    DistanceSensor sensorDistance;
+    //DistanceSensor sensorDistance;
     IMU imu;
 
     public void init(HardwareMap hardwareMap) {
@@ -31,16 +31,14 @@ public class Hardware {
         this.motorFrontRight = hardwareMap.get(DcMotor.class, "motorFrontRight");
         this.motorBackLeft = hardwareMap.get(DcMotor.class, "motorBackLeft");
         this.motorBackRight = hardwareMap.get(DcMotor.class, "motorBackRight");
-        /*
-        this.motorHeightLeft = hardwareMap.get(DcMotor.class, "motorHeightLeft");
-        this.motorHeightRight = hardwareMap.get(DcMotor.class, "motorHeightRight");
+        //this.motorHeightLeft = hardwareMap.get(DcMotor.class, "motorHeightLeft");
+        //this.motorHeightRight = hardwareMap.get(DcMotor.class, "motorHeightRight");
         this.servoArmLeft = hardwareMap.get(Servo.class, "servoArmLeft");
         this.servoArmRight = hardwareMap.get(Servo.class, "servoArmRight");
-        this.servoIntakeLeft = hardwareMap.get(Servo.class, "servoIntakeLeft");
-        this.servoIntakeRight = hardwareMap.get(Servo.class, "servoIntakeRight");
-        this.servoDroneLauncher = hardwareMap.get(Servo.class, "servoDroneLauncher");
-        this.sensorDistance = hardwareMap.get(DistanceSensor.class, "sensorDistance");
-        */
+        this.servoIntakeLeft = hardwareMap.get(CRServo.class, "servoIntakeLeft");
+        this.servoIntakeRight = hardwareMap.get(CRServo.class, "servoIntakeRight");
+        //this.servoDroneLauncher = hardwareMap.get(Servo.class, "servoDroneLauncher");
+        //this.sensorDistance = hardwareMap.get(DistanceSensor.class, "sensorDistance");
         this.imu = hardwareMap.get(IMU.class, "imu");
     }
 

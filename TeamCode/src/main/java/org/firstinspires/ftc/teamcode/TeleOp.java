@@ -46,18 +46,18 @@ public class TeleOp extends LinearOpMode {
                 robot.servoArmLeft.setPosition(robot.servoArmLeft.getPosition() + right_y / 10);
                 robot.servoIntakePitchLeft.setPosition(robot.servoIntakePitchLeft.getPosition() + left_y / 10);
                 robot.servoIntakePitchRight.setPosition(robot.servoIntakePitchRight.getPosition() + left_y / 10);
-            } else {
+            } else { */
                 robot.motorFrontLeft.setPower((lx + ly + rot_x) / denominator);
                 robot.motorBackLeft.setPower((-lx + ly + rot_x) / denominator);
                 robot.motorFrontRight.setPower((ly - lx - rot_x) / denominator);
                 robot.motorBackRight.setPower((lx + ly - rot_x) / denominator);
-            }
+            //}
 
-            if (gamepad1.right_trigger >= Constants.rightTriggerFullyDown) {
+            if (gamepad1.right_trigger >= 0.2) {
                 // R2, open intake
                 robot.servoIntakeLeft.setPower(-gamepad1.right_trigger);
                 robot.servoIntakeRight.setPower(gamepad1.right_trigger);
-            } else if (gamepad1.left_trigger >= Constants.leftTriggerFullyDown) {
+            } else if (gamepad1.left_trigger >= 0.2) {
                 // L2, close intake
                 robot.servoIntakeLeft.setPower(gamepad1.left_trigger);
                 robot.servoIntakeRight.setPower(-gamepad1.left_trigger);
@@ -65,31 +65,31 @@ public class TeleOp extends LinearOpMode {
 
             if (gamepad1.dpad_left) {
                 // dpad left, extend intake
-                robot.servoArmLeft.setPosition(Constants.armLeftExtended);
-                robot.servoArmRight.setPosition(Constants.armRightExtended);
+                robot.servoArmLeft.setPosition(0);
+                robot.servoArmRight.setPosition(0);
             } else if (gamepad1.dpad_right) {
                 // dpad right, retract intake
-                robot.servoArmLeft.setPosition(Constants.armLeftRetracted);
-                robot.servoArmRight.setPosition(Constants.armRightRetracted);
+                robot.servoArmLeft.setPosition(0);
+                robot.servoArmRight.setPosition(0);
             }
 
             if (gamepad1.dpad_down) {
                 // dpad down, intake position
                 if (sliderHeight == 2) {
-                    robot.motorHeightLeft.setTargetPosition(Constants.heightLeftHigh);
-                    robot.motorHeightRight.setTargetPosition(Constants.heightRightHigh);
-                    robot.servoIntakePitchLeft.setPosition(Constants.intakePitchLeftGrab);
-                    robot.servoIntakePitchRight.setPosition(Constants.intakePitchRightGrab);
+                    //robot.motorHeightLeft.setTargetPosition(Constants.heightLeftHigh);
+                    //robot.motorHeightRight.setTargetPosition(Constants.heightRightHigh);
+                    robot.servoIntakePitchLeft.setPosition(0);
+                    robot.servoIntakePitchRight.setPosition(0);
                     sliderHeight = 1; }
             } else if (gamepad1.dpad_up) {
                 // dpad up, scoring position
                 if (sliderHeight == 1) {
-                    robot.motorHeightLeft.setTargetPosition(Constants.heightLeftDown);
-                    robot.motorHeightRight.setTargetPosition(Constants.heightRightDown);
-                    robot.servoIntakePitchLeft.setPosition(Constants.intakePitchLeftScore);
-                    robot.servoIntakePitchRight.setPosition(Constants.intakePitchRightScore);
+                    //robot.motorHeightLeft.setTargetPosition(Constants.heightLeftDown);
+                    //robot.motorHeightRight.setTargetPosition(Constants.heightRightDown);
+                    robot.servoIntakePitchLeft.setPosition(0);
+                    robot.servoIntakePitchRight.setPosition(0);
                     sliderHeight = 2; }
-            } else if (gamepad1.square) {
+            } /*else if (gamepad1.square) {
                 // square, max height
                 robot.motorHeightLeft.setTargetPosition(Constants.maxLeftHeight);
                 robot.motorHeightRight.setTargetPosition(Constants.maxRightHeight);
