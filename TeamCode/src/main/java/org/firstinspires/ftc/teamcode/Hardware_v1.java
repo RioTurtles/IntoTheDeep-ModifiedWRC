@@ -20,6 +20,12 @@ public class Hardware_v1 {
     DcMotor motorBackRight;
     DcMotorEx motorSliderLeft;
     DcMotorEx motorSliderRight;
+    Servo servoArmRight;
+    Servo servoArmLeft;
+    Servo servoIntakePitchLeft;
+    Servo servoIntakePitchRight;
+    Servo servoDroneUpper;
+    Servo servoDroneLower;
     CRServo servoIntakeLeft;
     CRServo servoIntakeRight;
     IMU imu;
@@ -37,11 +43,20 @@ public class Hardware_v1 {
         // Slider
         this.motorSliderLeft = hardwareMap.get(DcMotorEx.class, "motorSliderLeft");
         this.motorSliderRight = hardwareMap.get(DcMotorEx.class, "motorSliderRight");
+        // Arm
+        this.servoArmLeft = hardwareMap.get(Servo.class, "servoArmLeft");
+        this.servoArmRight = hardwareMap.get(Servo.class, "servoArmRight");
         // Intake
         this.servoIntakeLeft = hardwareMap.get(CRServo.class, "servoIntakeLeft");
         this.servoIntakeRight = hardwareMap.get(CRServo.class, "servoIntakeRight");
         this.servoIntakeLeft.setPower(1);
         this.servoIntakeRight.setPower(1);
+        // Intake pitch
+        this.servoIntakePitchLeft = hardwareMap.get(Servo.class, "servoIntakePitchLeft");
+        this.servoIntakePitchRight = hardwareMap.get(Servo.class, "servoIntakePitchRight");
+        // Drone
+        this.servoDroneUpper = hardwareMap.get(Servo.class, "servoDroneUpper");
+        this.servoDroneLower = hardwareMap.get(Servo.class, "servoDroneLower");
         // IMU
         this.imu = hardwareMap.get(IMU.class, "imu");
 
@@ -92,6 +107,16 @@ public class Hardware_v1 {
 
     }
 
+    public void setArmPosition(int position) {
+        if (position == 0) {  // Intake position
+            this.servoArmLeft.setPosition(0);
+            this.servoArmRight.setPosition(0);
+        } else if (position == 1) {  // Scoring position
+            this.servoArmLeft.setPosition(1);
+            this.servoArmRight.setPosition(-1);
+        }
+    }
+
     public void startIntake(int speed) {  // Starts the intake.
         this.servoIntakeLeft.setPower(speed);
         this.servoIntakeRight.setPower(speed);
@@ -100,4 +125,14 @@ public class Hardware_v1 {
     public void startOuttake(int speed) {this.startIntake(speed*-1);}  // Start outtake through reversing both servos
     public void startOuttake() {startOuttake(1);}  // Overload function for optional parameters
     public void stopIntake() {this.startIntake(0);}  // Stops the intake through setting powers of both servos to 0
+
+    public void setIntakePitch(int position) {
+        if (position == 0) {
+            this.servoIntakePitchLeft.setPosition(0);
+            this.servoIntakePitchRight.setPosition(0);
+        } else if (position == 1) {
+            this.servoIntakePitchLeft.setPosition(-1);
+            this.servoIntakePitchRight.setPosition(-1);
+        }
+    }
 }

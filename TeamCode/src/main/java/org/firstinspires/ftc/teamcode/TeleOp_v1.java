@@ -44,10 +44,18 @@ public class TeleOp_v1 extends LinearOpMode {
                 robot.setSliderPosition(false);
             }
 
+            // Arm
+            if (gamepad1.dpad_up) {robot.setArmPosition(1);}  // Scoring position
+            else if (gamepad1.dpad_down) {robot.setArmPosition(0);}  // Intake position
+
             // Intake & Scoring
             if (gamepad1.left_bumper && gamepad1.right_bumper) {robot.startOuttake();}  // Both bumpers to score
             else if (gamepad1.left_bumper) {robot.startIntake();}  // Single bumper (left) for intake
             else {robot.stopIntake();}  // Stop both servos
+
+            // Intake Pitch
+            if (gamepad1.dpad_left) {robot.setIntakePitch(1);}  // Scoring position
+            else if (gamepad1.dpad_right) {robot.setIntakePitch(0);}  // Intake position
 
             telemetry.addData("heading", robot.imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.DEGREES));
             telemetry.addData("sliderLeft", robot.motorSliderLeft.getCurrentPosition());
