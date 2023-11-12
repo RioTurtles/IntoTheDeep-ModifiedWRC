@@ -20,8 +20,8 @@ public class Hardware_v1 {
     DcMotor motorBackRight;
     DcMotorEx motorSliderLeft;
     DcMotorEx motorSliderRight;
-    Servo servoArmRight;
-    Servo servoArmLeft;
+    CRServo servoArmRight;
+    CRServo servoArmLeft;
     Servo servoIntakePitchLeft;
     Servo servoIntakePitchRight;
     Servo servoDroneUpper;
@@ -44,13 +44,11 @@ public class Hardware_v1 {
         this.motorSliderLeft = hardwareMap.get(DcMotorEx.class, "motorSliderLeft");
         this.motorSliderRight = hardwareMap.get(DcMotorEx.class, "motorSliderRight");
         // Arm
-        this.servoArmLeft = hardwareMap.get(Servo.class, "servoArmLeft");
-        this.servoArmRight = hardwareMap.get(Servo.class, "servoArmRight");
+        this.servoArmLeft = hardwareMap.get(CRServo.class, "servoArmLeft");
+        this.servoArmRight = hardwareMap.get(CRServo.class, "servoArmRight");
         // Intake
         this.servoIntakeLeft = hardwareMap.get(CRServo.class, "servoIntakeLeft");
         this.servoIntakeRight = hardwareMap.get(CRServo.class, "servoIntakeRight");
-        this.servoIntakeLeft.setPower(1);
-        this.servoIntakeRight.setPower(1);
         // Intake pitch
         this.servoIntakePitchLeft = hardwareMap.get(Servo.class, "servoIntakePitchLeft");
         this.servoIntakePitchRight = hardwareMap.get(Servo.class, "servoIntakePitchRight");
@@ -88,6 +86,7 @@ public class Hardware_v1 {
         this.resetIMU();
         this.sliderPosition = 0;
         this.sliderTimer.reset();
+        this.setArmPosition(1);
     }
 
     public void resetIMU() {
@@ -96,11 +95,11 @@ public class Hardware_v1 {
 
     public void setSliderPosition(boolean direction) {
         if (direction) {
-            this.motorSliderLeft.setPower(0.5);
-            this.motorSliderRight.setPower(0.5);
+            this.motorSliderLeft.setPower(0.7);
+            this.motorSliderRight.setPower(0.7);
         } else {
-            this.motorSliderLeft.setPower(-0.5);
-            this.motorSliderRight.setPower(-0.5);
+            this.motorSliderLeft.setPower(-0.7);
+            this.motorSliderRight.setPower(-0.7);
         }
         this.motorSliderLeft.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         this.motorSliderRight.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
@@ -109,11 +108,11 @@ public class Hardware_v1 {
 
     public void setArmPosition(int position) {
         if (position == 0) {  // Intake position
-            this.servoArmLeft.setPosition(0);
-            this.servoArmRight.setPosition(0);
+            this.servoArmLeft.setPower(1);
+            this.servoArmRight.setPower(-1);
         } else if (position == 1) {  // Scoring position
-            this.servoArmLeft.setPosition(1);
-            this.servoArmRight.setPosition(-1);
+            this.servoArmLeft.setPower(-0.2);
+            this.servoArmRight.setPower(0.2);
         }
     }
 
@@ -128,11 +127,11 @@ public class Hardware_v1 {
 
     public void setIntakePitch(int position) {
         if (position == 0) {
-            this.servoIntakePitchLeft.setPosition(0);
-            this.servoIntakePitchRight.setPosition(0);
-        } else if (position == 1) {
             this.servoIntakePitchLeft.setPosition(-1);
             this.servoIntakePitchRight.setPosition(-1);
+        } else if (position == 1) {
+            this.servoIntakePitchLeft.setPosition(0.1);
+            this.servoIntakePitchRight.setPosition(0.1);
         }
     }
 }
