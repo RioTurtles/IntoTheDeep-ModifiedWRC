@@ -1,87 +1,63 @@
 package org.firstinspires.ftc.teamcode;
 
-import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
-import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 
-@TeleOp
+@com.qualcomm.robotcore.eventloop.opmode.TeleOp(name="v1 TeleOp")
 public class TeleOp_v1 extends LinearOpMode {
     @Override
     public void runOpMode() throws InterruptedException {
         Hardware_v1 robot = new Hardware_v1();
-        robot.init(hardwareMap);
+        robot.init(hardwareMap, telemetry);
 
-        // Variables.
-        boolean leftArmExtended = false;
-        boolean rightArmExtended = false;
-        boolean rigged = false;
-
-        telemetry.addData("Status", "Initialized");
-        robot.reset();
+        telemetry.addData("Status", "Initialized");  // debug message
+        telemetry.update();
+        robot.reset();  // Reset robot
         waitForStart();
+        telemetry.addData("Status", "Running");
+        telemetry.update();
 
         while (opModeIsActive()) {
+            // Fieldcentric
             double bot_heading = robot.imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.RADIANS);
             double left_x = gamepad1.left_stick_x;
             double left_y = -gamepad1.left_stick_y;
-            double rot_x = gamepad1.right_stick_x;
+            double rot_x = gamepad1.right_stick_x * 0.8;  // Make rotation less intense (80%)
             double lx = left_x * Math.cos(-bot_heading) - left_y * Math.sin(-bot_heading);
             double ly = left_x * Math.sin(-bot_heading) + left_y * Math.cos(-bot_heading);
             double denominator = Math.max(Math.abs(left_x) + Math.abs(left_y) + Math.abs(rot_x), 1);
 
-            robot.motorFrontLeft.setPower((lx + ly + rot_x) / denominator);
-            robot.motorBackLeft.setPower((-lx + ly + rot_x) / denominator);
-            robot.motorFrontRight.setPower((ly - lx - rot_x) / denominator);
-            robot.motorBackRight.setPower((lx + ly - rot_x) / denominator);
+            robot.motorFrontL.setPower(-(lx + ly + rot_x) / denominator);
+            robot.motorBackL.setPower((-lx + ly + rot_x) / denominator);
+            robot.motorFrontR.setPower((ly - lx - rot_x) / denominator);
+            robot.motorBackR.setPower(-(lx + ly - rot_x) / denominator);
 
-            if (gamepad1.options) {
-                // Options, reset IMU yaw
-                robot.imu.resetYaw();
+            // Reset IMU
+            if (gamepad1.share) {
+                robot.resetIMU();
             }
-            if (gamepad1.left_bumper && !(gamepad1.left_trigger > 0.2)) {
-                // L1, left claw close
-                robot.servoClawLeft.setPosition(Constants.clawLeftClosed);
+
+            // Slider height
+            if (gamepad1.dpad_up) { // Scoring position
+                robot.setSliderPosition(true);
+            } else if (gamepad1.dpad_down) { // Intake position
+                robot.setSliderPosition(false);
             }
-            if (gamepad1.left_trigger >= Constants.leftTriggerFullyDown) {
-                // L2, left claw open
-                robot.servoClawLeft.setPosition(Constants.clawLeftOpen);
-            }
-            if (gamepad1.right_bumper && !(gamepad1.right_trigger > 0.2)) {
-                // R1, right claw close
-                robot.servoClawRight.setPosition(Constants.clawRightClosed);
-            }
-            if (gamepad1.right_trigger >= Constants.rightTriggerFullyDown) {
-                // R2, right claw open
-                robot.servoClawRight.setPosition(Constants.clawRightOpen);
-            }
-            if (gamepad1.left_bumper && (gamepad1.left_trigger >= Constants.leftTriggerFullyDown)) {
-                // L1 + L2, left arm toggle
-                if (leftArmExtended) {
-                    robot.motorArmLeft.setTargetPosition(Constants.armLeftRetracted);
-                } else {
-                    robot.motorArmLeft.setTargetPosition(Constants.armLeftExtended);
-                }
-                leftArmExtended = !leftArmExtended;
-            }
-            if (gamepad1.right_bumper && (gamepad2.right_trigger >= Constants.rightTriggerFullyDown)) {
-                // R1 + R2, right arm toggle
-                if (rightArmExtended) {
-                    robot.motorArmRight.setTargetPosition(Constants.armRightRetracted);
-                } else {
-                    robot.motorArmRight.setTargetPosition(Constants.armRightExtended);
-                }
-                rightArmExtended = !rightArmExtended;
-            }
-            if (gamepad1.square) {
-                if (rigged) {  // Extended; retract linear actuator.
-                    robot.motorRiggingLinearActuatorLeft.setTargetPosition(Constants.getRiggingLinearActuatorRetracted);
-                    robot.motorRiggingLinearActuatorRight.setTargetPosition(Constants.getRiggingLinearActuatorRetracted);
-                } else {  // Retracted; extend linear actuator.
-                    robot.motorRiggingLinearActuatorLeft.setTargetPosition(Constants.riggingLinearActuatorExtended);
-                    robot.motorRiggingLinearActuatorRight.setTargetPosition(Constants.riggingLinearActuatorExtended);
-                }
-                rigged = !rigged;
-            }
+
+            // Intake & Scoring servos
+            if (gamepad1.right_bumper) {robot.startOuttake();}  // Right bumper to score
+            else if (gamepad1.left_bumper) {robot.startIntake();}  // Left bumper for intake
+            else {robot.stopIntake();}  // Stop both servos if none pressed
+
+            // Intake Pitch
+            if (gamepad1.dpad_left && robot.getSliderHeight() == 1) {robot.setIntakePitch(0);} // Scoring position
+            else if (gamepad1.dpad_right && robot.getSliderHeight() == 0) {robot.setIntakePitch(1);} // Intake position
+
+            telemetry.addData("Heading", robot.imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.DEGREES));
+            telemetry.addData("SliderLeft", robot.motorSliderL.getCurrentPosition());
+            telemetry.addData("SliderRight", robot.motorSliderR.getCurrentPosition());
+            telemetry.addData("SliderHeight", robot.getSliderHeight());
+            telemetry.update();
         }
     }
 }
