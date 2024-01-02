@@ -10,9 +10,9 @@ public class TeleOp_v1 extends LinearOpMode {
         Hardware_v1 robot = new Hardware_v1();
         robot.init(hardwareMap, telemetry);
 
-        telemetry.addData("Status", "Initialized");  // Robot finishes initialization. Here we output a debug message.
+        telemetry.addData("Status", "Initialized");  // debug message
         telemetry.update();
-        robot.reset();  // Reset robot?
+        robot.reset();  // Reset robot
         waitForStart();
         telemetry.addData("Status", "Running");
         telemetry.update();
@@ -27,10 +27,10 @@ public class TeleOp_v1 extends LinearOpMode {
             double ly = left_x * Math.sin(-bot_heading) + left_y * Math.cos(-bot_heading);
             double denominator = Math.max(Math.abs(left_x) + Math.abs(left_y) + Math.abs(rot_x), 1);
 
-            robot.motorFrontLeft.setPower(-(lx + ly + rot_x) / denominator);
-            robot.motorBackLeft.setPower((-lx + ly + rot_x) / denominator);
-            robot.motorFrontRight.setPower((ly - lx - rot_x) / denominator);
-            robot.motorBackRight.setPower(-(lx + ly - rot_x) / denominator);
+            robot.motorFrontL.setPower(-(lx + ly + rot_x) / denominator);
+            robot.motorBackL.setPower((-lx + ly + rot_x) / denominator);
+            robot.motorFrontR.setPower((ly - lx - rot_x) / denominator);
+            robot.motorBackR.setPower(-(lx + ly - rot_x) / denominator);
 
             // Reset IMU
             if (gamepad1.share) {
@@ -38,24 +38,25 @@ public class TeleOp_v1 extends LinearOpMode {
             }
 
             // Slider height
-            if (gamepad1.square) {
+            if (gamepad1.dpad_up) { // Scoring position
                 robot.setSliderPosition(true);
-            } else if (gamepad1.circle) {
+            } else if (gamepad1.dpad_down) { // Intake position
                 robot.setSliderPosition(false);
             }
 
-            // Intake & Scoring
-            if (gamepad1.left_bumper && gamepad1.right_bumper) {robot.startOuttake();}  // Both bumpers to score
-            else if (gamepad1.left_bumper) {robot.startIntake();}  // Single bumper (left) for intake
-            else {robot.stopIntake();}  // Stop both servos
+            // Intake & Scoring servos
+            if (gamepad1.right_bumper) {robot.startOuttake();}  // Right bumper to score
+            else if (gamepad1.left_bumper) {robot.startIntake();}  // Left bumper for intake
+            else {robot.stopIntake();}  // Stop both servos if none pressed
 
             // Intake Pitch
-            if (gamepad1.dpad_left) {robot.setIntakePitch(0);}  // Scoring position
-            else if (gamepad1.dpad_right) {robot.setIntakePitch(1);}  // Intake position
+            if (gamepad1.dpad_left && robot.getSliderHeight() == 1) {robot.setIntakePitch(0);} // Scoring position
+            else if (gamepad1.dpad_right && robot.getSliderHeight() == 0) {robot.setIntakePitch(1);} // Intake position
 
-            telemetry.addData("heading", robot.imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.DEGREES));
-            telemetry.addData("sliderLeft", robot.motorSliderLeft.getCurrentPosition());
-            telemetry.addData("sliderRight", robot.motorSliderRight.getCurrentPosition());
+            telemetry.addData("Heading", robot.imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.DEGREES));
+            telemetry.addData("SliderLeft", robot.motorSliderL.getCurrentPosition());
+            telemetry.addData("SliderRight", robot.motorSliderR.getCurrentPosition());
+            telemetry.addData("SliderHeight", robot.getSliderHeight());
             telemetry.update();
         }
     }

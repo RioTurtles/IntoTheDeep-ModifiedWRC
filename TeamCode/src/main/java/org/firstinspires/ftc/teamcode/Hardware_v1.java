@@ -8,130 +8,134 @@ import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.IMU;
 import com.qualcomm.robotcore.hardware.Servo;
-import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 
 public class Hardware_v1 {
     Telemetry telemetry;
-    DcMotor motorFrontLeft;
-    DcMotor motorFrontRight;
-    DcMotor motorBackLeft;
-    DcMotor motorBackRight;
-    DcMotorEx motorSliderLeft;
-    DcMotorEx motorSliderRight;
-    CRServo servoArmRight;
-    CRServo servoArmLeft;
-    Servo servoIntakePitchLeft;
-    Servo servoIntakePitchRight;
-    Servo servoDroneUpper;
-    Servo servoDroneLower;
-    CRServo servoIntakeLeft;
-    CRServo servoIntakeRight;
+    DcMotor motorFrontL, motorFrontR, motorBackL, motorBackR;
+    DcMotorEx motorSliderL, motorSliderR;
+    CRServo servoArmR, servoArmL, servoIntakeR, servoIntakeL;
+    Servo servoIntakePitchL, servoIntakePitchR, servoDroneH, servoDroneL;
     IMU imu;
+    private int sliderHeight; // 0 = intake, 1 = scoring
+    // ElapsedTime sliderTimer = new ElapsedTime(ElapsedTime.Resolution.SECONDS);
 
-    int sliderPosition;
-    ElapsedTime sliderTimer = new ElapsedTime(ElapsedTime.Resolution.SECONDS);
-
+    // robot constructor
     public void init(HardwareMap hardwareMap, Telemetry telemetry) {
         this.telemetry = telemetry;
         // Chassis
-        this.motorFrontLeft = hardwareMap.get(DcMotor.class, "motorFrontLeft");
-        this.motorFrontRight = hardwareMap.get(DcMotor.class, "motorFrontRight");
-        this.motorBackLeft = hardwareMap.get(DcMotor.class, "motorBackLeft");
-        this.motorBackRight = hardwareMap.get(DcMotor.class, "motorBackRight");
+        motorFrontL = hardwareMap.get(DcMotor.class, "motorFrontLeft");
+        motorFrontR = hardwareMap.get(DcMotor.class, "motorFrontRight");
+        motorBackL = hardwareMap.get(DcMotor.class, "motorBackLeft");
+        motorBackR = hardwareMap.get(DcMotor.class, "motorBackRight");
         // Slider
-        this.motorSliderLeft = hardwareMap.get(DcMotorEx.class, "motorSliderLeft");
-        this.motorSliderRight = hardwareMap.get(DcMotorEx.class, "motorSliderRight");
+        motorSliderL = hardwareMap.get(DcMotorEx.class, "motorSliderLeft");
+        motorSliderR = hardwareMap.get(DcMotorEx.class, "motorSliderRight");
         // Arm
-        this.servoArmLeft = hardwareMap.get(CRServo.class, "servoArmLeft");
-        this.servoArmRight = hardwareMap.get(CRServo.class, "servoArmRight");
+        servoArmL = hardwareMap.get(CRServo.class, "servoArmLeft");
+        servoArmR = hardwareMap.get(CRServo.class, "servoArmRight");
         // Intake
-        this.servoIntakeLeft = hardwareMap.get(CRServo.class, "servoIntakeLeft");
-        this.servoIntakeRight = hardwareMap.get(CRServo.class, "servoIntakeRight");
+        servoIntakeL = hardwareMap.get(CRServo.class, "servoIntakeLeft");
+        servoIntakeR = hardwareMap.get(CRServo.class, "servoIntakeRight");
         // Intake pitch
-        this.servoIntakePitchLeft = hardwareMap.get(Servo.class, "servoIntakePitchLeft");
-        this.servoIntakePitchRight = hardwareMap.get(Servo.class, "servoIntakePitchRight");
+        servoIntakePitchL = hardwareMap.get(Servo.class, "servoIntakePitchLeft");
+        servoIntakePitchR = hardwareMap.get(Servo.class, "servoIntakePitchRight");
         // Drone
-        this.servoDroneUpper = hardwareMap.get(Servo.class, "servoDroneUpper");
-        this.servoDroneLower = hardwareMap.get(Servo.class, "servoDroneLower");
+        servoDroneH = hardwareMap.get(Servo.class, "servoDroneUpper");
+        servoDroneL = hardwareMap.get(Servo.class, "servoDroneLower");
         // IMU
-        this.imu = hardwareMap.get(IMU.class, "imu");
+        imu = hardwareMap.get(IMU.class, "imu");
 
 
-        // Configuration
+        // Config
         // Chassis motors
-        this.motorBackLeft.setDirection(DcMotorSimple.Direction.REVERSE);
-        this.motorBackLeft.setDirection(DcMotorSimple.Direction.REVERSE);
-        this.motorBackRight.setDirection(DcMotorSimple.Direction.REVERSE);
+        motorBackL.setDirection(DcMotorSimple.Direction.REVERSE);
+        motorBackR.setDirection(DcMotorSimple.Direction.REVERSE);
         // Brake
-        this.motorFrontLeft.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        this.motorFrontRight.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        this.motorBackLeft.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        this.motorBackRight.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        motorFrontL.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        motorFrontR.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        motorBackL.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        motorBackR.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         // IMU
-        this.imu.initialize(new IMU.Parameters(new RevHubOrientationOnRobot(RevHubOrientationOnRobot.LogoFacingDirection.UP, RevHubOrientationOnRobot.UsbFacingDirection.FORWARD)));
+        imu.initialize(new IMU.Parameters(new RevHubOrientationOnRobot(RevHubOrientationOnRobot.LogoFacingDirection.UP, RevHubOrientationOnRobot.UsbFacingDirection.FORWARD)));
         // Slider motors
-        this.motorSliderRight.setDirection(DcMotorSimple.Direction.REVERSE);
-        this.motorSliderLeft.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        this.motorSliderRight.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        motorSliderR.setDirection(DcMotorSimple.Direction.REVERSE);
+        motorSliderL.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        motorSliderR.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         // Intake
-        this.servoIntakeLeft.setDirection(DcMotorSimple.Direction.REVERSE);
-        this.servoIntakeRight.setDirection(DcMotorSimple.Direction.REVERSE);
-
-        this.sliderPosition = 0;
+        servoIntakeR.setDirection(DcMotorSimple.Direction.REVERSE);
+        // Arm
+        servoArmR.setDirection(DcMotorSimple.Direction.REVERSE);
+        // Variables
+        sliderHeight = 0;
     }
 
     public void reset() {
-        this.resetIMU();
-        this.sliderPosition = 0;
-        this.sliderTimer.reset();
-        this.setArmPosition(1);
+        resetIMU();
+        // sliderTimer.reset();
+        setArmPosition(1);
     }
 
     public void resetIMU() {
-        this.imu.resetYaw();
+        imu.resetYaw();
     }
 
-    public void setSliderPosition(boolean direction) {
-        if (direction) {
-            this.motorSliderLeft.setPower(0.7);
-            this.motorSliderRight.setPower(0.7);
-        } else {
-            this.motorSliderLeft.setPower(-0.7);
-            this.motorSliderRight.setPower(-0.7);
+    public void setSliderPosition(boolean direction) { // less power (0.7)
+        if (direction) { // Scoring
+            sliderHeight = 1;
+            motorSliderL.setPower(0.7);
+            motorSliderR.setPower(0.7);
+        } else { // Intake
+            sliderHeight = 0;
+            motorSliderL.setPower(-0.7);
+            motorSliderR.setPower(-0.7);
         }
-        this.motorSliderLeft.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        this.motorSliderRight.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-
+        motorSliderL.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        motorSliderR.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
     }
 
-    public void setArmPosition(int position) {
-        if (position == 0) {  // Intake position
-            this.servoArmLeft.setPower(1);
-            this.servoArmRight.setPower(-1);
-        } else if (position == 1) {  // Scoring position
-            this.servoArmLeft.setPower(-0.2);
-            this.servoArmRight.setPower(0.2);
+    public void setArmPosition(int position) { // Arm position
+        if (position == 0) {  // Scoring
+            servoArmL.setPower(1);
+            servoArmR.setPower(-1);
+        } else if (position == 1) {  // Intake
+            servoArmL.setPower(-0.2);
+            servoArmR.setPower(0.2);
         }
     }
 
-    public void startIntake(int speed) {  // Starts the intake.
-        this.servoIntakeLeft.setPower(speed);
-        this.servoIntakeRight.setPower(speed);
+    public void servoIntakeSetSpeed(int speed) {
+        servoIntakeL.setPower(speed);
+        servoIntakeR.setPower(speed);
     }
-    public void startIntake() {this.startIntake(1);}  // Overload function (i.e. make parameter "speed" optional and defaults to 1
-    public void startOuttake(int speed) {this.startIntake(speed*-1);}  // Start outtake through reversing both servos
-    public void startOuttake() {startOuttake(1);}  // Overload function for optional parameters
-    public void stopIntake() {this.startIntake(0);}  // Stops the intake through setting powers of both servos to 0
+    public void startIntake(int speed) {
+        servoIntakeSetSpeed(speed);} // servo forward
+    public void startIntake() {startIntake(1);}
+    public void startOuttake(int speed) {
+        servoIntakeSetSpeed(speed*-1);}  // reverse servos
+    public void startOuttake() {startOuttake(1);}
+    public void stopIntake() {
+        servoIntakeSetSpeed(0);}  //  set powers of both servos to 0
 
-    public void setIntakePitch(int position) {
-        if (position == 0) {
-            this.servoIntakePitchLeft.setPosition(-1);
-            this.servoIntakePitchRight.setPosition(-1);
-        } else if (position == 1) {
-            this.servoIntakePitchLeft.setPosition(0.1);
-            this.servoIntakePitchRight.setPosition(0.1);
+    public void setIntakePitch(int position) { // Intake pitch position
+        if (position == 0) { // Scoring
+            this.servoIntakePitchL.setPosition(-1);
+            this.servoIntakePitchR.setPosition(-1);
+        } else if (position == 1) { // Intake
+            this.servoIntakePitchL.setPosition(0.1);
+            this.servoIntakePitchR.setPosition(0.1);
         }
+    }
+
+    public int getSliderHeight() { // Slider height variable getter
+        return sliderHeight;
+    }
+
+    public void setSliderHeight(int position) { // Slider height variable setter
+        if (position < 0 || position > 1)
+            return;
+
+        sliderHeight = position;
     }
 }
