@@ -2,7 +2,9 @@ package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
+import org.opencv.core.Core;
 import org.opencv.core.Mat;
+import org.opencv.core.Rect;
 import org.opencv.core.Scalar;
 import org.opencv.imgproc.Imgproc;
 import org.openftc.easyopencv.OpenCvCamera;
@@ -11,7 +13,7 @@ import org.openftc.easyopencv.OpenCvCameraRotation;
 import org.openftc.easyopencv.OpenCvPipeline;
 import org.openftc.easyopencv.OpenCvWebcam;
 
-public class AprilTag_v1 extends OpMode {
+public class EOCV_v1 extends OpMode {
     OpenCvWebcam webcam1 = null;
 
     @Override
@@ -21,7 +23,7 @@ public class AprilTag_v1 extends OpMode {
         int cameraMonitorViewId = hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewID", "id", hardwareMap.appContext.getPackageName());
         webcam1 = OpenCvCameraFactory.getInstance().createWebcam(webcamName, cameraMonitorViewId);
 
-        webcam1.setPipeLine(new (PipeLine))
+        webcam1.setPipeline (new PipeLine());
 
         webcam1.openCameraDeviceAsync(new OpenCvCamera.AsyncCameraOpenListener() {
             public void onOpened() {
@@ -48,11 +50,34 @@ public class AprilTag_v1 extends OpMode {
 
 
         public Mat processFrame(Mat input) {
-            Imgproc.cvtColor(input,YCbCr,Imgproc.COLOR_RBG2YCrCb);
+            Imgproc.cvtColor(input,YCbCr,Imgproc.COLOR_RGB2BGR);
             telemetry.addLine("pipeline running");
 
-            Rect leftrect = new Rect (1,1,319,359);
-            Rect rightrect = new Rect (320,1,319,359);
+            Rect leftRect = new Rect (1,1,319,359);
+            Rect rightRect = new Rect (320,1,319,359);
+
+            input.copyTo(outPut);
+            Imgproc.rectangle(outPut,leftRect,rectcolor,2);
+            Imgproc.rectangle(outPut,rightRect,rectcolor,2);
+
+            leftCrop = YCbCr.submat(leftRect);
+            rightCrop = YCbCr.submat(rightRect);
+
+            Core.extractChannel(leftCrop,leftCrop,0);
+            Core.extractChannel(rightCrop,rightCrop,0);
+
+            Scalar leftavg = Core.mean(leftCrop);
+            Scalar rightavg = Core.mean(rightCrop);
+
+            leftavgfin = leftavg.val[0];
+            rightavgfin = rightavg.val[0];
+
+            if (leftavgfin > rightavgfin){
+                telemetry.addLine("left");
+            }
+            else{
+                telemetry.addLine("Right");
+            }
 
             return (outPut);
         }
