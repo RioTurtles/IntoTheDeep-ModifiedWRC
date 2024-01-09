@@ -39,22 +39,14 @@ public class TwoWheelTrackingLocalizer extends TwoTrackingWheelLocalizer {
     public static double GEAR_RATIO = 1; // output (wheel) speed / input (encoder) speed
 
     // TODO: Measure deadwheel dimensions.
-    public static double PARALLEL_X = 1.5748; // X is the up and down direction
-    public static double PARALLEL_Y = 0.11811; // Y is the strafe direction
+    public static double PARALLEL_X = 2; // X is the up and down direction
+    public static double PARALLEL_Y = 0.75; // Y is the strafe direction
 
     public static double PERPENDICULAR_X = 6.61417;
     public static double PERPENDICULAR_Y = 0.177165;
 
-    // Results were as follows:
-    // X: 124.897
-    // X: 124.982
-    // X: 125.240
-    // Y: 124.836
-    // Y: 124.904
-    // Y: 124.993
-    // Measured distance: 125
-    public static double X_MULTIPLIER = 1;
-    public static double Y_MULTIPLIER = 1;
+    public static double X_MULTIPLIER = 0.992237223;
+    public static double Y_MULTIPLIER = 0.995374825;
 
     // Parallel/Perpendicular to the forward axis
     // Parallel wheel is parallel to the forward axis

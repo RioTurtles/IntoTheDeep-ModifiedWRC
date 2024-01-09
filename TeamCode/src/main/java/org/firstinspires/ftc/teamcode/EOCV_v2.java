@@ -13,7 +13,7 @@ import org.openftc.easyopencv.OpenCvCameraRotation;
 import org.openftc.easyopencv.OpenCvPipeline;
 import org.openftc.easyopencv.OpenCvWebcam;
 
-public class EOCV_v1 extends OpMode {
+public class EOCV_v2 extends OpMode {
     OpenCvWebcam webcam1 = null;
 
     @Override
