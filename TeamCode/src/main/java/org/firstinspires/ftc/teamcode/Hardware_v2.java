@@ -7,7 +7,6 @@ import com.qualcomm.robotcore.hardware.DistanceSensor;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.IMU;
 import com.qualcomm.robotcore.hardware.Servo;
-
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
@@ -23,8 +22,8 @@ public class Hardware_v2 {
     Servo servoClawPitchLeft, servoClawPitchRight;
     Servo servoArmLeft, servoArmRight;
     IMU imu;
-    DistanceSensor distanceSensor;
-    WebcamName webcam1;
+   // DistanceSensor distanceSensor;
+    //WebcamName webcam1;
     Telemetry telemetry;
 
     int sliderPosition = 0;
@@ -47,15 +46,18 @@ public class Hardware_v2 {
         servoArmLeft = hardwareMap.get(Servo.class, "servoArmLeft");
         servoArmRight = hardwareMap.get(Servo.class, "servoArmRight");
         imu = hardwareMap.get(IMU.class, "imu");
-        distanceSensor = hardwareMap.get(DistanceSensor.class, "distanceSensor");
-        webcam1 = hardwareMap.get(WebcamName.class, "webcam1");
+        //distanceSensor = hardwareMap.get(DistanceSensor.class, "distanceSensor");
+        //fwebcam1 = hardwareMap.get(WebcamName.class, "webcam1");
         this.telemetry = telemetry;
+
     }
 
     public void reset() {
+
         setMotorDirections();
         setMotorBrakes();
-        resetSliderPositionValues();
+        //resetSliderPosition();
+        resetClawPosition();
     }
 
     // Init methods.
@@ -66,6 +68,8 @@ public class Hardware_v2 {
     private void setMotorDirections() {
         motorBL.setDirection(DcMotorSimple.Direction.REVERSE);
         motorBR.setDirection(DcMotorSimple.Direction.REVERSE);
+        motorSliderRight.setDirection(DcMotorSimple.Direction.REVERSE);
+        motorSliderLeft.setDirection(DcMotorSimple.Direction.FORWARD);
     }
 
     /**
@@ -103,17 +107,8 @@ public class Hardware_v2 {
                 motorSliderRight.setTargetPosition(0);
                 break;
             case 1:
-                motorSliderLeft.setTargetPosition(600);
-                motorSliderRight.setTargetPosition(600);
-                break;
-            case 2:
-                motorSliderLeft.setTargetPosition(120);
-                motorSliderRight.setTargetPosition(120);
-                break;
-            case 3:
-                motorSliderLeft.setTargetPosition(180);
-                motorSliderRight.setTargetPosition(180);
-                break;
+                motorSliderLeft.setTargetPosition(1120);
+                motorSliderRight.setTargetPosition(1120);
         }
 
         motorSliderLeft.setPower(power);
@@ -126,7 +121,7 @@ public class Hardware_v2 {
      * Sets slider positions. Speed is set to 1. Pass a speed parameter for speed control.
      * @param position The target position, typically the backdrop's set line height. Integer value from 0-3.
      */
-    public void setSliderPosition(int position) {setSliderPosition(position, 1);}
+    public void setSliderPosition(int position) {setSliderPosition(position, 0.2);}
 
     /**
      * Sets sliders' heights back to 0.
@@ -140,13 +135,19 @@ public class Hardware_v2 {
     /**
      * Resets slider's heights back to 0. Speed is set to 1. Pass a speed parameter for speed control.
      */
-    public void resetSliderPosition() {resetSliderPosition(1);}
+    public void resetSliderPosition() {resetSliderPosition(0.2);}
 
     /**
      * Claw control.
      * @param claw The claw to control, <code>upper</code>, or <code>lower</code>.
      * @param position The position of the claw. For an open claw, use <code>upper</code>; for a closed claw, use <code>closed</code>.
      */
+
+    public void resetClawPosition() {
+        setClawPosition("upper", "open");
+        setClawPosition("lower", "open");
+
+    }
     public void setClawPosition(String claw, String position) {
         if (claw.equals("upper") || claw.equals("up") || claw.equals("high")) {
             switch (position) {
@@ -160,10 +161,10 @@ public class Hardware_v2 {
         } else if (claw.equals("lower") || claw.equals("low")) {
             switch (position) {
                 case "open":
-                    servoClawLower.setPosition(0.7);
+                    servoClawLower.setPosition(0);
                     telemetry.addData("LOWER", "OPEN");
                 case "closed":
-                    servoClawLower.setPosition(0);
+                    servoClawLower.setPosition(0.7);
                     telemetry.addData("LOWER", "CLOSED");
             }
         }
@@ -201,15 +202,15 @@ public class Hardware_v2 {
      * @param unit The unit for the method to return.
      * @return A double value, the distance measured.
      */
-    public double getProximity(DistanceUnit unit) {
-        return distanceSensor.getDistance(unit);
-    }
+    //public double getProximity(DistanceUnit unit) {
+   //     return distanceSensor.getDistance(unit);
+   // }
 
     /**
      * Gets the distance sensor's value. Unit is set to centimetres.
      * @return A double value, the distance measured.
      */
-    public double getProximity() {
-        return getProximity(DistanceUnit.CM);
-    }
+    //public double getProximity() {
+      //  return getProximity(DistanceUnit.CM);
+    //}
 }

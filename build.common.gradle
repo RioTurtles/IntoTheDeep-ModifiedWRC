@@ -122,6 +122,5 @@ android {
 
 repositories {
 }
-dependencies
-    implementation "org.openftc:easyopencv:v1.7.1"
+
 

@@ -20,6 +20,7 @@ public class Measurement_v2 extends LinearOpMode {
             telemetry.addData("BR", robot.motorBR.getPower());
             telemetry.addData("Slider (Left)", robot.motorSliderLeft.getCurrentPosition());
             telemetry.addData("Slider (Right)", robot.motorSliderRight.getCurrentPosition());
+            telemetry.update();
         }
     }
 }

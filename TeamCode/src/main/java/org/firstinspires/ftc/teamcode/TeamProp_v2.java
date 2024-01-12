@@ -18,14 +18,14 @@ import org.openftc.easyopencv.OpenCvWebcam;
 
 @Autonomous(name="v2 Team Prop EOCV")
 public class TeamProp_v2 extends OpMode {
-    Hardware_v2 robot = new Hardware_v2(hardwareMap);
+    Hardware_v2 robot = new Hardware_v2();
     OpenCvWebcam webcam = null;
 
     @Override
     public void init() {
-        WebcamName webcamName = robot.webcam1;
+        //WebcamName webcamName = robot.webcam1;
         int cameraMonitorViewId = hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", hardwareMap.appContext.getPackageName());
-        webcam = OpenCvCameraFactory.getInstance().createWebcam(webcamName, cameraMonitorViewId);
+        //webcam = OpenCvCameraFactory.getInstance().createWebcam(webcamName, cameraMonitorViewId);
         FtcDashboard.getInstance().startCameraStream(webcam, 0);
 
         webcam.setPipeline(new TeamPropPipeline());
