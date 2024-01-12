@@ -19,7 +19,6 @@ public class TeleOp_v2 extends LinearOpMode {
         boolean isInScoringPosition = false;
 
         waitForStart();
-        robot.setIntakePosition();
 
         while (opModeIsActive()) {
             // Fieldcentric controls
@@ -37,9 +36,12 @@ public class TeleOp_v2 extends LinearOpMode {
 
             // Slider height controls.
 
-            if (gamepad1.right_bumper) {robot.setSliderPosition(0,1);}
+            if (gamepad1.right_bumper) {robot.setSliderPosition(0);
+            robot.setIntakePosition();}
             //if (gamepad1.right_trigger < 0.5) {robot.setSliderPosition(1);}
-            if (gamepad1.left_bumper) {robot.setSliderPosition(1,1);}
+            if (gamepad1.left_bumper) {
+                robot.setSliderPosition(1);
+                robot.setScoringPosition();}
             //if (gamepad1.left_trigger < 0.5) {robot.setSliderPosition(3);}
 
             // Claw controls.

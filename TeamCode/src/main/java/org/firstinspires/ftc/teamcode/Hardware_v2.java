@@ -53,11 +53,12 @@ public class Hardware_v2 {
     }
 
     public void reset() {
-
+        resetIntakePitch();
         setMotorDirections();
         setMotorBrakes();
-        //resetSliderPosition();
+        resetSliderPosition();
         resetClawPosition();
+        resetArmPosition();
     }
 
     // Init methods.
@@ -121,7 +122,7 @@ public class Hardware_v2 {
      * Sets slider positions. Speed is set to 1. Pass a speed parameter for speed control.
      * @param position The target position, typically the backdrop's set line height. Integer value from 0-3.
      */
-    public void setSliderPosition(int position) {setSliderPosition(position, 0.2);}
+    public void setSliderPosition(int position) {setSliderPosition(position, 0.7);}
 
     /**
      * Sets sliders' heights back to 0.
@@ -135,7 +136,7 @@ public class Hardware_v2 {
     /**
      * Resets slider's heights back to 0. Speed is set to 1. Pass a speed parameter for speed control.
      */
-    public void resetSliderPosition() {resetSliderPosition(0.2);}
+    public void resetSliderPosition() {resetSliderPosition(0.7);}
 
     /**
      * Claw control.
@@ -146,7 +147,16 @@ public class Hardware_v2 {
     public void resetClawPosition() {
         setClawPosition("upper", "open");
         setClawPosition("lower", "open");
+    }
 
+    public void resetIntakePitch() {
+        servoClawPitchLeft.setPosition(0);
+        servoClawPitchRight.setPosition(0);
+    }
+
+    public void resetArmPosition() {
+        servoArmLeft.setPosition(0);
+        servoArmRight.setPosition(0);
     }
     public void setClawPosition(String claw, String position) {
         if (claw.equals("upper") || claw.equals("up") || claw.equals("high")) {
@@ -196,21 +206,22 @@ public class Hardware_v2 {
     public void resetIMUYaw() {
         imu.resetYaw();
     }
-
+     /*
     /**
      * Gets the distance sensor's value.
      * @param unit The unit for the method to return.
      * @return A double value, the distance measured.
-     */
-    //public double getProximity(DistanceUnit unit) {
-   //     return distanceSensor.getDistance(unit);
-   // }
+
+    public double getProximity(DistanceUnit unit) {
+        return distanceSensor.getDistance(unit);
+    }
 
     /**
      * Gets the distance sensor's value. Unit is set to centimetres.
      * @return A double value, the distance measured.
-     */
-    //public double getProximity() {
-      //  return getProximity(DistanceUnit.CM);
-    //}
+
+    public double getProximity() {
+      return getProximity(DistanceUnit.CM);
+    }
+    */
 }
