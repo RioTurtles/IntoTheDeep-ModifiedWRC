@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.hardware.DcMotor;
 
 @TeleOp(name="v2 Measurement")
 public class Measurement_v2 extends LinearOpMode {
@@ -9,7 +10,9 @@ public class Measurement_v2 extends LinearOpMode {
     public void runOpMode() throws InterruptedException {
         Hardware_v2 robot = new Hardware_v2();
         robot.init(hardwareMap, telemetry);
-        robot.reset();
+
+        robot.motorSliderLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        robot.motorSliderRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
 
         waitForStart();
 

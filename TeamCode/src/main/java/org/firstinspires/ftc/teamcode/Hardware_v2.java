@@ -1,15 +1,13 @@
 package org.firstinspires.ftc.teamcode;
 
+import com.fasterxml.jackson.databind.deser.UnresolvedForwardReference;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
-import com.qualcomm.robotcore.hardware.DistanceSensor;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.IMU;
 import com.qualcomm.robotcore.hardware.Servo;
 import org.firstinspires.ftc.robotcore.external.Telemetry;
-import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
-import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 
 /**
  * This class represents the robot object.
@@ -22,8 +20,6 @@ public class Hardware_v2 {
     Servo servoClawPitchLeft, servoClawPitchRight;
     Servo servoArmLeft, servoArmRight;
     IMU imu;
-   // DistanceSensor distanceSensor;
-    //WebcamName webcam1;
     Telemetry telemetry;
 
     int sliderPosition = 0;
@@ -46,31 +42,30 @@ public class Hardware_v2 {
         servoArmLeft = hardwareMap.get(Servo.class, "servoArmLeft");
         servoArmRight = hardwareMap.get(Servo.class, "servoArmRight");
         imu = hardwareMap.get(IMU.class, "imu");
-        //distanceSensor = hardwareMap.get(DistanceSensor.class, "distanceSensor");
-        //fwebcam1 = hardwareMap.get(WebcamName.class, "webcam1");
         this.telemetry = telemetry;
-
     }
 
     public void reset() {
-        resetIntakePitch();
-        setMotorDirections();
-        setMotorBrakes();
-        resetSliderPosition();
-        resetClawPosition();
-        resetArmPosition();
-    }
+        motorFL.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        motorFR.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        motorBL.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        motorBR.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
-    // Init methods.
-
-    /**
-     * Sets motor directions to its functional ones. Mostly used for mecanum drives.
-     */
-    private void setMotorDirections() {
-        motorBL.setDirection(DcMotorSimple.Direction.REVERSE);
-        motorBR.setDirection(DcMotorSimple.Direction.REVERSE);
-        motorSliderRight.setDirection(DcMotorSimple.Direction.REVERSE);
+        motorFL.setDirection(DcMotorSimple.Direction.REVERSE);
+        motorFR.setDirection(DcMotorSimple.Direction.REVERSE);
+        motorBL.setDirection(DcMotorSimple.Direction.FORWARD);
+        motorBR.setDirection(DcMotorSimple.Direction.FORWARD);
         motorSliderLeft.setDirection(DcMotorSimple.Direction.FORWARD);
+        motorSliderRight.setDirection(DcMotorSimple.Direction.REVERSE);
+        servoClawPitchLeft.setDirection(Servo.Direction.FORWARD);
+        servoClawPitchRight.setDirection(Servo.Direction.REVERSE);
+        servoClawUpper.setDirection(Servo.Direction.FORWARD);
+        servoClawLower.setDirection(Servo.Direction.FORWARD);
+        servoArmLeft.setDirection(Servo.Direction.FORWARD);
+        servoArmRight.setDirection(Servo.Direction.REVERSE);
+
+        motorSliderLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        motorSliderRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
     }
 
     /**
@@ -93,8 +88,13 @@ public class Hardware_v2 {
         motorSliderRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
     }
 
-    // Regular methods.
+    private void resetServoDirections() {
+        servoClawLower.setDirection(Servo.Direction.REVERSE);
+        servoClawPitchLeft.setDirection(Servo.Direction.REVERSE);
+        servoArmLeft.setDirection(Servo.Direction.REVERSE);
+    }
 
+    // Regular methods.
     /**
      * Sets slider positions.
      * @param position The target position, typically the backdrop's set line height. Integer value from 0-3.
@@ -108,8 +108,8 @@ public class Hardware_v2 {
                 motorSliderRight.setTargetPosition(0);
                 break;
             case 1:
-                motorSliderLeft.setTargetPosition(1120);
-                motorSliderRight.setTargetPosition(1120);
+                motorSliderLeft.setTargetPosition(900);
+                motorSliderRight.setTargetPosition(900);
         }
 
         motorSliderLeft.setPower(power);
@@ -138,12 +138,6 @@ public class Hardware_v2 {
      */
     public void resetSliderPosition() {resetSliderPosition(0.7);}
 
-    /**
-     * Claw control.
-     * @param claw The claw to control, <code>upper</code>, or <code>lower</code>.
-     * @param position The position of the claw. For an open claw, use <code>upper</code>; for a closed claw, use <code>closed</code>.
-     */
-
     public void resetClawPosition() {
         setClawPosition("upper", "open");
         setClawPosition("lower", "open");
@@ -158,46 +152,47 @@ public class Hardware_v2 {
         servoArmLeft.setPosition(0);
         servoArmRight.setPosition(0);
     }
+
     public void setClawPosition(String claw, String position) {
         if (claw.equals("upper") || claw.equals("up") || claw.equals("high")) {
             switch (position) {
                 case "open":
-                    servoClawUpper.setPosition(0.7);
+                    servoClawUpper.setPosition(0);
                     telemetry.addData("UPPER", "OPEN");
                 case "closed":
-                    servoClawUpper.setPosition(0);
+                    servoClawUpper.setPosition(0.22);
                     telemetry.addData("UPPER", "CLOSED");
             }
         } else if (claw.equals("lower") || claw.equals("low")) {
             switch (position) {
                 case "open":
-                    servoClawLower.setPosition(0);
+                    servoClawLower.setPosition(1);
                     telemetry.addData("LOWER", "OPEN");
                 case "closed":
-                    servoClawLower.setPosition(0.7);
+                    servoClawLower.setPosition(0.74);
                     telemetry.addData("LOWER", "CLOSED");
             }
         }
     }
 
     /**
-     * Sets the robot's arm and claw to its scoring position.
-     */
-    public void setScoringPosition() {
-        servoArmLeft.setPosition(0.7);
-        servoArmRight.setPosition(0.7);
-        servoClawPitchLeft.setPosition(0.7);
-        servoClawPitchRight.setPosition(0.7);
-    }
-
-    /**
      * Sets the robot's arm and claw to its intake position.
      */
     public void setIntakePosition() {
-        servoArmLeft.setPosition(0);
-        servoArmRight.setPosition(0);
-        servoClawPitchLeft.setPosition(0);
-        servoClawPitchRight.setPosition(0);
+        servoArmLeft.setPosition(0.967);
+        servoArmRight.setPosition(0.967);
+        servoClawPitchLeft.setPosition(0.46);
+        servoClawPitchRight.setPosition(0.46);
+    }
+
+    /**
+     * Sets the robot's arm and claw to its scoring position.
+     */
+    public void setScoringPosition() {
+        servoClawPitchLeft.setPositi///on(0.25);
+        servoClawPitchRight.setPosition(0.25);
+        servoArmLeft.setPosition(0.4);
+        servoArmRight.setPosition(0.4);
     }
 
     /**
@@ -206,22 +201,4 @@ public class Hardware_v2 {
     public void resetIMUYaw() {
         imu.resetYaw();
     }
-     /*
-    /**
-     * Gets the distance sensor's value.
-     * @param unit The unit for the method to return.
-     * @return A double value, the distance measured.
-
-    public double getProximity(DistanceUnit unit) {
-        return distanceSensor.getDistance(unit);
-    }
-
-    /**
-     * Gets the distance sensor's value. Unit is set to centimetres.
-     * @return A double value, the distance measured.
-
-    public double getProximity() {
-      return getProximity(DistanceUnit.CM);
-    }
-    */
 }

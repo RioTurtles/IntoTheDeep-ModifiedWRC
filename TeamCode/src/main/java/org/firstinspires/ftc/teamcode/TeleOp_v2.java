@@ -63,7 +63,7 @@ public class TeleOp_v2 extends LinearOpMode {
             }
 
             // Transfer (toggle)
-            if (gamepad1.options && clawUpperOpen && clawLowerOpen) {
+            if (gamepad1.options && !clawUpperOpen && !clawLowerOpen) {
                 if (!isInScoringPosition) {robot.setScoringPosition();}  // Intake position; hence set to scoring position.
                 else {robot.setIntakePosition();}  // Vice versa
                 isInScoringPosition = !isInScoringPosition;
@@ -74,22 +74,23 @@ public class TeleOp_v2 extends LinearOpMode {
                 robot.setClawPosition("upper", "open");
                 robot.setClawPosition("lower", "open");
             }
+//
+//            if (gamepad1.square) {
+//                robot.setClawPosition("upper", "closed");
+//            }
+//
+//            if (gamepad1.triangle) {
+//                robot.setClawPosition("upper", "open");
+//            }
+//
+//            if (gamepad1.circle) {
+//                robot.setClawPosition("lower", "closed");
+//            }
+//
+//            if (gamepad1.cross) {
+//                robot.setClawPosition("lower", "open");
+//            }
 
-            if (gamepad1.square) {
-                robot.setClawPosition("upper", "closed");
-            }
-
-            if (gamepad1.triangle) {
-                robot.setClawPosition("upper", "open");
-            }
-
-            if (gamepad1.circle) {
-                robot.setClawPosition("lower", "closed");
-            }
-
-            if (gamepad1.cross) {
-                robot.setClawPosition("lower", "open");
-            }
             // Reset IMU.
             if (gamepad1.share) {robot.resetIMUYaw();}
 
