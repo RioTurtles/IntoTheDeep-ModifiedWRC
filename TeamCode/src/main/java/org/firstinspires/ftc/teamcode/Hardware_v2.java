@@ -189,7 +189,7 @@ public class Hardware_v2 {
      * Sets the robot's arm and claw to its scoring position.
      */
     public void setScoringPosition() {
-        servoClawPitchLeft.setPositi///on(0.25);
+        servoClawPitchLeft.setPosition(0.25);
         servoClawPitchRight.setPosition(0.25);
         servoArmLeft.setPosition(0.4);
         servoArmRight.setPosition(0.4);
