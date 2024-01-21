@@ -40,10 +40,10 @@ public class TeleOp_v2_Simple extends LinearOpMode {
             lx = left_x * Math.cos(-bot_heading) - left_y * Math.sin(-bot_heading);
             ly = left_x * Math.sin(-bot_heading) + left_y * Math.cos(-bot_heading);
             denominator = Math.max(Math.abs(left_x) + Math.abs(left_y) + Math.abs(rot_x), 1);
-            robot.motorFL.setPower(-(lx + ly + rot_x) / denominator);
+            robot.motorFL.setPower((lx + ly + rot_x) / denominator);
             robot.motorBL.setPower((-lx + ly + rot_x) / denominator);
             robot.motorFR.setPower((ly - lx - rot_x) / denominator);
-            robot.motorBR.setPower(-(lx + ly - rot_x) / denominator);
+            robot.motorBR.setPower((lx + ly - rot_x) / denominator);
 
             if (gamepad1.left_bumper) {robot.servoClawUpper.setPosition(0);}
             if (gamepad1.right_bumper) {robot.servoClawLower.setPosition(1);}
@@ -60,7 +60,7 @@ public class TeleOp_v2_Simple extends LinearOpMode {
             if (gamepad1.square) {robot.setSliderPosition(0);}
 
             // Reset IMU.
-            if (gamepad1.share) {robot.resetIMUYaw();}
+            if (gamepad1.share) {robot.imu.resetYaw();}
 
             telemetry.update();
         }

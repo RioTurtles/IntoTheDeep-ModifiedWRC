@@ -1,6 +1,6 @@
 package org.firstinspires.ftc.teamcode;
 
-import com.fasterxml.jackson.databind.deser.UnresolvedForwardReference;
+import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
@@ -42,6 +42,8 @@ public class Hardware_v2 {
         servoArmLeft = hardwareMap.get(Servo.class, "servoArmLeft");
         servoArmRight = hardwareMap.get(Servo.class, "servoArmRight");
         imu = hardwareMap.get(IMU.class, "imu");
+
+        imu.initialize(new IMU.Parameters(new RevHubOrientationOnRobot(RevHubOrientationOnRobot.LogoFacingDirection.LEFT, RevHubOrientationOnRobot.UsbFacingDirection.UP)));
         this.telemetry = telemetry;
     }
 
@@ -52,8 +54,8 @@ public class Hardware_v2 {
         motorBR.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
         motorFL.setDirection(DcMotorSimple.Direction.REVERSE);
-        motorFR.setDirection(DcMotorSimple.Direction.REVERSE);
-        motorBL.setDirection(DcMotorSimple.Direction.FORWARD);
+        motorFR.setDirection(DcMotorSimple.Direction.FORWARD);
+        motorBL.setDirection(DcMotorSimple.Direction.REVERSE);
         motorBR.setDirection(DcMotorSimple.Direction.FORWARD);
         motorSliderLeft.setDirection(DcMotorSimple.Direction.FORWARD);
         motorSliderRight.setDirection(DcMotorSimple.Direction.REVERSE);
@@ -68,48 +70,26 @@ public class Hardware_v2 {
         motorSliderRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
     }
 
-    /**
-     * Sets motor brakes. Used for most motors.
-     */
-    private void setMotorBrakes() {
-        motorFL.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        motorFR.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        motorBL.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        motorBR.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        motorSliderLeft.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        motorSliderRight.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-    }
-
-    /**
-     * Resets slider live encoder position values. Called upon initialisation.
-     */
-    private void resetSliderPositionValues() {
-        motorSliderLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        motorSliderRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-    }
-
-    private void resetServoDirections() {
-        servoClawLower.setDirection(Servo.Direction.REVERSE);
-        servoClawPitchLeft.setDirection(Servo.Direction.REVERSE);
-        servoArmLeft.setDirection(Servo.Direction.REVERSE);
-    }
-
     // Regular methods.
     /**
      * Sets slider positions.
-     * @param position The target position, typically the backdrop's set line height. Integer value from 0-3.
+     * @param position The target position, typically the backdrop's set line height. Integer value from 0-2.
      * @param power The speed of the motors to run on. Double value from 0-1.
      */
     public void setSliderPosition(int position, double power) {
         sliderPosition = position;
         switch (position) {
-            case 0:
+            case 0:  // Fully lowered.
                 motorSliderLeft.setTargetPosition(0);
                 motorSliderRight.setTargetPosition(0);
                 break;
-            case 1:
-                motorSliderLeft.setTargetPosition(900);
-                motorSliderRight.setTargetPosition(900);
+            case 1:  // Backdrop scoring position.
+                motorSliderLeft.setTargetPosition(1120);
+                motorSliderRight.setTargetPosition(1120);
+                break;
+            case 2:  // Rigging hold position.
+                motorSliderLeft.setTargetPosition(310);
+                motorSliderRight.setTargetPosition(310);
         }
 
         motorSliderLeft.setPower(power);
@@ -120,58 +100,25 @@ public class Hardware_v2 {
 
     /**
      * Sets slider positions. Speed is set to 1. Pass a speed parameter for speed control.
-     * @param position The target position, typically the backdrop's set line height. Integer value from 0-3.
+     * @param position The target position, typically the backdrop's set line height. Integer value from 0-2.
      */
     public void setSliderPosition(int position) {setSliderPosition(position, 0.7);}
 
-    /**
-     * Sets sliders' heights back to 0.
-     * @param power The speed of the motors to run on. Double value from 0-1.
-     */
-    public void resetSliderPosition(double power) {
-        sliderPosition = 0;
-        setSliderPosition(0, power);
+    public void setUpperClaw(int position) {
+        switch (position) {
+            case 0:
+                servoClawUpper.setPosition(0);
+            case 1:
+                servoClawUpper.setPosition(0.22);
+        }
     }
 
-    /**
-     * Resets slider's heights back to 0. Speed is set to 1. Pass a speed parameter for speed control.
-     */
-    public void resetSliderPosition() {resetSliderPosition(0.7);}
-
-    public void resetClawPosition() {
-        setClawPosition("upper", "open");
-        setClawPosition("lower", "open");
-    }
-
-    public void resetIntakePitch() {
-        servoClawPitchLeft.setPosition(0);
-        servoClawPitchRight.setPosition(0);
-    }
-
-    public void resetArmPosition() {
-        servoArmLeft.setPosition(0);
-        servoArmRight.setPosition(0);
-    }
-
-    public void setClawPosition(String claw, String position) {
-        if (claw.equals("upper") || claw.equals("up") || claw.equals("high")) {
-            switch (position) {
-                case "open":
-                    servoClawUpper.setPosition(0);
-                    telemetry.addData("UPPER", "OPEN");
-                case "closed":
-                    servoClawUpper.setPosition(0.22);
-                    telemetry.addData("UPPER", "CLOSED");
-            }
-        } else if (claw.equals("lower") || claw.equals("low")) {
-            switch (position) {
-                case "open":
-                    servoClawLower.setPosition(1);
-                    telemetry.addData("LOWER", "OPEN");
-                case "closed":
-                    servoClawLower.setPosition(0.74);
-                    telemetry.addData("LOWER", "CLOSED");
-            }
+    public void setLowerClaw(int position) {
+        switch (position) {
+            case 0:
+                servoClawLower.setPosition(1);
+            case 1:
+                servoClawLower.setPosition(0.74);
         }
     }
 
@@ -179,25 +126,26 @@ public class Hardware_v2 {
      * Sets the robot's arm and claw to its intake position.
      */
     public void setIntakePosition() {
-        servoArmLeft.setPosition(0.967);
-        servoArmRight.setPosition(0.967);
-        servoClawPitchLeft.setPosition(0.46);
-        servoClawPitchRight.setPosition(0.46);
+        servoArmLeft.setPosition(0.963);
+        servoArmRight.setPosition(0.963);
+        servoClawPitchLeft.setPosition(0.45);
+        servoClawPitchRight.setPosition(0.45);
     }
 
     /**
      * Sets the robot's arm and claw to its scoring position.
      */
     public void setScoringPosition() {
-        servoClawPitchLeft.setPosition(0.25);
-        servoClawPitchRight.setPosition(0.25);
-        servoArmLeft.setPosition(0.4);
-        servoArmRight.setPosition(0.4);
+        servoClawPitchLeft.setPosition(0.16);
+        servoClawPitchRight.setPosition(0.16);
+        servoArmLeft.setPosition(0.45);
+        servoArmRight.setPosition(0.45);
     }
 
     /**
      * Resets the IMU's yaw value to 0.
      */
+    @Deprecated
     public void resetIMUYaw() {
         imu.resetYaw();
     }
