@@ -6,8 +6,8 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 
-@TeleOp(name="v2 TeleOp")
-public class TeleOp_v2 extends LinearOpMode {
+@TeleOp(name="v2 TeleOp A1")
+public class TeleOp_v2a1 extends LinearOpMode {
     @Override
     public void runOpMode() {
 
@@ -34,7 +34,7 @@ public class TeleOp_v2 extends LinearOpMode {
         boolean isInScoringPosition = false;
         boolean isInBrakeMode = false;
         boolean scored = false;
-        int waiting = 0;
+        int stage= 0;
 
         robot.setIntakePosition();
         ElapsedTime timer = new ElapsedTime();
@@ -60,54 +60,88 @@ public class TeleOp_v2 extends LinearOpMode {
 
             // Scoring system.
             // Press triangle to raise slider and set arm/claw to scoring position.
-            if (gamepad1.triangle && !clawLowerOpen && !clawUpperOpen) {
-                robot.servoClawLower.setPosition(0.22);
-                robot.servoClawUpper.setPosition(0.74);
-                robot.setSliderPosition(1);
+            if(stage == 0) {
+                if (gamepad1.left_bumper) { //pressing left bumper will open claw and set the claw pitch to intake position aka pressing square
+                    robot.servoClawUpper.setPosition(0); clawUpperOpen = true;
+                    robot.servoClawLower.setPosition(1); clawLowerOpen = true;
+                    robot.servoArmLeft.setPosition(0.967);
+                    robot.servoArmRight.setPosition(0.967);
+                    robot.servoClawPitchLeft.setPosition(0.47);
+                    robot.servoClawPitchRight.setPosition(0.47);
+                }
+                if(gamepad1.right_bumper){
+                    robot.servoClawUpper.setPosition(0.22); clawUpperOpen = false;
+                    robot.servoClawLower.setPosition(0.74); clawLowerOpen = false;
+                    stage=1;
+                    timer.reset();
+                }
 
-                while (robot.motorSliderLeft.getCurrentPosition() < 1000) {}
-                robot.setScoringPosition();
-                isInScoringPosition = true;
-                scored = false;
+            }
+            //after claw(pressing right bumper)
+            if (stage == 1){
+                if(timer.milliseconds()>300) {
+                   //maybe raise the arm from the ground abit to prevent it from grinding
+                }
+                if (gamepad1.triangle) {
+                    robot.setSliderPosition(1);
+                }
+
+                if(robot.motorSliderLeft.getCurrentPosition() > 1000) {
+                    robot.setScoringPosition();
+                    isInScoringPosition = true;
+                    scored = false;
+
+                }
+                if(gamepad1.left_bumper){
+                    stage =0;
+
+                }
+            }
             }
 
             // Hold circle to score and release to reset to lower slider and set intake position.
-            if (gamepad1.circle && isInScoringPosition) {
+            if (isInScoringPosition) {
+                isInBrakeMode = true;
+                if (gamepad1.circle) {
+                    robot.servoClawLower.setPosition(1);
+                    robot.motorBL.setPower(0);
+                    robot.motorFL.setPower(0);
+                    robot.motorBR.setPower(0);
+                    robot.motorFR.setPower(0);
 
-                robot.servoClawLower.setPosition(1);
-                lx = 0;
-                ly = 0;
-                rot_x = 0;
-                sleep(400);
-                robot.servoClawUpper.setPosition(0);
-                scored = true;
-            } else if (scored) {
-                scored = false;
-                robot.servoClawUpper.setPosition(0.22);
-                robot.servoClawLower.setPosition(0.74);
-                sleep(400);
-                robot.setIntakePosition();
-                sleep(400);
-                returnStage = 1;
+                    sleep(400);
+                    robot.servoClawUpper.setPosition(0);
+                    scored = true;
+                    timer.reset();
+                }
+
+                if (scored) {
+                    scored = false;
+                    robot.servoClawUpper.setPosition(0.22);
+                    robot.servoClawLower.setPosition(0.74);
+                    if (timer.milliseconds()>300) {
+                        robot.setIntakePosition();
+                    }
+                    if (timer.milliseconds()>700) {
+                    returnStage = 1;
+                }
             }
 
-            if (gamepad1.cross && returnStage == 1) {
-                robot.setSliderPosition(0);
-                isInScoringPosition = false;
-
-                while (robot.motorSliderLeft.getCurrentPosition() < 100) {}
-                robot.servoClawUpper.setPosition(0);
-                robot.servoClawLower.setPosition(1);
-                returnStage = 0;
+            if (returnStage == 1) {
+                isInBrakeMode=false;
+                if(gamepad1.x) {
+                    robot.setSliderPosition(0);
+                    isInScoringPosition = false;
+                }
+                if (robot.motorSliderLeft.getCurrentPosition() < 100) {
+                    robot.servoClawUpper.setPosition(0);
+                    robot.servoClawLower.setPosition(1);
+                    returnStage = 0;
+                }
             }
 
             // Adjust the pitch for wing intake.
-            if (gamepad1.square) {
-                robot.servoArmLeft.setPosition(0.967);
-                robot.servoArmRight.setPosition(0.967);
-                robot.servoClawPitchLeft.setPosition(0.47);
-                robot.servoClawPitchRight.setPosition(0.47);
-            }
+
 
             // Rigging control.
             if (gamepad1.dpad_left && !clawLowerOpen && !clawUpperOpen) {
@@ -119,7 +153,7 @@ public class TeleOp_v2 extends LinearOpMode {
             }
 
             // Brake mode
-            isInBrakeMode = gamepad1.options;
+            //isInBrakeMode = gamepad1.options;
 
             // Reset IMU.
             if (gamepad1.share) {robot.imu.resetYaw();}

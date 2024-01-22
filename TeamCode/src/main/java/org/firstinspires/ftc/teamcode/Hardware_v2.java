@@ -7,7 +7,11 @@ import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.IMU;
 import com.qualcomm.robotcore.hardware.Servo;
+import com.qualcomm.robotcore.util.ElapsedTime;
+
 import org.firstinspires.ftc.robotcore.external.Telemetry;
+
+import java.util.concurrent.TimeUnit;
 
 /**
  * This class represents the robot object.
@@ -142,11 +146,11 @@ public class Hardware_v2 {
         servoArmRight.setPosition(0.45);
     }
 
-    /**
-     * Resets the IMU's yaw value to 0.
-     */
-    @Deprecated
-    public void resetIMUYaw() {
-        imu.resetYaw();
+//    /**
+//     * Sleeps the robot.
+//     * @param milliseconds The number of milliseconds to sleep for.
+//     */
+//    public void sleep(int milliseconds) {
+//        ElapsedTime timer = new ElapsedTime();
+//        while (true) {if (timer.now(TimeUnit.MILLISECONDS) >= milliseconds) {break;}}
     }
-}
