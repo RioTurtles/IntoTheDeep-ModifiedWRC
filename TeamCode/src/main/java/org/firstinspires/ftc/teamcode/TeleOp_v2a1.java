@@ -22,10 +22,10 @@ public class TeleOp_v2a1 extends LinearOpMode {
         double botHeading;
         double left_x;
         double left_y;
-        double rot_x;
-        double lx;
-        double ly;
-        double denominator;
+        double rot_x = 0;
+        double lx = 0;
+        double ly = 0;
+        double denominator = 0;
 
         int returnStage = 0;
 
@@ -53,11 +53,11 @@ public class TeleOp_v2a1 extends LinearOpMode {
 
 
 
-            if (gamepad1.left_bumper) {robot.servoClawUpper.setPosition(0.22); clawUpperOpen = false;}
+          /*  if (gamepad1.left_bumper) {robot.servoClawUpper.setPosition(0.22); clawUpperOpen = false;}
             if (gamepad1.right_bumper) {robot.servoClawLower.setPosition(0.74); clawLowerOpen = false;}
             if (gamepad1.left_trigger > 0) {robot.servoClawUpper.setPosition(0); clawUpperOpen = true;}
             if (gamepad1.right_trigger > 0) {robot.servoClawLower.setPosition(1); clawLowerOpen = true;}
-
+*/
             // Scoring system.
             // Press triangle to raise slider and set arm/claw to scoring position.
             if(stage == 0) {
@@ -97,7 +97,7 @@ public class TeleOp_v2a1 extends LinearOpMode {
 
                 }
             }
-            }
+
 
             // Hold circle to score and release to reset to lower slider and set intake position.
             if (isInScoringPosition) {
@@ -116,19 +116,21 @@ public class TeleOp_v2a1 extends LinearOpMode {
                 }
 
                 if (scored) {
-                    scored = false;
+
                     robot.servoClawUpper.setPosition(0.22);
                     robot.servoClawLower.setPosition(0.74);
                     if (timer.milliseconds()>300) {
                         robot.setIntakePosition();
                     }
                     if (timer.milliseconds()>700) {
-                    returnStage = 1;
+                        returnStage = 1;
+                    }
                 }
             }
 
             if (returnStage == 1) {
                 isInBrakeMode=false;
+                scored = false;
                 if(gamepad1.x) {
                     robot.setSliderPosition(0);
                     isInScoringPosition = false;
@@ -157,17 +159,19 @@ public class TeleOp_v2a1 extends LinearOpMode {
 
             // Reset IMU.
             if (gamepad1.share) {robot.imu.resetYaw();}
-            if (isInBrakeMode) {
+            //if (isInBrakeMode) {
+                //telemetry.addData("lx", )
                 robot.motorFL.setPower((lx + ly + rot_x)*brakeModeMultiplier / denominator);
                 robot.motorBL.setPower((-lx + ly + rot_x)*brakeModeMultiplier / denominator);
                 robot.motorFR.setPower((ly - lx - rot_x)*brakeModeMultiplier / denominator);
                 robot.motorBR.setPower((lx + ly - rot_x)*brakeModeMultiplier / denominator);
-            } else {
+            //}
+                 /*else {
                 robot.motorFL.setPower((lx + ly + rot_x) / denominator);
                 robot.motorBL.setPower((-lx + ly + rot_x) / denominator);
                 robot.motorFR.setPower((ly - lx - rot_x) / denominator);
                 robot.motorBR.setPower((lx + ly - rot_x) / denominator);
-            }
+            }*/
 
             telemetry.update();
         }

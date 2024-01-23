@@ -123,7 +123,7 @@ public class TeleOp_v2 extends LinearOpMode {
 
             // Reset IMU.
             if (gamepad1.share) {robot.imu.resetYaw();}
-            if (isInBrakeMode) {
+            if (isInBrakeMode || isInScoringPosition) {
                 robot.motorFL.setPower((lx + ly + rot_x)*brakeModeMultiplier / denominator);
                 robot.motorBL.setPower((-lx + ly + rot_x)*brakeModeMultiplier / denominator);
                 robot.motorFR.setPower((ly - lx - rot_x)*brakeModeMultiplier / denominator);
