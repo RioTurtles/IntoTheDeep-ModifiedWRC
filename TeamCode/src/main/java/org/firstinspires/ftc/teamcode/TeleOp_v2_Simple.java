@@ -8,7 +8,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 @TeleOp(name="v2 TeleOp Simple")
 public class TeleOp_v2_Simple extends LinearOpMode {
     @Override
-    public void runOpMode() {
+    public void runOpMode() throws InterruptedException {
 
         Hardware_v2 robot = new Hardware_v2();
         robot.init(hardwareMap, telemetry);

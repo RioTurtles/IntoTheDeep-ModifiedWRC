@@ -9,7 +9,7 @@ public class Autonomous_v2 extends LinearOpMode {
     public static int orientation = 0;
 
     @Override
-    public void runOpMode() {
+    public void runOpMode() throws InterruptedException {
         waitForStart();
         while (opModeIsActive()) {
             if (gamepad1.triangle) {

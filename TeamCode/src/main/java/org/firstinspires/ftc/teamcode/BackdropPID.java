@@ -9,7 +9,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 @Autonomous(name="v2 Backdrop Distance Sensor")
 public class BackdropPID extends LinearOpMode {
     @Override
-    public void runOpMode() {
+    public void runOpMode() throws InterruptedException {
         waitForStart();
 
         final double kP = 0.5;

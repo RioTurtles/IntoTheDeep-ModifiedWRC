@@ -9,170 +9,149 @@ import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 @TeleOp(name="v2 TeleOp A1")
 public class TeleOp_v2a1 extends LinearOpMode {
     @Override
-    public void runOpMode() {
+    public void runOpMode() throws InterruptedException {
 
         Hardware_v2 robot = new Hardware_v2();
         robot.init(hardwareMap, telemetry);
         robot.reset();
 
         // Variables
-        final double rotationMultiplier = 0.8;
-        final double brakeModeMultiplier = 0.3;
+        final double ROTATION_MULTIPLIER = 0.8;
+        final double BRAKE_MODE_MULTIPLIER = 0.3;
 
         double botHeading;
         double left_x;
         double left_y;
-        double rot_x = 0;
-        double lx = 0;
-        double ly = 0;
-        double denominator = 0;
+        double rot_x;
+        double lx;
+        double ly;
+        double denominator;
 
-        int returnStage = 0;
+        int stage = 0;
 
-        boolean clawUpperOpen = false;
-        boolean clawLowerOpen = false;
-        boolean isInScoringPosition = false;
-        boolean isInBrakeMode = false;
         boolean scored = false;
-        int stage= 0;
 
         robot.setIntakePosition();
         ElapsedTime timer = new ElapsedTime();
         waitForStart();
 
         while (opModeIsActive()) {
-
             // Fieldcentric controls
             botHeading = robot.imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.RADIANS);
             left_x = gamepad1.left_stick_x;
             left_y = -gamepad1.left_stick_y;
-            rot_x = gamepad1.right_stick_x * rotationMultiplier;  // Make rotation less intense (80%)
+            rot_x = gamepad1.right_stick_x * ROTATION_MULTIPLIER;  // Make rotation less intense (80%)
             lx = left_x * Math.cos(-botHeading) - left_y * Math.sin(-botHeading);
             ly = left_x * Math.sin(-botHeading) + left_y * Math.cos(-botHeading);
             denominator = Math.max(Math.abs(left_x) + Math.abs(left_y) + Math.abs(rot_x), 1);
 
-
-
-          /*  if (gamepad1.left_bumper) {robot.servoClawUpper.setPosition(0.22); clawUpperOpen = false;}
-            if (gamepad1.right_bumper) {robot.servoClawLower.setPosition(0.74); clawLowerOpen = false;}
-            if (gamepad1.left_trigger > 0) {robot.servoClawUpper.setPosition(0); clawUpperOpen = true;}
-            if (gamepad1.right_trigger > 0) {robot.servoClawLower.setPosition(1); clawLowerOpen = true;}
-*/
-            // Scoring system.
-            // Press triangle to raise slider and set arm/claw to scoring position.
-            if(stage == 0) {
-                if (gamepad1.left_bumper) { //pressing left bumper will open claw and set the claw pitch to intake position aka pressing square
-                    robot.servoClawUpper.setPosition(0); clawUpperOpen = true;
-                    robot.servoClawLower.setPosition(1); clawLowerOpen = true;
-                    robot.servoArmLeft.setPosition(0.967);
-                    robot.servoArmRight.setPosition(0.967);
-                    robot.servoClawPitchLeft.setPosition(0.47);
-                    robot.servoClawPitchRight.setPosition(0.47);
-                }
-                if(gamepad1.right_bumper){
-                    robot.servoClawUpper.setPosition(0.22); clawUpperOpen = false;
-                    robot.servoClawLower.setPosition(0.74); clawLowerOpen = false;
-                    stage=1;
+            // Stage 0: Intake
+            if (stage == 0) {
+                if (gamepad1.left_bumper) {
+                    // Pressing left bumper will open both claw and set the claw pitch to intake position.
+                    robot.openUpperClaw();
+                    robot.openLowerClaw();
+                    robot.setIntakePosition();  // Lower claw pitch further (to allow pixel intake).
+                } else if (gamepad1.right_bumper) {
+                    // Right bumper closes both claws.
+                    robot.closeUpperClaw();
+                    robot.closeLowerClaw();
+                    stage = 1;
                     timer.reset();
                 }
-
             }
-            //after claw(pressing right bumper)
-            if (stage == 1){
-                if(timer.milliseconds()>300) {
-                   //maybe raise the arm from the ground abit to prevent it from grinding
-                }
-                if (gamepad1.triangle) {
-                    robot.setSliderPosition(1);
-                }
 
-                if(robot.motorSliderLeft.getCurrentPosition() > 1000) {
+            // Stage 1: Transfer
+            // After claw intake (pressing right bumper)
+            if (stage == 1) {
+                // Raise the arm to prevent grinding.
+                if (timer.milliseconds()>300) {robot.setTransferPosition();}
+
+                // Raising slider and proceeding to next stage.
+                if (gamepad1.triangle) {robot.setSliderPosition(1);}  // Press triangle to raise slider.
+
+                if (robot.motorSliderLeft.getCurrentPosition() > 1000) {
+                    // Set to scoring position when slider is raised.
                     robot.setScoringPosition();
-                    isInScoringPosition = true;
                     scored = false;
-
                 }
-                if(gamepad1.left_bumper){
-                    stage =0;
 
+                // Return to previous stage.
+                if (gamepad1.left_bumper) {
+                    stage = 0;
+                    // Reset claw back to intake position.
+                    robot.setIntakePosition();
+                    robot.openUpperClaw();
+                    robot.openLowerClaw();
                 }
             }
-
 
             // Hold circle to score and release to reset to lower slider and set intake position.
-            if (isInScoringPosition) {
-                isInBrakeMode = true;
+            if (robot.isInScoringPosition) {
                 if (gamepad1.circle) {
-                    robot.servoClawLower.setPosition(1);
-                    robot.motorBL.setPower(0);
-                    robot.motorFL.setPower(0);
-                    robot.motorBR.setPower(0);
-                    robot.motorFR.setPower(0);
-
-                    sleep(400);
-                    robot.servoClawUpper.setPosition(0);
+                    robot.openLowerClaw();  // Release lower claw.
+                    lx = 0; ly = 0; rot_x = 0;  // Pause motors as sleep() is blocking.
+                    sleep(400);  // Delay 400 ms.
+                    robot.openUpperClaw();  // Release upper claw.
                     scored = true;
                     timer.reset();
                 }
 
                 if (scored) {
+                    robot.closeUpperClaw();
+                    robot.closeLowerClaw();  // Close both claws and proceed.
+                    if (timer.milliseconds()>300) {  // Allow 300 ms for claws to close.
+                        robot.servoArmLeft.setPosition(0.963);
+                        robot.servoArmRight.setPosition(0.963);
+                        robot.servoClawPitchLeft.setPosition(0.45);
+                        robot.servoClawPitchRight.setPosition(0.45);
+                    }
+                    if (timer.milliseconds()>700) {  // Allow 400 ms for intake to move (timer not reset).
+                        stage = 2;
+                    }
+                }
 
-                    robot.servoClawUpper.setPosition(0.22);
-                    robot.servoClawLower.setPosition(0.74);
-                    if (timer.milliseconds()>300) {
-                        robot.setIntakePosition();
-                    }
-                    if (timer.milliseconds()>700) {
-                        returnStage = 1;
-                    }
+                // Rigging control.
+                if (gamepad1.dpad_up && !scored) {
+                    robot.servoArmLeft.setPosition(0.45);
+                    robot.servoArmRight.setPosition(0.45);
+                    robot.servoClawPitchLeft.setPosition(0.32);
+                    robot.servoClawPitchRight.setPosition(0.32);
+                    robot.setSliderPosition(0, 0.35);
                 }
             }
 
-            if (returnStage == 1) {
-                isInBrakeMode=false;
+            // Stage 2: Returning to intake
+            if (stage == 2) {
                 scored = false;
-                if(gamepad1.x) {
+                if (gamepad1.x) {
                     robot.setSliderPosition(0);
-                    isInScoringPosition = false;
+                    robot.isInScoringPosition = false;
                 }
                 if (robot.motorSliderLeft.getCurrentPosition() < 100) {
-                    robot.servoClawUpper.setPosition(0);
-                    robot.servoClawLower.setPosition(1);
-                    returnStage = 0;
+                    robot.setTransferPosition();
+                    stage = 0;
                 }
             }
-
-            // Adjust the pitch for wing intake.
-
-
-            // Rigging control.
-            if (gamepad1.dpad_left && !clawLowerOpen && !clawUpperOpen) {
-                robot.setSliderPosition(0, 0.35);
-                robot.servoArmLeft.setPosition(0.45);
-                robot.servoArmRight.setPosition(0.45);
-                robot.servoClawPitchLeft.setPosition(0.32);
-                robot.servoClawPitchRight.setPosition(0.32);
-            }
-
-            // Brake mode
-            //isInBrakeMode = gamepad1.options;
 
             // Reset IMU.
             if (gamepad1.share) {robot.imu.resetYaw();}
-            //if (isInBrakeMode) {
-                //telemetry.addData("lx", )
-                robot.motorFL.setPower((lx + ly + rot_x)*brakeModeMultiplier / denominator);
-                robot.motorBL.setPower((-lx + ly + rot_x)*brakeModeMultiplier / denominator);
-                robot.motorFR.setPower((ly - lx - rot_x)*brakeModeMultiplier / denominator);
-                robot.motorBR.setPower((lx + ly - rot_x)*brakeModeMultiplier / denominator);
-            //}
-                 /*else {
+
+            if (gamepad1.left_trigger > 0 || robot.isInScoringPosition) {
+                robot.motorFL.setPower((lx + ly + rot_x)*BRAKE_MODE_MULTIPLIER / denominator);
+                robot.motorBL.setPower((-lx + ly + rot_x)*BRAKE_MODE_MULTIPLIER / denominator);
+                robot.motorFR.setPower((ly - lx - rot_x)*BRAKE_MODE_MULTIPLIER / denominator);
+                robot.motorBR.setPower((lx + ly - rot_x)*BRAKE_MODE_MULTIPLIER / denominator);
+            } else {
                 robot.motorFL.setPower((lx + ly + rot_x) / denominator);
                 robot.motorBL.setPower((-lx + ly + rot_x) / denominator);
                 robot.motorFR.setPower((ly - lx - rot_x) / denominator);
                 robot.motorBR.setPower((lx + ly - rot_x) / denominator);
-            }*/
+            }
 
+            telemetry.addData("STAGE", stage);
+            telemetry.addData("- in brake", (gamepad1.left_trigger > 0 || robot.isInScoringPosition));
+            telemetry.addData("- in scoring", robot.isInScoringPosition);
             telemetry.update();
         }
     }

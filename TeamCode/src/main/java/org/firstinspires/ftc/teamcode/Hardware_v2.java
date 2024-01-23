@@ -7,11 +7,8 @@ import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.IMU;
 import com.qualcomm.robotcore.hardware.Servo;
-import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
-
-import java.util.concurrent.TimeUnit;
 
 /**
  * This class represents the robot object.
@@ -26,7 +23,10 @@ public class Hardware_v2 {
     IMU imu;
     Telemetry telemetry;
 
-    int sliderPosition = 0;
+    int sliderPosition = 0;  // Consider removing?
+    boolean clawUpperOpen;
+    boolean clawLowerOpen;
+    boolean isInScoringPosition = false;
 
     /**
      * Init method. Call upon the initialisation of an OpMode. Maps hardware to its variables. Call <code>reset()</code> afterwards.
@@ -75,6 +75,19 @@ public class Hardware_v2 {
     }
 
     // Regular methods.
+
+    /** Opens upper claw and sets <code>clawUpperOpen</code> to <code>true</code>.*/
+    public void openUpperClaw() {servoClawUpper.setPosition(0); clawUpperOpen = true;}
+
+    /** Opens lower claw and sets <code>clawLowerOpen</code> to <code>true</code>.*/
+    public void openLowerClaw() {servoClawLower.setPosition(1); clawLowerOpen = true;}
+
+    /** Closes upper claw and sets <code>clawUpperOpen</code> to <code>false</code>.*/
+    public void closeUpperClaw() {servoClawUpper.setPosition(0.22); clawUpperOpen = false;}
+
+    /** Closes lower claw and sets <code>clawLowerOpen</code> to <code>false</code>.*/
+    public void closeLowerClaw() {servoClawLower.setPosition(0.74); clawLowerOpen = false;}
+
     /**
      * Sets slider positions.
      * @param position The target position, typically the backdrop's set line height. Integer value from 0-2.
@@ -117,23 +130,26 @@ public class Hardware_v2 {
         }
     }
 
-    public void setLowerClaw(int position) {
-        switch (position) {
-            case 0:
-                servoClawLower.setPosition(1);
-            case 1:
-                servoClawLower.setPosition(0.74);
-        }
-    }
-
     /**
      * Sets the robot's arm and claw to its intake position.
      */
     public void setIntakePosition() {
-        servoArmLeft.setPosition(0.963);
-        servoArmRight.setPosition(0.963);
-        servoClawPitchLeft.setPosition(0.45);
-        servoClawPitchRight.setPosition(0.45);
+        servoArmLeft.setPosition(0.967);
+        servoArmRight.setPosition(0.967);
+        servoClawPitchLeft.setPosition(0.47);
+        servoClawPitchRight.setPosition(0.47);
+        isInScoringPosition = false;
+    }
+
+    /**
+     * Sets the robot's arm and claw to a lifted position to prevent field damage.
+     */
+    public void setTransferPosition() {
+        servoArmLeft.setPosition(1);
+        servoArmRight.setPosition(1);
+        servoClawPitchLeft.setPosition(0.25);
+        servoClawPitchRight.setPosition(0.25);
+        isInScoringPosition = false;
     }
 
     /**
@@ -144,13 +160,6 @@ public class Hardware_v2 {
         servoClawPitchRight.setPosition(0.16);
         servoArmLeft.setPosition(0.45);
         servoArmRight.setPosition(0.45);
+        isInScoringPosition = true;
     }
-
-//    /**
-//     * Sleeps the robot.
-//     * @param milliseconds The number of milliseconds to sleep for.
-//     */
-//    public void sleep(int milliseconds) {
-//        ElapsedTime timer = new ElapsedTime();
-//        while (true) {if (timer.now(TimeUnit.MILLISECONDS) >= milliseconds) {break;}}
-    }
+}
