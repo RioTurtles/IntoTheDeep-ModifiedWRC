@@ -54,8 +54,10 @@ public class TeleOp_v2a1 extends LinearOpMode {
                     robot.setIntakePosition();  // Lower claw pitch further (to allow pixel intake).
                 } else if (gamepad1.right_bumper) {
                     // Right bumper closes both claws.
-                    robot.closeUpperClaw();
                     robot.closeLowerClaw();
+                    lx = 0; ly = 0; rot_x = 0;  // Pause all motors as sleep() is blocking.
+                    sleep(175);  // Pause 100 ms as they close too fast.
+                    robot.closeUpperClaw();
                     stage = 1;
                     timer.reset();
                 }
@@ -65,7 +67,7 @@ public class TeleOp_v2a1 extends LinearOpMode {
             // After claw intake (pressing right bumper)
             if (stage == 1) {
                 // Raise the arm to prevent grinding.
-                if (timer.milliseconds()>300) {robot.setTransferPosition();}
+                if (timer.milliseconds() > 300 && timer.milliseconds() < 400) {robot.setTransferPosition();}
 
                 // Raising slider and proceeding to next stage.
                 if (gamepad1.triangle) {robot.setSliderPosition(1);}  // Press triangle to raise slider.
@@ -73,7 +75,7 @@ public class TeleOp_v2a1 extends LinearOpMode {
                 if (robot.motorSliderLeft.getCurrentPosition() > 1000) {
                     // Set to scoring position when slider is raised.
                     robot.setScoringPosition();
-                    scored = false;
+                    stage = 2;
                 }
 
                 // Return to previous stage.
@@ -81,18 +83,20 @@ public class TeleOp_v2a1 extends LinearOpMode {
                     stage = 0;
                     // Reset claw back to intake position.
                     robot.setIntakePosition();
-                    robot.openUpperClaw();
                     robot.openLowerClaw();
+                    robot.openUpperClaw();
                 }
             }
 
+            // Stage 2: Scoring
             // Hold circle to score and release to reset to lower slider and set intake position.
-            if (robot.isInScoringPosition) {
-                if (gamepad1.circle) {
+            if (stage == 2 && robot.isInScoringPosition) {
+                if (gamepad1.circle && !scored) {
                     robot.openLowerClaw();  // Release lower claw.
                     lx = 0; ly = 0; rot_x = 0;  // Pause motors as sleep() is blocking.
                     sleep(400);  // Delay 400 ms.
                     robot.openUpperClaw();  // Release upper claw.
+                    sleep(250);
                     scored = true;
                     timer.reset();
                 }
@@ -101,13 +105,11 @@ public class TeleOp_v2a1 extends LinearOpMode {
                     robot.closeUpperClaw();
                     robot.closeLowerClaw();  // Close both claws and proceed.
                     if (timer.milliseconds()>300) {  // Allow 300 ms for claws to close.
-                        robot.servoArmLeft.setPosition(0.963);
-                        robot.servoArmRight.setPosition(0.963);
-                        robot.servoClawPitchLeft.setPosition(0.45);
-                        robot.servoClawPitchRight.setPosition(0.45);
+                        robot.setTransferPosition();
+                        stage = 3;
                     }
                     if (timer.milliseconds()>700) {  // Allow 400 ms for intake to move (timer not reset).
-                        stage = 2;
+                        stage = 3;
                     }
                 }
 
@@ -121,13 +123,14 @@ public class TeleOp_v2a1 extends LinearOpMode {
                 }
             }
 
-            // Stage 2: Returning to intake
-            if (stage == 2) {
+            // Stage 3: Returning to intake
+            if (stage == 3) {
                 scored = false;
-                if (gamepad1.x) {
+                if (gamepad1.cross) {
                     robot.setSliderPosition(0);
                     robot.isInScoringPosition = false;
                 }
+
                 if (robot.motorSliderLeft.getCurrentPosition() < 100) {
                     robot.setTransferPosition();
                     stage = 0;
@@ -137,7 +140,14 @@ public class TeleOp_v2a1 extends LinearOpMode {
             // Reset IMU.
             if (gamepad1.share) {robot.imu.resetYaw();}
 
-            if (gamepad1.left_trigger > 0 || robot.isInScoringPosition) {
+            // Drone launcher.
+            if (gamepad1.dpad_down) {
+                robot.servoDrone.setPower(1);
+                sleep(130);
+                robot.servoDrone.setPower(0);
+            }
+
+            if (gamepad1.left_trigger > 0 || robot.motorSliderLeft.getCurrentPosition() > 700)  {
                 robot.motorFL.setPower((lx + ly + rot_x)*BRAKE_MODE_MULTIPLIER / denominator);
                 robot.motorBL.setPower((-lx + ly + rot_x)*BRAKE_MODE_MULTIPLIER / denominator);
                 robot.motorFR.setPower((ly - lx - rot_x)*BRAKE_MODE_MULTIPLIER / denominator);

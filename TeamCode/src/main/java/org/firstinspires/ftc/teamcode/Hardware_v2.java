@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
+import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
@@ -20,13 +21,25 @@ public class Hardware_v2 {
     Servo servoClawUpper, servoClawLower;
     Servo servoClawPitchLeft, servoClawPitchRight;
     Servo servoArmLeft, servoArmRight;
+    CRServo servoDrone;
     IMU imu;
     Telemetry telemetry;
 
-    int sliderPosition = 0;  // Consider removing?
     boolean clawUpperOpen;
     boolean clawLowerOpen;
     boolean isInScoringPosition = false;
+
+    final static double OFFSET_SERVO_ARM_LEFT = 0;
+    final static double OFFSET_SERVO_ARM_RIGHT = 0;
+    final static double OFFSET_SERVO_CLAW_PITCH_LEFT = 0;
+    final static double OFFSET_SERVO_CLAW_PITCH_RIGHT = 0;
+
+    final static double ARM_INTAKE = 0.953;
+    final static double ARM_LIFTED = 0.97;
+    final static double ARM_SCORING = 0.4;
+    final static double CLAW_PITCH_INTAKE = 0.935;
+    final static double CLAW_PITCH_LIFTED = 0.7;
+    final static double CLAW_PITCH_SCORING = 0.63;
 
     /**
      * Init method. Call upon the initialisation of an OpMode. Maps hardware to its variables. Call <code>reset()</code> afterwards.
@@ -45,6 +58,7 @@ public class Hardware_v2 {
         servoClawPitchRight = hardwareMap.get(Servo.class, "servoClawPitchRight");
         servoArmLeft = hardwareMap.get(Servo.class, "servoArmLeft");
         servoArmRight = hardwareMap.get(Servo.class, "servoArmRight");
+        servoDrone = hardwareMap.get(CRServo.class, "servoDrone");
         imu = hardwareMap.get(IMU.class, "imu");
 
         imu.initialize(new IMU.Parameters(new RevHubOrientationOnRobot(RevHubOrientationOnRobot.LogoFacingDirection.LEFT, RevHubOrientationOnRobot.UsbFacingDirection.UP)));
@@ -69,6 +83,7 @@ public class Hardware_v2 {
         servoClawLower.setDirection(Servo.Direction.FORWARD);
         servoArmLeft.setDirection(Servo.Direction.FORWARD);
         servoArmRight.setDirection(Servo.Direction.REVERSE);
+        servoDrone.setDirection(DcMotorSimple.Direction.REVERSE);
 
         motorSliderLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         motorSliderRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
@@ -94,15 +109,14 @@ public class Hardware_v2 {
      * @param power The speed of the motors to run on. Double value from 0-1.
      */
     public void setSliderPosition(int position, double power) {
-        sliderPosition = position;
         switch (position) {
             case 0:  // Fully lowered.
                 motorSliderLeft.setTargetPosition(0);
                 motorSliderRight.setTargetPosition(0);
                 break;
             case 1:  // Backdrop scoring position.
-                motorSliderLeft.setTargetPosition(1120);
-                motorSliderRight.setTargetPosition(1120);
+                motorSliderLeft.setTargetPosition(1200);
+                motorSliderRight.setTargetPosition(1200);
                 break;
             case 2:  // Rigging hold position.
                 motorSliderLeft.setTargetPosition(310);
@@ -121,23 +135,14 @@ public class Hardware_v2 {
      */
     public void setSliderPosition(int position) {setSliderPosition(position, 0.7);}
 
-    public void setUpperClaw(int position) {
-        switch (position) {
-            case 0:
-                servoClawUpper.setPosition(0);
-            case 1:
-                servoClawUpper.setPosition(0.22);
-        }
-    }
-
     /**
      * Sets the robot's arm and claw to its intake position.
      */
     public void setIntakePosition() {
-        servoArmLeft.setPosition(0.967);
-        servoArmRight.setPosition(0.967);
-        servoClawPitchLeft.setPosition(0.47);
-        servoClawPitchRight.setPosition(0.47);
+        servoArmLeft.setPosition(OFFSET_SERVO_ARM_LEFT + ARM_INTAKE);
+        servoArmRight.setPosition(OFFSET_SERVO_ARM_RIGHT + ARM_INTAKE);
+        servoClawPitchLeft.setPosition(OFFSET_SERVO_CLAW_PITCH_LEFT + CLAW_PITCH_INTAKE);
+        servoClawPitchRight.setPosition(OFFSET_SERVO_CLAW_PITCH_RIGHT + CLAW_PITCH_INTAKE);
         isInScoringPosition = false;
     }
 
@@ -145,10 +150,10 @@ public class Hardware_v2 {
      * Sets the robot's arm and claw to a lifted position to prevent field damage.
      */
     public void setTransferPosition() {
-        servoArmLeft.setPosition(1);
-        servoArmRight.setPosition(1);
-        servoClawPitchLeft.setPosition(0.25);
-        servoClawPitchRight.setPosition(0.25);
+        servoArmLeft.setPosition(OFFSET_SERVO_ARM_LEFT + ARM_LIFTED);
+        servoArmRight.setPosition(OFFSET_SERVO_ARM_RIGHT + ARM_LIFTED);
+        servoClawPitchLeft.setPosition(OFFSET_SERVO_CLAW_PITCH_LEFT + CLAW_PITCH_LIFTED);
+        servoClawPitchRight.setPosition(OFFSET_SERVO_CLAW_PITCH_RIGHT + CLAW_PITCH_LIFTED);
         isInScoringPosition = false;
     }
 
@@ -156,10 +161,10 @@ public class Hardware_v2 {
      * Sets the robot's arm and claw to its scoring position.
      */
     public void setScoringPosition() {
-        servoClawPitchLeft.setPosition(0.16);
-        servoClawPitchRight.setPosition(0.16);
-        servoArmLeft.setPosition(0.45);
-        servoArmRight.setPosition(0.45);
+        servoClawPitchLeft.setPosition(OFFSET_SERVO_CLAW_PITCH_LEFT + CLAW_PITCH_SCORING);
+        servoClawPitchRight.setPosition(OFFSET_SERVO_CLAW_PITCH_RIGHT + CLAW_PITCH_SCORING);
+        servoArmLeft.setPosition(OFFSET_SERVO_ARM_LEFT + ARM_SCORING);
+        servoArmRight.setPosition(OFFSET_SERVO_ARM_RIGHT + ARM_SCORING);
         isInScoringPosition = true;
     }
 }
