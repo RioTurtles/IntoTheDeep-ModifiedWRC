@@ -40,9 +40,9 @@ public class TwoWheelTrackingLocalizer extends TwoTrackingWheelLocalizer {
 
     // TODO: Measure deadwheel dimensions.
     public static double PARALLEL_X = -3.375; // X is the up and down direction
-    public static double PARALLEL_Y = -0.3125; // Y is the strafe direction
+    public static double PARALLEL_Y = 0.3125; // Y is the strafe direction
 
-    public static double PERPENDICULAR_X = -5;
+    public static double PERPENDICULAR_X = -4.75;
     public static double PERPENDICULAR_Y = -1;
 
     public static double X_MULTIPLIER = 0.99871443;
