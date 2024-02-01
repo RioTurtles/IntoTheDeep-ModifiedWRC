@@ -11,14 +11,6 @@ import com.qualcomm.robotcore.hardware.IMU;
 import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
-import org.opencv.core.Core;
-import org.opencv.core.Mat;
-import org.opencv.core.Rect;
-import org.opencv.core.Scalar;
-import org.opencv.imgproc.Imgproc;
-import org.openftc.easyopencv.OpenCvCamera;
-import org.openftc.easyopencv.OpenCvCameraRotation;
-import org.openftc.easyopencv.OpenCvPipeline;
 import org.openftc.easyopencv.OpenCvWebcam;
 
 /**
@@ -33,7 +25,6 @@ public class Hardware_v2 {
     Servo servoArmLeft, servoArmRight;
     CRServo servoDrone;
     IMU imu;
-    OpenCvWebcam webcam;
     Telemetry telemetry;
 
     boolean clawUpperOpen;
