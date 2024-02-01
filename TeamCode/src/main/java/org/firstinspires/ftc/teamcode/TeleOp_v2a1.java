@@ -70,7 +70,9 @@ public class TeleOp_v2a1 extends LinearOpMode {
                 if (timer.milliseconds() > 300 && timer.milliseconds() < 400) {robot.setTransferPosition();}
 
                 // Raising slider and proceeding to next stage.
-                if (gamepad1.triangle) {robot.setSliderPosition(1);}  // Press triangle to raise slider.
+                if (gamepad1.triangle) {  // Press triangle to raise slider.
+                    robot.setSliderPosition(1);
+                }
 
                 if (robot.motorSliderLeft.getCurrentPosition() > 1000) {
                     // Set to scoring position when slider is raised.
@@ -92,7 +94,9 @@ public class TeleOp_v2a1 extends LinearOpMode {
             // Hold circle to score and release to reset to lower slider and set intake position.
             if (stage == 2 && robot.isInScoringPosition) {
                 if (gamepad1.circle && !scored) {
+                    // robot.closeUpperClaw();
                     robot.openLowerClaw();  // Release lower claw.
+
                     lx = 0; ly = 0; rot_x = 0;  // Pause motors as sleep() is blocking.
                     sleep(400);  // Delay 400 ms.
                     robot.openUpperClaw();  // Release upper claw.
