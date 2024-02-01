@@ -20,12 +20,13 @@ import org.openftc.easyopencv.OpenCvWebcam;
 public class TeamProp_v2 extends OpMode {
     Hardware_v2 robot = new Hardware_v2();
     OpenCvWebcam webcam = null;
+    int result = 0;
 
     @Override
     public void init() {
-        //WebcamName webcamName = robot.webcam1;
+        WebcamName webcamName = hardwareMap.get(WebcamName.class,"Webcam 1");
         int cameraMonitorViewId = hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", hardwareMap.appContext.getPackageName());
-        //webcam = OpenCvCameraFactory.getInstance().createWebcam(webcamName, cameraMonitorViewId);
+        webcam = OpenCvCameraFactory.getInstance().createWebcam(webcamName, cameraMonitorViewId);
         FtcDashboard.getInstance().startCameraStream(webcam, 0);
 
         webcam.setPipeline(new TeamPropPipeline());
@@ -41,7 +42,9 @@ public class TeamProp_v2 extends OpMode {
     }
 
     @Override
-    public void loop() {}
+    public void loop() {
+        telemetry.addData("team prop location", result);
+    }
 
     class TeamPropPipeline extends OpenCvPipeline {
         Mat YCbCr = new Mat();
@@ -55,9 +58,9 @@ public class TeamProp_v2 extends OpMode {
             telemetry.addLine("Pipeline running.");
 
             // TODO: tune values when new car
-            Rect leftRect = new Rect(1, 121, 100, 79);
-            Rect middleRect = new Rect(327, 121, 100, 79);
-            Rect rightRect = new Rect(539, 121, 100, 79);
+            Rect leftRect = new Rect(1, 100, 100, 79);
+            Rect middleRect = new Rect(300, 100, 100, 79);
+            Rect rightRect = new Rect(539, 100, 100, 79);
 
             input.copyTo(output);
             Imgproc.rectangle(output, leftRect, rectColour, 2);
@@ -87,9 +90,9 @@ public class TeamProp_v2 extends OpMode {
             } else {
                 telemetry.addLine("right");
             }
-            telemetry.addData("left",leftAverageFinal);
-            telemetry.addData("middle",middleAverageFinal);
-            telemetry.addData("right",rightAverageFinal);
+            telemetry.addData("left", leftAverageFinal);
+            telemetry.addData("middle", middleAverageFinal);
+            telemetry.addData("right", rightAverageFinal);
 
             telemetry.update();
 
