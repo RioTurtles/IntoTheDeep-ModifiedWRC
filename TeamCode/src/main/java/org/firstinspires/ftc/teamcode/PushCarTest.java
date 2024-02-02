@@ -24,9 +24,9 @@ public class PushCarTest extends LinearOpMode {
         SampleMecanumDrive drive = new SampleMecanumDrive(hardwareMap);
 
         drive.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        double start_x=0;
-        double start_y=0;
-        double start_heading=0;
+        double start_x=11;
+        double start_y=-62;
+        double start_heading=90;
 
         waitForStart();
         drive.setPoseEstimate(new Pose2d(start_x, start_y, Math.toRadians(start_heading)));
