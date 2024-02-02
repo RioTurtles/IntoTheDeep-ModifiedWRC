@@ -45,9 +45,10 @@ public class AutonBlueClose extends LinearOpMode {
         double error1;
         double lastError1=0;
         double integral1=0;
-        double kp1 = 0.05;
-        double ki1 =0;
-        double kd1 =0;
+        double kp1 = 0.16;
+        double ki1 =0.015;
+        ki1=0;
+        double kd1 =0.3;
         double error2;
         double lastError2=0;
         double integral2=0;
@@ -58,14 +59,15 @@ public class AutonBlueClose extends LinearOpMode {
         double lastError3 = 0;
         double integral3=0;
         double kp3 = 0.6;
-        double ki3=0;
-        double kd3 = 0;
+        double ki3=0.001;
+        double kd3 = 1;
 
 
 
 
         int moveStep = 1;
         ElapsedTime timer1 = new ElapsedTime();
+        ElapsedTime auton30 = new ElapsedTime();
         SampleMecanumDrive drive = new SampleMecanumDrive(hardwareMap);
 
         drive.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
@@ -88,11 +90,14 @@ public class AutonBlueClose extends LinearOpMode {
         telemetry.addData("Status", "Initialised");
         telemetry.update();
         drive.setPoseEstimate(new Pose2d(11, 62, Math.toRadians(270)));
+        robot.closeUpperClaw();
+        robot.closeLowerClaw();
 
         waitForStart();
+
         webcam.stopRecordingPipeline();
         webcam.stopStreaming();
-        while(!gamepad1.share){
+        /*while(!gamepad1.share){
             if(gamepad1.right_bumper) {
                 if (gamepad1.triangle) {
                     kp1 += 0.01;
@@ -142,128 +147,112 @@ public class AutonBlueClose extends LinearOpMode {
             telemetry.addData("kd3",kd3);
 
         }
+
+         */
         kp2=kp1;
         ki2=ki1;
         kd2=kd1;
         while (opModeIsActive()) {
-
-
             Pose2d poseEstimate = drive.getPoseEstimate();
 
+            // Initial movement
             if (moveStep == 1) {
+                robot.setIntakePosition();
+
                 xTarget = 11;
                 yTarget = 36;
-                headingTarget = 90;
-                if ((Math.abs(poseEstimate.getY() - xTarget) > 1)|| (Math.abs(poseEstimate.getY() - xTarget) > 1)){
-                    timer1.reset();
-                }
+                headingTarget = 270;
+
+                if ((Math.abs(poseEstimate.getX() - xTarget) > 1) || (Math.abs(poseEstimate.getY() - yTarget) > 1)) {timer1.reset();}
                 if (timer1.milliseconds() > 300) {
                     moveStep = 2;
                     timer1.reset();
                 }
             }
+
+            // Rotate (purple pixel)
             if (moveStep == 2) {
-
-
-                if(randomizationResult==1) {
+                if (randomizationResult == 1) {
+                    headingTarget = 270;
+                } else if (randomizationResult == 2) {
+                    robot.setIntakePosition();
+                    headingTarget = 270;
+                } else if (randomizationResult == 3) {
                     headingTarget = 180;
-                    xTarget = 15;
-                    yTarget = -30;
-                }else if (randomizationResult==2){
-                    headingTarget=90;
-                    xTarget = 9;
-                    yTarget=-36;
-                }else {
-                    headingTarget=0;
-                    xTarget = 7;
-                    yTarget = -36;
                 }
-                if ((Math.abs(poseEstimate.getY() - xTarget) > 1)|| (Math.abs(poseEstimate.getY() - xTarget) > 1)){
-                    timer1.reset();
-                }
+
+                if ((Math.abs(poseEstimate.getX() - xTarget) > 1) || (Math.abs(poseEstimate.getY() - yTarget) > 1)) {timer1.reset();}
                 if (timer1.milliseconds() > 300) {
                     moveStep = 3;
                     timer1.reset();
                 }
             }
 
+            // Path to pixel position (purple pixel
             if (moveStep == 3) {
-
-
-                if(randomizationResult==1) {
+                if(randomizationResult == 3) {
                     headingTarget = 180;
-                    xTarget = 17;
-                    yTarget =-32;
-                }else if (randomizationResult==2){
-                    headingTarget=90;
-                    xTarget = 16;
-                    yTarget=-36;
-                }else {
-                    headingTarget=0;
-                    xTarget =21;
-                    yTarget =-34;
+                    xTarget = 10;
+                    yTarget = 32;
+                } else if (randomizationResult == 2) {
+                    headingTarget = 270;
+                    xTarget = 11;
+                    yTarget = 32;
+                } else if (randomizationResult == 1) {
+                    headingTarget = 270;
+                    xTarget = 22.5;
+                    yTarget = 42;
                 }
-                if ((Math.abs(poseEstimate.getY() - xTarget) > 1)|| (Math.abs(poseEstimate.getY() - xTarget) > 1)){
-                    timer1.reset();
-                }
+
+                if ((Math.abs(poseEstimate.getX() - xTarget) > 1) || (Math.abs(poseEstimate.getY() - yTarget) > 1)) {timer1.reset();}
                 if (timer1.milliseconds() > 300) {
                     moveStep = 4;
                     timer1.reset();
                 }
             }
-            if (moveStep == 4) {//in scoring position
 
-
-                if(randomizationResult==1) {
-                    headingTarget = 180;
-                    xTarget = -30;
-                    yTarget =-32;
-                }else if (randomizationResult==2){
-                    headingTarget=90;
-                    xTarget = -41;
-                    yTarget=-36;
-                }else {
-                    headingTarget=0;
-                    xTarget =-36;
-                    yTarget =-34;
-                }
-                if ((Math.abs(poseEstimate.getY() - xTarget) > 1)|| (Math.abs(poseEstimate.getY() - xTarget) > 1)){
-                    timer1.reset();
-                }
+            // Score purple pixel
+            if (moveStep == 4) {
+                if ((Math.abs(poseEstimate.getX() - xTarget) > 1) || (Math.abs(poseEstimate.getY() - yTarget) > 1)) {timer1.reset();}
                 if (timer1.milliseconds() > 300) {
                     moveStep = 5;
-                    robot.setIntakePosition();//score
+                    robot.setIntakePosition();  // score
 
                     timer1.reset();
                 }
             }
-            if(moveStep==5){
-                if(timer1.milliseconds()>1000){
+
+            // Also score purple pixel
+            if (moveStep == 5){
+                if (timer1.milliseconds() > 1000) {
                     robot.openLowerClaw();
+                    telemetry.addLine("openClaw");
                 }
-                if(timer1.milliseconds()>1500){
+
+                if (timer1.milliseconds() > 1500) {
                     robot.setTransferPosition();
                     moveStep = 6;
                 }
             }
-            if(moveStep==6){
-                xTarget=11;
-                yTarget=36;
-                if ((Math.abs(poseEstimate.getY() - xTarget) > 1)|| (Math.abs(poseEstimate.getY() - xTarget) > 1)){
-                    timer1.reset();
-                }
-                if (timer1.milliseconds() > 300) {
+
+            // Back up (yellow pixel)
+            if (moveStep == 6) {
+                xTarget = 15;
+                yTarget = 47;
+
+                if ((Math.abs(poseEstimate.getX() - xTarget) > 3) || (Math.abs(poseEstimate.getY() - yTarget) > 3)) {timer1.reset();}
+                if (timer1.milliseconds() > 100) {
                     moveStep = 7;
-
-
                     timer1.reset();
                 }
             }
-            if(moveStep==7){
-                xTarget=15;
-                yTarget=48;
-                headingTarget=0;
-                if ((Math.abs(poseEstimate.getY() - xTarget) > 1)|| (Math.abs(poseEstimate.getY() - xTarget) > 1)){
+
+
+            if (moveStep == 7) {
+                xTarget=44;
+                yTarget=41;
+                headingTarget=180;
+                if ((Math.abs(poseEstimate.getX() - xTarget) > 1)|| (Math.abs(poseEstimate.getY() - yTarget) > 1)){
                     timer1.reset();
                 }
                 if (timer1.milliseconds() > 300) {
@@ -275,67 +264,82 @@ public class AutonBlueClose extends LinearOpMode {
 
             }
             if(moveStep==8){
-                xTarget=50;
-                yTarget=48;
-                headingTarget=0;
-                if ((Math.abs(poseEstimate.getY() - xTarget) > 1)|| (Math.abs(poseEstimate.getY() - xTarget) > 1)){
+                drive.setMotorPowers( 0,0,0,0);
+
+                if ((Math.abs(poseEstimate.getX() - xTarget) > 1)|| (Math.abs(poseEstimate.getY() - yTarget) > 1)){
                     timer1.reset();
                 }
-                if (timer1.milliseconds() > 300) {
-                    moveStep = 9 ;
+                if (timer1.milliseconds() >100) {
+                    moveStep = 9;
                     robot.setTransferPosition();
                     robot.closeLowerClaw();
                     robot.closeUpperClaw();
-                    robot.setSliderPosition(1);
+                    robot.setSliderPosition(3);
+
                     //score
 
                     timer1.reset();
                 }
             }
+
             if (moveStep == 9) {
-                xTarget=50;//board scoring position
-                if(randomizationResult==1){
-                    yTarget=42;
+                xTarget = 53;//board scoring position
+                if (randomizationResult == 3) {
+                    yTarget = 26.5;
                 }
-                if(randomizationResult==1){
-                    yTarget=36;
+                if (randomizationResult == 2) {
+                    yTarget = 34;
                 }
-                if(randomizationResult==1){
-                    yTarget=30;
+                if (randomizationResult == 1) {
+                    yTarget = 43;
                 }
 
-                if(robot.motorSliderLeft.getCurrentPosition()>1000){
-                    robot.setScoringPosition();
-                }
-                if ((Math.abs(poseEstimate.getY() - xTarget) > 1)|| (Math.abs(poseEstimate.getY() - xTarget) > 1)){
+                if ((Math.abs(poseEstimate.getX() - xTarget) > 1) || (Math.abs(poseEstimate.getY() - yTarget) > 1) || robot.motorSliderLeft.getCurrentPosition() < 650) {
                     timer1.reset();
                 }
-                if (timer1.milliseconds() > 300) {
-                    moveStep = 10 ;
+
+                if (robot.motorSliderLeft.getCurrentPosition() > 650) {
+                    robot.servoClawPitchLeft.setPosition(0.63);
+                    robot.servoClawPitchRight.setPosition(0.63);
+                    robot.servoArmLeft.setPosition(0.32);
+                    robot.servoArmRight.setPosition(0.32);
+                }
+                if (timer1.milliseconds() > 4000 || auton30.seconds() > 20) {
+                    moveStep = 10;
                     robot.openUpperClaw();
-                    //score
-                    //dllm gao lum dim
+                    robot.openLowerClaw();
+
 
                     timer1.reset();
                 }
-                if(moveStep==10){
-                    if(timer1.milliseconds()>300){
-                        robot.closeLowerClaw();
-                        robot.closeUpperClaw();
-                    }
-                    if(timer1.milliseconds()>800){
-                        robot.setTransferPosition();
-                    }
-                    if(timer1.milliseconds()>1200){
-                        robot.setSliderPosition(0);
-                    }
+            }
+
+            if (moveStep == 10) {
+                if (timer1.milliseconds() > 300) {
+                    robot.setSliderPosition(1);
+                    robot.closeLowerClaw();
+                    robot.closeUpperClaw();
                 }
 
+                if (timer1.milliseconds() > 800) {robot.setTransferPosition();}
+                if (timer1.milliseconds() > 1200) {
+                    moveStep=11;
+                    timer1.reset();
+                }
+            }
 
+            if (moveStep == 11) {
+                robot.setSliderPosition(0);
+                drive.setMotorPowers( 0,0,0,0);
             }
-            if(robot.motorSliderLeft.getCurrentPosition()<800){
+
+
+
+
+
+            /*if(robot.motorSliderLeft.getCurrentPosition()<800){
                 robot.setTransferPosition();
-            }
+            }*/
 
 
 
@@ -371,6 +375,12 @@ public class AutonBlueClose extends LinearOpMode {
             robot.motorBL.setPower((-lx + ly + rot_x) / denominator);
             robot.motorFR.setPower((ly - lx - rot_x) / denominator);
             robot.motorBR.setPower((lx + ly - rot_x) / denominator);
+            if(moveStep==11){
+                robot.motorBR.setPower(0);
+                robot.motorFR.setPower(0);
+                robot.motorBL.setPower(0);
+                robot.motorFL.setPower(0);
+            }
 
             drive.update();
 
@@ -381,6 +391,10 @@ public class AutonBlueClose extends LinearOpMode {
             telemetry.addData("heading", Math.toDegrees(poseEstimate.getHeading()));
             telemetry.addData("result",randomizationResult);
             telemetry.addData("Move",moveStep);
+            telemetry.addData("xError",Math.abs(poseEstimate.getY() - xTarget));
+            telemetry.addData("xError",Math.abs(poseEstimate.getY() - xTarget));
+            telemetry.addData("slide",robot.motorSliderLeft.getCurrentPosition());
+            telemetry.addData("stage", moveStep);
 
             telemetry.update();
         }
@@ -392,7 +406,7 @@ public class AutonBlueClose extends LinearOpMode {
         Mat leftCrop, middleCrop, rightCrop;
         double leftAverageFinal, middleAverageFinal, rightAverageFinal;
         Mat output = new Mat();
-        Scalar rectColour = new Scalar(255.0, 0.0, 0.0);
+        Scalar rectColour = new Scalar(0, 0.0, 255.0);
 
         public Mat processFrame(Mat input) {
             Imgproc.cvtColor(input, YCbCr, Imgproc.COLOR_RGB2YCrCb);
@@ -412,7 +426,7 @@ public class AutonBlueClose extends LinearOpMode {
             middleCrop = YCbCr.submat(middleRect);
             rightCrop = YCbCr.submat(rightRect);
 
-            Core.extractChannel(leftCrop, leftCrop, 2);  // Channel 2 = red
+            Core.extractChannel(leftCrop, leftCrop,2);  // Channel 2 = red
             Core.extractChannel(middleCrop, middleCrop, 2);
             Core.extractChannel(rightCrop, rightCrop, 2);
 
@@ -420,9 +434,9 @@ public class AutonBlueClose extends LinearOpMode {
             Scalar middleAverage = Core.mean(middleCrop);
             Scalar rightAverage = Core.mean(rightCrop);
 
-            leftAverageFinal = Math.abs(leftAverage.val[0] - 100);
-            middleAverageFinal = Math.abs(middleAverage.val[0] - 100);
-            rightAverageFinal = Math.abs(rightAverage.val[0] - 100);
+            leftAverageFinal = Math.abs(leftAverage.val[0] - 145);
+            middleAverageFinal = Math.abs(middleAverage.val[0] - 145);
+            rightAverageFinal = Math.abs(rightAverage.val[0] - 145);
 
             if ((leftAverageFinal < middleAverageFinal) && (leftAverageFinal < rightAverageFinal)) {
                 telemetry.addLine("left");
@@ -434,6 +448,7 @@ public class AutonBlueClose extends LinearOpMode {
                 telemetry.addLine("right");
                 randomizationResult = 3;
             }
+
             telemetry.addData("left", leftAverageFinal);
             telemetry.addData("middle", middleAverageFinal);
             telemetry.addData("right", rightAverageFinal);
