@@ -17,7 +17,7 @@ public class TeleOp_v2a1 extends LinearOpMode {
 
         // Variables
         final double ROTATION_MULTIPLIER = 0.8;
-        final double BRAKE_MODE_MULTIPLIER = 0.3;
+        final double BRAKE_MODE_MULTIPLIER = 0.5;
 
         double botHeading;
         double left_x;

@@ -36,9 +36,9 @@ public class Hardware_v2 {
     final static double OFFSET_SERVO_CLAW_PITCH_LEFT = 0;
     final static double OFFSET_SERVO_CLAW_PITCH_RIGHT = 0;
 
-    final static double ARM_INTAKE = 0.953;
-    final static double ARM_LIFTED = 0.97;
-    final static double ARM_SCORING = 0.4;
+    final static double ARM_INTAKE = 0.8;
+    final static double ARM_LIFTED = 1;
+    final static double ARM_SCORING = 0.2;
     final static double CLAW_PITCH_INTAKE = 0.935;
     final static double CLAW_PITCH_LIFTED = 0.7;
     final static double CLAW_PITCH_SCORING = 0.63;
@@ -100,10 +100,10 @@ public class Hardware_v2 {
     public void openLowerClaw() {servoClawLower.setPosition(1); clawLowerOpen = true;}
 
     /** Closes upper claw and sets <code>clawUpperOpen</code> to <code>false</code>.*/
-    public void closeUpperClaw() {servoClawUpper.setPosition(0.22); clawUpperOpen = false;}
+    public void closeUpperClaw() {servoClawUpper.setPosition(0.3); clawUpperOpen = false;}
 
     /** Closes lower claw and sets <code>clawLowerOpen</code> to <code>false</code>.*/
-    public void closeLowerClaw() {servoClawLower.setPosition(0.74); clawLowerOpen = false;}
+    public void closeLowerClaw() {servoClawLower.setPosition(0.72); clawLowerOpen = false;}
 
     /**
      * Sets slider positions.
@@ -123,6 +123,9 @@ public class Hardware_v2 {
             case 2:  // Rigging hold position.
                 motorSliderLeft.setTargetPosition(310);
                 motorSliderRight.setTargetPosition(310);
+            case 3:
+                motorSliderLeft.setTargetPosition(700);
+                motorSliderRight.setTargetPosition(700);
         }
 
         motorSliderLeft.setPower(power);
