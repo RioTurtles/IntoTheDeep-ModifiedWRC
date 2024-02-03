@@ -179,7 +179,7 @@ public class TeleOp_v2a1 extends LinearOpMode {
                     rot_x = 0;
                 }
             }
-            /*
+
             if (gamepad1.share){
                 robot.motorSliderLeft.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
                 robot.motorSliderRight.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
@@ -187,10 +187,22 @@ public class TeleOp_v2a1 extends LinearOpMode {
                 robot.motorSliderRight.setPower(0.5);
                 robot.motorSliderRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
                 robot.motorSliderLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+                sleep(100);
+
+            }
+            if (gamepad1.options){
+                robot.motorSliderLeft.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+                robot.motorSliderRight.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+                robot.motorSliderLeft.setPower(-0.5);
+                robot.motorSliderRight.setPower(-0.5);
+                robot.motorSliderRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+                robot.motorSliderLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+                sleep(100);
 
             }
 
-             */
+
+
 
             if (gamepad1.left_trigger > 0 || robot.motorSliderLeft.getCurrentPosition() > 700)  {
                 robot.motorFL.setPower((lx + ly + rot_x)*BRAKE_MODE_MULTIPLIER / denominator);

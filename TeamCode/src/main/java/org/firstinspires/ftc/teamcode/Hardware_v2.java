@@ -124,8 +124,8 @@ public class Hardware_v2 {
                 motorSliderLeft.setTargetPosition(310);
                 motorSliderRight.setTargetPosition(310);
             case 3:
-                motorSliderLeft.setTargetPosition(700);
-                motorSliderRight.setTargetPosition(700);
+                motorSliderLeft.setTargetPosition(850);
+                motorSliderRight.setTargetPosition(850);
         }
 
         motorSliderLeft.setPower(power);
