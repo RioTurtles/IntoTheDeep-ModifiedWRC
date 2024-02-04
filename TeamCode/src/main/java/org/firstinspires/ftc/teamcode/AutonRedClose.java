@@ -94,6 +94,7 @@ public class AutonRedClose extends LinearOpMode {
         robot.closeLowerClaw();
 
         waitForStart();
+        auton30.reset();
 
         webcam.stopRecordingPipeline();
         webcam.stopStreaming();
@@ -197,10 +198,10 @@ public class AutonRedClose extends LinearOpMode {
                 } else if (randomizationResult == 2) {
                     headingTarget = 90;
                     xTarget = 11;
-                    yTarget = -32;
+                    yTarget = -33;
                 } else if (randomizationResult == 3) {
                     headingTarget = 90;
-                    xTarget = 22.5;
+                    xTarget = 22;
                     yTarget = -42;
                 }
 
@@ -288,7 +289,7 @@ public class AutonRedClose extends LinearOpMode {
                     yTarget = -26.5;
                 }
                 if (randomizationResult == 2) {
-                    yTarget = -34;
+                    yTarget = -34.75;
                 }
                 if (randomizationResult == 3) {
                     yTarget = -43;
@@ -299,16 +300,12 @@ public class AutonRedClose extends LinearOpMode {
                 }
 
                 if (robot.motorSliderLeft.getCurrentPosition() > 650) {
-                    robot.servoClawPitchLeft.setPosition(0.63);
-                    robot.servoClawPitchRight.setPosition(0.63);
-                    robot.servoArmLeft.setPosition(0.32);
-                    robot.servoArmRight.setPosition(0.32);
+                    robot.setScoringPosition();
                 }
-                if (timer1.milliseconds() > 4000 || auton30.seconds() > 20) {
+                if (auton30.seconds() > 14) {
                     moveStep = 10;
                     robot.openUpperClaw();
                     robot.openLowerClaw();
-
 
                     timer1.reset();
                 }
@@ -322,7 +319,7 @@ public class AutonRedClose extends LinearOpMode {
                     }
 
                     if (timer1.milliseconds() > 800) {robot.setTransferPosition();}
-                    if (timer1.milliseconds() > 1200) {
+                    if (timer1.milliseconds() > 2000) {
                        moveStep=11;
                        timer1.reset();
                     }
@@ -331,7 +328,10 @@ public class AutonRedClose extends LinearOpMode {
             if (moveStep == 11) {
                 robot.setSliderPosition(0);
                 drive.setMotorPowers( 0,0,0,0);
+            }
 
+            if (moveStep == 12) {
+                yTarget = -56;
             }
 
 
@@ -381,6 +381,7 @@ public class AutonRedClose extends LinearOpMode {
                 robot.motorFR.setPower(0);
                 robot.motorBL.setPower(0);
                 robot.motorFL.setPower(0);
+                moveStep = 12;
             }
             drive.update();
 
