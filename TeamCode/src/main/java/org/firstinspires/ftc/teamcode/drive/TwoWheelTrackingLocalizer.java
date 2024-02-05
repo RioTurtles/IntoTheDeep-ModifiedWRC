@@ -38,15 +38,14 @@ public class TwoWheelTrackingLocalizer extends TwoTrackingWheelLocalizer {
     public static double WHEEL_RADIUS = 0.945; // in
     public static double GEAR_RATIO = 1; // output (wheel) speed / input (encoder) speed
 
-    // TODO: Measure deadwheel dimensions.
     public static double PARALLEL_X = -3.375; // X is the up and down direction
     public static double PARALLEL_Y = 0.3125; // Y is the strafe direction
 
     public static double PERPENDICULAR_X = -4.75;
     public static double PERPENDICULAR_Y = -1;
 
-    public static double X_MULTIPLIER = 0.99871443;
-    public static double Y_MULTIPLIER = 0.98044733666;
+    public static double X_MULTIPLIER = 1;
+    public static double Y_MULTIPLIER = 1;
 
     // Parallel/Perpendicular to the forward axis
     // Parallel wheel is parallel to the forward axis
@@ -57,8 +56,8 @@ public class TwoWheelTrackingLocalizer extends TwoTrackingWheelLocalizer {
 
     public TwoWheelTrackingLocalizer(HardwareMap hardwareMap, SampleMecanumDrive drive) {
         super(Arrays.asList(
-            new Pose2d(PARALLEL_X, PARALLEL_Y, 0),
-            new Pose2d(PERPENDICULAR_X, PERPENDICULAR_Y, Math.toRadians(90))
+                new Pose2d(PARALLEL_X, PARALLEL_Y, 0),
+                new Pose2d(PERPENDICULAR_X, PERPENDICULAR_Y, Math.toRadians(90))
         ));
 
         this.drive = drive;
@@ -66,7 +65,7 @@ public class TwoWheelTrackingLocalizer extends TwoTrackingWheelLocalizer {
         parallelEncoder = new Encoder(hardwareMap.get(DcMotorEx.class, "motorBL"));
         perpendicularEncoder = new Encoder(hardwareMap.get(DcMotorEx.class, "motorBR"));
 
-        // Finished to-do: reverse any encoders using Encoder.setDirection(Encoder.Direction.REVERSE)
+        // TODO: reverse any encoders using Encoder.setDirection(Encoder.Direction.REVERSE)
         parallelEncoder.setDirection(Encoder.Direction.FORWARD);
         perpendicularEncoder.setDirection(Encoder.Direction.REVERSE);
     }
@@ -100,9 +99,10 @@ public class TwoWheelTrackingLocalizer extends TwoTrackingWheelLocalizer {
         // TODO: If your encoder velocity can exceed 32767 counts / second (such as the REV Through Bore and other
         //  competing magnetic encoders), change Encoder.getRawVelocity() to Encoder.getCorrectedVelocity() to enable a
         //  compensation method
+
         return Arrays.asList(
-                encoderTicksToInches(parallelEncoder.getRawVelocity()) * X_MULTIPLIER,
-                encoderTicksToInches(perpendicularEncoder.getRawVelocity()) * Y_MULTIPLIER
+                encoderTicksToInches(parallelEncoder.getRawVelocity()),
+                encoderTicksToInches(perpendicularEncoder.getRawVelocity())
         );
     }
 }

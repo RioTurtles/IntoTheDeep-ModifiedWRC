@@ -1,23 +1,12 @@
-package org.firstinspires.ftc.teamcode;
+package org.firstinspires.ftc.teamcode.archive.v2;
 
-import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.roadrunner.geometry.Pose2d;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.util.ElapsedTime;
-import com.qualcomm.robotcore.hardware.HardwareMap;
 
 import org.firstinspires.ftc.teamcode.drive.SampleMecanumDrive;
-import org.opencv.core.Core;
-import org.opencv.core.Mat;
-import org.opencv.core.Rect;
-import org.opencv.core.Scalar;
-import org.opencv.imgproc.Imgproc;
-import org.openftc.easyopencv.OpenCvCamera;
-import org.openftc.easyopencv.OpenCvCameraRotation;
-import org.openftc.easyopencv.OpenCvPipeline;
-import org.openftc.easyopencv.OpenCvWebcam;
 
 @Autonomous(name="AutonTest")
 public class AutonTest extends OpMode {
