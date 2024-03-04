@@ -1,9 +1,11 @@
 package org.firstinspires.ftc.teamcode.archive.v2;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
 
+@Disabled
 @Autonomous(name="v2 Autonomous R L")
 public class AutonomousRedLeft_v2 extends LinearOpMode {
     public static int orientation = 0;

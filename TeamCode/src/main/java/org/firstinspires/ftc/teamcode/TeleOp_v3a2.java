@@ -1,8 +1,7 @@
-package org.firstinspires.ftc.teamcode.archive.v2;
+package org.firstinspires.ftc.teamcode;
 
 import static java.lang.Math.abs;
 
-import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
@@ -10,13 +9,12 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 
-@Disabled
-@TeleOp(name="v2 TeleOp A2")
-public class TeleOp_v2a2 extends LinearOpMode {
+@TeleOp(name="v3 TeleOp A2")
+public class TeleOp_v3a2 extends LinearOpMode {
     @Override
     public void runOpMode() throws InterruptedException {
 
-        Hardware_v2 robot = new Hardware_v2();
+        Hardware_v3 robot = new Hardware_v3();
         robot.init(hardwareMap, telemetry);
         robot.reset();
 
@@ -36,7 +34,6 @@ public class TeleOp_v2a2 extends LinearOpMode {
         double lastError2 = 0;
         final double kp2 = 0.6;
         final double kd2 = 0.1;
-        double pivot;
 
         int stage = 0;
 
@@ -122,10 +119,10 @@ public class TeleOp_v2a2 extends LinearOpMode {
                     robot.closeUpperClaw();
                     robot.closeLowerClaw();  // Close both claws and proceed.
                     if (timer.milliseconds()>300) {  // Allow 300 ms for claws to close.
-                        robot.servoArmLeft.setPosition(Hardware_v2.ARM_LIFTED);
-                        robot.servoArmRight.setPosition(Hardware_v2.ARM_LIFTED);
-                        robot.servoClawPitchLeft.setPosition(Hardware_v2.CLAW_PITCH_INTAKE);
-                        robot.servoClawPitchRight.setPosition(Hardware_v2.CLAW_PITCH_INTAKE);
+                        robot.servoArmLeft.setPosition(Hardware_v3.ARM_LIFTED);
+                        robot.servoArmRight.setPosition(Hardware_v3.ARM_LIFTED);
+                        robot.servoClawPitchLeft.setPosition(Hardware_v3.CLAW_PITCH_INTAKE);
+                        robot.servoClawPitchRight.setPosition(Hardware_v3.CLAW_PITCH_INTAKE);
                         stage = 3;
                     }
                     if (timer.milliseconds()>700) {  // Allow 400 ms for intake to move (timer not reset).
@@ -169,20 +166,18 @@ public class TeleOp_v2a2 extends LinearOpMode {
             }
 
             if (gamepad2.square) {
-                if (abs(error2=botHeading-Math.PI/2) > abs(error2=botHeading+Math.PI/2)) {
+                if (abs(error2 = botHeading-Math.PI/2) > abs(error2 = botHeading+Math.PI/2)) {
                     error2 = botHeading + Math.PI / 2;
                 } else {
                     error2 = botHeading - Math.PI / 2;
                 }
 
-                if (error2>Math.PI) {error2 -=2*Math.PI;}
-                if (error2<-Math.PI) {error2 +=2*Math.PI;}
+                if (error2 > Math.PI) {error2 -= 2*Math.PI;}
+                if (error2 < -Math.PI) {error2 += 2*Math.PI;}
                 rot_x = ((error2) * kp2 + ((error2 - lastError2) * kd2));
                 lastError2 = error2;
-                telemetry.addData("error2",error2);
-                if (abs(abs(botHeading)-(Math.PI/2))<0.05){
-                    rot_x = 0;
-                }
+                telemetry.addData("error2", error2);
+                if (abs(abs(botHeading) - (Math.PI/2)) < 0.05) {rot_x = 0;}
             }
 
             if (gamepad2.share) {

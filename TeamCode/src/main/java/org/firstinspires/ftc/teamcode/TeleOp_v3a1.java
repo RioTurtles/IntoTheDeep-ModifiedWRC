@@ -1,8 +1,7 @@
-package org.firstinspires.ftc.teamcode.archive.v2;
+package org.firstinspires.ftc.teamcode;
 
 import static java.lang.Math.abs;
 
-import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
@@ -10,13 +9,12 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 
-@Disabled
-@TeleOp(name="v2 TeleOp A2")
-public class TeleOp_v2a2 extends LinearOpMode {
+@TeleOp(name="v3 TeleOp A1")
+public class TeleOp_v3a1 extends LinearOpMode {
     @Override
     public void runOpMode() throws InterruptedException {
 
-        Hardware_v2 robot = new Hardware_v2();
+        Hardware_v3 robot = new Hardware_v3();
         robot.init(hardwareMap, telemetry);
         robot.reset();
 
@@ -36,7 +34,6 @@ public class TeleOp_v2a2 extends LinearOpMode {
         double lastError2 = 0;
         final double kp2 = 0.6;
         final double kd2 = 0.1;
-        double pivot;
 
         int stage = 0;
 
@@ -49,21 +46,21 @@ public class TeleOp_v2a2 extends LinearOpMode {
         while (opModeIsActive()) {
             // Fieldcentric controls
             botHeading = robot.imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.RADIANS);
-            left_x = gamepad2.left_stick_x;
-            left_y = -gamepad2.left_stick_y;
-            rot_x = gamepad2.right_stick_x * ROTATION_MULTIPLIER;  // Make rotation less intense (80%)
+            left_x = gamepad1.left_stick_x;
+            left_y = -gamepad1.left_stick_y;
+            rot_x = gamepad1.right_stick_x * ROTATION_MULTIPLIER;  // Make rotation less intense (80%)
             lx = left_x * Math.cos(-botHeading) - left_y * Math.sin(-botHeading);
             ly = left_x * Math.sin(-botHeading) + left_y * Math.cos(-botHeading);
             denominator = Math.max(abs(left_x) + abs(left_y) + abs(rot_x), 1);
 
             // Stage 0: Intake
             if (stage == 0) {
-                if (gamepad2.left_bumper) {
+                if (gamepad1.left_bumper) {
                     // Pressing left bumper will open both claw and set the claw pitch to intake position.
                     robot.setIntakePosition();  // Lower claw pitch further (to allow pixel intake).
                     robot.openUpperClaw();
                     robot.openLowerClaw();
-                } else if (gamepad2.right_bumper) {
+                } else if (gamepad1.right_bumper) {
                     // Right bumper closes both claws.
                     robot.closeUpperClaw();
 
@@ -83,7 +80,7 @@ public class TeleOp_v2a2 extends LinearOpMode {
                 if (timer.milliseconds() > 600 && timer.milliseconds() < 1000) {robot.setTransferPosition();}
 
                 // Raising slider and proceeding to next stage.
-                if (gamepad2.triangle) {  // Press triangle to raise slider.
+                if (gamepad1.triangle) {  // Press triangle to raise slider.
                     robot.setSliderPosition(1);
                 }
 
@@ -94,7 +91,7 @@ public class TeleOp_v2a2 extends LinearOpMode {
                 }
 
                 // Return to previous stage.
-                if (gamepad2.left_bumper) {
+                if (gamepad1.left_bumper) {
                     stage = 0;
                     // Reset claw back to intake position.
                     robot.setIntakePosition();
@@ -106,7 +103,7 @@ public class TeleOp_v2a2 extends LinearOpMode {
             // Stage 2: Scoring
             // Hold circle to score and release to reset to lower slider and set intake position.
             if (stage == 2 && robot.isInScoringPosition) {
-                if (gamepad2.circle && !scored) {
+                if (gamepad1.circle && !scored) {
                     // robot.closeUpperClaw();
                     robot.openLowerClaw();  // Release lower claw.
 
@@ -122,10 +119,10 @@ public class TeleOp_v2a2 extends LinearOpMode {
                     robot.closeUpperClaw();
                     robot.closeLowerClaw();  // Close both claws and proceed.
                     if (timer.milliseconds()>300) {  // Allow 300 ms for claws to close.
-                        robot.servoArmLeft.setPosition(Hardware_v2.ARM_LIFTED);
-                        robot.servoArmRight.setPosition(Hardware_v2.ARM_LIFTED);
-                        robot.servoClawPitchLeft.setPosition(Hardware_v2.CLAW_PITCH_INTAKE);
-                        robot.servoClawPitchRight.setPosition(Hardware_v2.CLAW_PITCH_INTAKE);
+                        robot.servoArmLeft.setPosition(Hardware_v3.ARM_LIFTED);
+                        robot.servoArmRight.setPosition(Hardware_v3.ARM_LIFTED);
+                        robot.servoClawPitchLeft.setPosition(Hardware_v3.CLAW_PITCH_INTAKE);
+                        robot.servoClawPitchRight.setPosition(Hardware_v3.CLAW_PITCH_INTAKE);
                         stage = 3;
                     }
                     if (timer.milliseconds()>700) {  // Allow 400 ms for intake to move (timer not reset).
@@ -135,7 +132,7 @@ public class TeleOp_v2a2 extends LinearOpMode {
                 }
 
                 // Rigging control.
-                if (gamepad2.dpad_up && !scored) {
+                if (gamepad1.dpad_up && !scored) {
                     robot.servoArmLeft.setPosition(0.45);
                     robot.servoArmRight.setPosition(0.45);
                     robot.servoClawPitchLeft.setPosition(0.32);
@@ -159,33 +156,31 @@ public class TeleOp_v2a2 extends LinearOpMode {
             }
 
             // Reset IMU.
-            if (gamepad2.touchpad) {robot.imu.resetYaw();}
+            if (gamepad1.touchpad) {robot.imu.resetYaw();}
 
             // Drone launcher.
-            if (gamepad2.dpad_down) {
+            if (gamepad1.dpad_down) {
                 robot.servoDrone.setPower(1);
                 sleep(130);
                 robot.servoDrone.setPower(0);
             }
 
-            if (gamepad2.square) {
-                if (abs(error2=botHeading-Math.PI/2) > abs(error2=botHeading+Math.PI/2)) {
+            if (gamepad1.square) {
+                if (abs(error2 = botHeading-Math.PI/2) > abs(error2 = botHeading+Math.PI/2)) {
                     error2 = botHeading + Math.PI / 2;
                 } else {
                     error2 = botHeading - Math.PI / 2;
                 }
 
-                if (error2>Math.PI) {error2 -=2*Math.PI;}
-                if (error2<-Math.PI) {error2 +=2*Math.PI;}
+                if (error2>Math.PI) {error2 -= 2*Math.PI;}
+                if (error2<-Math.PI) {error2 += 2*Math.PI;}
                 rot_x = ((error2) * kp2 + ((error2 - lastError2) * kd2));
                 lastError2 = error2;
-                telemetry.addData("error2",error2);
-                if (abs(abs(botHeading)-(Math.PI/2))<0.05){
-                    rot_x = 0;
-                }
+                telemetry.addData("error2", error2);
+                if (abs(abs(botHeading) - (Math.PI/2)) < 0.05) {rot_x = 0;}
             }
 
-            if (gamepad2.share) {
+            if (gamepad1.share) {
                 robot.motorSliderLeft.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
                 robot.motorSliderRight.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
                 robot.motorSliderLeft.setPower(0.5);
@@ -195,7 +190,7 @@ public class TeleOp_v2a2 extends LinearOpMode {
                 sleep(1000);
 
             }
-            if (gamepad2.options){
+            if (gamepad1.options){
                 robot.motorSliderLeft.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
                 robot.motorSliderRight.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
                 robot.motorSliderLeft.setPower(-0.5);
@@ -206,7 +201,7 @@ public class TeleOp_v2a2 extends LinearOpMode {
 
             }
 
-            if (gamepad2.dpad_left) {
+            if (gamepad1.dpad_left) {
                 robot.motorSliderLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
                 robot.motorSliderRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
             }
@@ -214,7 +209,7 @@ public class TeleOp_v2a2 extends LinearOpMode {
 
 
 
-            if (gamepad2.left_trigger > 0 || robot.motorSliderLeft.getCurrentPosition() > 700)  {
+            if (gamepad1.left_trigger > 0 || robot.motorSliderLeft.getCurrentPosition() > 700)  {
                 robot.motorFL.setPower((lx + ly + rot_x)*BRAKE_MODE_MULTIPLIER / denominator);
                 robot.motorBL.setPower((-lx + ly + rot_x)*BRAKE_MODE_MULTIPLIER / denominator);
                 robot.motorFR.setPower((ly - lx - rot_x)*BRAKE_MODE_MULTIPLIER / denominator);
@@ -227,7 +222,7 @@ public class TeleOp_v2a2 extends LinearOpMode {
             }
 
             telemetry.addData("STAGE", stage);
-            telemetry.addData("- in brake", (gamepad2.left_trigger > 0 || robot.isInScoringPosition));
+            telemetry.addData("- in brake", (gamepad1.left_trigger > 0 || robot.isInScoringPosition));
             telemetry.addData("- in scoring", robot.isInScoringPosition);
             telemetry.update();
         }
