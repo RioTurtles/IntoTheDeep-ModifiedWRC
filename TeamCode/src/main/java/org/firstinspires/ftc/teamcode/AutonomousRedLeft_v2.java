@@ -3,8 +3,6 @@ package org.firstinspires.ftc.teamcode;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
-import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
-
 
 @Autonomous(name="v2 Autonomous R L")
 public class AutonomousRedLeft_v2 extends LinearOpMode {
@@ -12,7 +10,7 @@ public class AutonomousRedLeft_v2 extends LinearOpMode {
 
     @Override
     public void runOpMode() throws InterruptedException {
-        Hardware_v2 robot = new Hardware_v2();
+        Project1Hardware robot = new Project1Hardware();
         robot.init(hardwareMap, telemetry);
         robot.reset();
         double lx=0;

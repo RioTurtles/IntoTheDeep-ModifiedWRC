@@ -27,7 +27,7 @@ public class AutonRedClose extends LinearOpMode {
 
     @Override
     public void runOpMode() throws InterruptedException {
-        Hardware_v2 robot = new Hardware_v2();
+        Project1Hardware robot = new Project1Hardware();
         robot.init(hardwareMap, telemetry);
         robot.reset();
 
@@ -90,8 +90,8 @@ public class AutonRedClose extends LinearOpMode {
         telemetry.addData("Status", "Initialised");
         telemetry.update();
         drive.setPoseEstimate(new Pose2d(11, -62, Math.toRadians(90)));
-        robot.closeUpperClaw();
-        robot.closeLowerClaw();
+        //robot.closeUpperClaw();
+        //robot.closeLowerClaw();
 
         waitForStart();
 
@@ -157,7 +157,7 @@ public class AutonRedClose extends LinearOpMode {
 
             // Initial movement
             if (moveStep == 1) {
-                robot.setIntakePosition();
+                // robot.setIntakePosition();
 
                 xTarget = 11;
                 yTarget = -36;
@@ -175,7 +175,7 @@ public class AutonRedClose extends LinearOpMode {
                 if (randomizationResult == 1) {
                     headingTarget = 180;
                 } else if (randomizationResult == 2) {
-                    robot.setIntakePosition();
+                   // robot.setIntakePosition();
                     headingTarget = 90;
                 } else if (randomizationResult == 3) {
                     headingTarget = 90;
@@ -216,7 +216,7 @@ public class AutonRedClose extends LinearOpMode {
                 if ((Math.abs(poseEstimate.getX() - xTarget) > 1) || (Math.abs(poseEstimate.getY() - yTarget) > 1)) {timer1.reset();}
                 if (timer1.milliseconds() > 300) {
                     moveStep = 5;
-                    robot.setIntakePosition();  // score
+                   // robot.setIntakePosition();  // score
 
                     timer1.reset();
                 }
@@ -225,12 +225,12 @@ public class AutonRedClose extends LinearOpMode {
             // Also score purple pixel
             if (moveStep == 5){
                 if (timer1.milliseconds() > 1000) {
-                    robot.openLowerClaw();
+                   // robot.openLowerClaw();
                     telemetry.addLine("openClaw");
                 }
 
                 if (timer1.milliseconds() > 1500) {
-                    robot.setTransferPosition();
+                    //robot.setTransferPosition();
                     moveStep = 6;
                 }
             }
@@ -271,10 +271,10 @@ public class AutonRedClose extends LinearOpMode {
                 }
                 if (timer1.milliseconds() >100) {
                     moveStep = 9;
-                    robot.setTransferPosition();
+                    /*robot.setTransferPosition();
                     robot.closeLowerClaw();
                     robot.closeUpperClaw();
-                    robot.setSliderPosition(3);
+                    robot.setSliderPosition(3);*/
 
                     //score
 
@@ -306,8 +306,7 @@ public class AutonRedClose extends LinearOpMode {
                 }
                 if (timer1.milliseconds() > 4000 || auton30.seconds() > 20) {
                     moveStep = 10;
-                    robot.openUpperClaw();
-                    robot.openLowerClaw();
+
 
 
                     timer1.reset();
@@ -316,12 +315,10 @@ public class AutonRedClose extends LinearOpMode {
 
             if (moveStep == 10) {
                     if (timer1.milliseconds() > 300) {
-                        robot.setSliderPosition(1);
-                        robot.closeLowerClaw();
-                        robot.closeUpperClaw();
+
                     }
 
-                    if (timer1.milliseconds() > 800) {robot.setTransferPosition();}
+                    if (timer1.milliseconds() > 800) {}
                     if (timer1.milliseconds() > 1200) {
                        moveStep=11;
                        timer1.reset();
@@ -329,7 +326,7 @@ public class AutonRedClose extends LinearOpMode {
             }
 
             if (moveStep == 11) {
-                robot.setSliderPosition(0);
+
                 drive.setMotorPowers( 0,0,0,0);
 
             }

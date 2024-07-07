@@ -27,7 +27,7 @@ public class AutonTest3 extends LinearOpMode {
 
     @Override
     public void runOpMode() throws InterruptedException {
-        Hardware_v2 robot = new Hardware_v2();
+        Project1Hardware robot = new Project1Hardware();
         robot.init(hardwareMap, telemetry);
         robot.reset();
 

@@ -18,7 +18,7 @@ import org.openftc.easyopencv.OpenCvWebcam;
 
 @Autonomous(name="v2 Team Prop EOCV")
 public class TeamProp_v2 extends OpMode {
-    Hardware_v2 robot = new Hardware_v2();
+    Project1Hardware robot = new Project1Hardware();
     OpenCvWebcam webcam = null;
     int result = 0;
 

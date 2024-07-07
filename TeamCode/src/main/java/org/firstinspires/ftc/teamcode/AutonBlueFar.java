@@ -27,7 +27,7 @@ public class AutonBlueFar extends LinearOpMode {
 
     @Override
     public void runOpMode() throws InterruptedException {
-        Hardware_v2 robot = new Hardware_v2();
+        Project1Hardware robot = new Project1Hardware();
         robot.init(hardwareMap, telemetry);
         robot.reset();
 
@@ -90,8 +90,6 @@ public class AutonBlueFar extends LinearOpMode {
         telemetry.addData("Status", "Initialised");
         telemetry.update();
         drive.setPoseEstimate(new Pose2d(-36, 62, Math.toRadians(270)));
-        robot.closeUpperClaw();
-        robot.closeLowerClaw();
 
         waitForStart();
 
@@ -157,7 +155,6 @@ public class AutonBlueFar extends LinearOpMode {
 
             // Initial movement
             if (moveStep == 1) {
-                robot.setIntakePosition();
 
                 xTarget = -37;
                 yTarget = 36;
@@ -175,7 +172,6 @@ public class AutonBlueFar extends LinearOpMode {
                 if (randomizationResult == 1) {
                     headingTarget = 0;
                 } else if (randomizationResult == 2) {
-                    robot.setIntakePosition();
                     xTarget = -40;
                     headingTarget = 90;
                 } else if (randomizationResult == 3) {
@@ -220,7 +216,6 @@ public class AutonBlueFar extends LinearOpMode {
                 if ((Math.abs(poseEstimate.getX() - xTarget) > 1) || (Math.abs(poseEstimate.getY() - yTarget) > 1)) {timer1.reset();}
                 if (timer1.milliseconds() > 300) {
                     moveStep = 5;
-                    robot.setIntakePosition();  // score
 
                     timer1.reset();
                 }
@@ -229,12 +224,12 @@ public class AutonBlueFar extends LinearOpMode {
             // Also score purple pixel
             if (moveStep == 5){
                 if (timer1.milliseconds() > 1000) {
-                    robot.openLowerClaw();
+
                     telemetry.addLine("openClaw");
                 }
 
                 if (timer1.milliseconds() > 1500) {
-                    robot.setTransferPosition();
+
                     moveStep = 6;
                 }
             }
@@ -252,7 +247,7 @@ public class AutonBlueFar extends LinearOpMode {
                 if ((Math.abs(poseEstimate.getX() - xTarget) > 3) || (Math.abs(poseEstimate.getY() - yTarget) > 3)) {timer1.reset();}
                 if (timer1.milliseconds() > 100) {
                     moveStep = 7;
-                    robot.setScoringPosition();
+
                     timer1.reset();
                 }
             }
@@ -282,10 +277,6 @@ public class AutonBlueFar extends LinearOpMode {
                 }
                 if (timer1.milliseconds() >100) {
                     moveStep = 9;
-                    robot.setTransferPosition();
-                    robot.closeLowerClaw();
-                    robot.closeUpperClaw();
-                    robot.setSliderPosition(3);
 
                     //score
 
@@ -317,8 +308,7 @@ public class AutonBlueFar extends LinearOpMode {
                 }
                 if (auton30.seconds() > 20) {
                     moveStep = 10;
-                    robot.openUpperClaw();
-                    robot.openLowerClaw();
+
 
 
                     timer1.reset();
@@ -327,12 +317,10 @@ public class AutonBlueFar extends LinearOpMode {
 
             if (moveStep == 10) {
                     if (timer1.milliseconds() > 300) {
-                        robot.setSliderPosition(1);
-                        robot.closeLowerClaw();
-                        robot.closeUpperClaw();
+
                     }
 
-                    if (timer1.milliseconds() > 800) {robot.setTransferPosition();}
+                    if (timer1.milliseconds() > 800) {}
                     if (timer1.milliseconds() > 1200) {
                        moveStep=11;
                        timer1.reset();
@@ -340,7 +328,7 @@ public class AutonBlueFar extends LinearOpMode {
             }
 
             if (moveStep == 11) {
-                robot.setSliderPosition(0);
+
                 drive.setMotorPowers( 0,0,0,0);
 
 
