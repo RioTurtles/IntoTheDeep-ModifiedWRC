@@ -277,5 +277,6 @@ public class Project1Hardware {
     }
     public void clawRScoring(){
         setClawPAngle(180-getArmAngle() + 8);
+        //setClawPAngle(180);
     }
 }
