@@ -91,7 +91,7 @@ public class  Teleop_v2 extends LinearOpMode {
             angle = revolutions * 360;
             angleNormalized = angle % 360;
 
-            if (gamepad.touchpad) {
+            if (gamepad.options) {
                 robot.imu.resetYaw();
             }
 
@@ -146,8 +146,7 @@ public class  Teleop_v2 extends LinearOpMode {
                     robot.arm.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
 
                     robot.setClawPAngle(180);
-                    robot.leftClaw.setPosition(1);
-                    robot.rightClaw.setPosition(1);
+                   robot.bothClawClose();
 
                     //Rigging
                     /*if (gamepad.triangle) {
@@ -323,7 +322,7 @@ public class  Teleop_v2 extends LinearOpMode {
                     }*/
 
                     if (robot.getArmAngle() > 90) {
-                        robot.setClawPAngle(180 - robot.getArmAngle() + 30);
+                        robot.clawRScoring();
                     }
 
                     if (gamepad.triangle && !lastGamepad.triangle && robot.getArmAngle() > 90 && robot.getArmAngle()>120 && robot.getArmAngle()<170) {
@@ -387,8 +386,8 @@ public class  Teleop_v2 extends LinearOpMode {
                         robot.setSlider(0);
                     }
 
-                    if (robot.getArmAngle() > 90) {
-                        robot.setClawPAngle(180 - robot.getArmAngle() +20);
+                    if (robot.getArmAngle() > 70) {
+                        robot.clawRScoring();
                     }
 
                     if (gamepad.left_trigger > 0) {

@@ -122,7 +122,6 @@ public class Project1Hardware {
         servoArmRight.setDirection(Servo.Direction.REVERSE);
         servoDrone.setDirection(DcMotorSimple.Direction.REVERSE);
 
-
         motorSliderLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
 
        motorSliderRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
@@ -179,26 +178,26 @@ public class Project1Hardware {
         drone.setPosition(0.8);
     }
     public void bothClawOpen() {
-        leftClaw.setPosition(0.05);
-        rightClaw.setPosition(0);
+        leftClaw.setPosition(0.15);
+        rightClaw.setPosition(0.25);
     }
 
     public void leftClawOpen() {
-        leftClaw.setPosition(0);
+        leftClaw.setPosition(0.15);
     }
 
     public void rightClawOpen() {
-        rightClaw.setPosition(0.05);
+        rightClaw.setPosition(0.25);
     }
 
     public void leftClawClose() {
-        leftClaw.setPosition(0.55);
-        leftClaw.setPosition(0.6);
+        leftClaw.setPosition(0.65);
+        //leftClaw.setPosition(0.7);
     }
 
     public void rightClawClose() {
-        rightClaw.setPosition(0.55);
-        rightClaw.setPosition(0.6);
+        rightClaw.setPosition(0.75);
+        //rightClaw.setPosition(0.8);
     }
 
     public void bothClawClose() {
@@ -274,8 +273,9 @@ public class Project1Hardware {
         return length;
     }
     public void clawRIntake(){
-        setClawPAngle(90 - getArmAngle() - 18);
+        setClawPAngle(90 - getArmAngle() * 0.5 - 18);
     }
-
-
+    public void clawRScoring(){
+        setClawPAngle(180-getArmAngle() + 8);
+    }
 }
