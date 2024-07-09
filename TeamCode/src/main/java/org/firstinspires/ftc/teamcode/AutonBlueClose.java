@@ -259,11 +259,10 @@ public class AutonBlueClose extends LinearOpMode {
                 }
 
                  */
-                if(timer1.milliseconds()>1200){
+                if(timer1.milliseconds() > 1200){
                     robot.retractSlider();
                     timer1.reset();
                     moveStep=4;
-
                 }
             }
 
@@ -284,8 +283,8 @@ public class AutonBlueClose extends LinearOpMode {
             // Also score purple pixel
             if (moveStep == 5) {
                 robot.setArm(160);
-                headingTarget=0;
-                if(robot.getArmAngle()>155) {
+                headingTarget = 0;
+                if(robot.getArmAngle() > 155) {
                     robot.setSlider(600);
                 }
 
@@ -309,12 +308,12 @@ public class AutonBlueClose extends LinearOpMode {
 
             // Back up (yellow pixel)
             if (moveStep == 6) {
-                if(robot.getArmAngle()>155) {
+                if(robot.getArmAngle() > 155) {
                     robot.setSlider(600);
                 }
 
 
-                if (robot.slider.getCurrentPosition()<550) {timer1.reset();}
+                if (robot.slider.getCurrentPosition() < 550) {timer1.reset();}
                 if (timer1.milliseconds() > 300) {
                     robot.rightClawOpen();
                     moveStep = 7;
@@ -324,12 +323,12 @@ public class AutonBlueClose extends LinearOpMode {
 
 
             if (moveStep == 7) {
-                if(timer1.milliseconds()>300) {
+                if(timer1.milliseconds() > 300) {
                     robot.retractSlider();
                     robot.setArm(0);
                 }
 
-                if (robot.getArmAngle()<120) {
+                if (robot.getArmAngle() < 120) {
                     robot.setClawPAngle(180);
                     moveStep = 8;
                     //score
@@ -338,13 +337,13 @@ public class AutonBlueClose extends LinearOpMode {
                 }
 
             }
-            if(moveStep==8){
+            if(moveStep == 8){
                yTarget=60;
-                if (robot.getArmAngle()<120) {
+                if (robot.getArmAngle() < 120) {
                     robot.setClawPAngle(180);
                 }
 
-                if(robot.getArmAngle()<20){
+                if(robot.getArmAngle() < 20){
                     robot.arm.setPower(0);
                     robot.arm.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
                 }
@@ -352,44 +351,42 @@ public class AutonBlueClose extends LinearOpMode {
                 if ((Math.abs(poseEstimate.getX() - xTarget) > 1)|| (Math.abs(poseEstimate.getY() - yTarget) > 1)){
                     timer1.reset();
                 }
-                if (timer1.milliseconds() >100) {
-
+                if (timer1.milliseconds() > 100) {
                     moveStep = 9;
-
-
-
-
                     timer1.reset();
                 }
             }
 
             if (moveStep == 9) {
-                xTarget = 50;//board scoring position
+                headingTarget = 270;
 
-
-                if ((Math.abs(poseEstimate.getX() - xTarget) > 1) || (Math.abs(poseEstimate.getY() - yTarget) > 1) ) {
-                    timer1.reset();
-                }
-
-
-
-
-                if (timer1.milliseconds()>400){
-                    moveStep = 9;
-
-
-
+                if (timer1.milliseconds() > 100) {
+                    moveStep = 10;
                     timer1.reset();
                 }
             }
 
             if (moveStep == 10) {
+                xTarget = 50;
+
+                if ((Math.abs(poseEstimate.getX() - xTarget) > 1) || (Math.abs(poseEstimate.getY() - yTarget) > 1) ) {
+                    timer1.reset();
+                }
+
+                if (timer1.milliseconds()>400){
+                    moveStep = 10;
+                    timer1.reset();
+                }
+            }
+
+            /*if (moveStep == 11) {
                drive.setMotorPowers(0,0,0,0);
-            }
 
-            if (moveStep == 11) {
-
-            }
+                if (timer1.milliseconds() > 100){
+                    moveStep = 11;
+                    timer1.reset();
+                }
+            }*/
 
 
 

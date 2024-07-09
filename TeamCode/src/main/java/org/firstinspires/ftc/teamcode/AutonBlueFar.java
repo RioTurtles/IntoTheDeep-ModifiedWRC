@@ -106,7 +106,7 @@ public class AutonBlueFar extends LinearOpMode {
         telemetry.addData("Randomization", randomizationResult);
         telemetry.addData("Status", "Initialised");
         telemetry.update();
-        drive.setPoseEstimate(new Pose2d(-36, 63, Math.toRadians(90)));
+        drive.setPoseEstimate(new Pose2d(-36, -63, Math.toRadians(270)));
         robot.bothClawClose();
         robot.retractSlider();
 
@@ -195,7 +195,7 @@ public class AutonBlueFar extends LinearOpMode {
 
             // Rotate (purple pixel)
             if (moveStep == 2) {
-                xTarget=-37;
+                xTarget = -37;
                 robot.bothClawClose();
                 robot.arm.setPower(0);
                 robot.arm.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
@@ -268,12 +268,12 @@ public class AutonBlueFar extends LinearOpMode {
 
                  */
                 if(timer1.milliseconds() > 200) {
-                    integral1=0;
-                    integral2=0;
+                    integral1 = 0;
+                    integral2 = 0;
                     //robot.
                    // timer1.reset();
                     robot.leftClawOpen();
-                    moveStep=4;
+                    moveStep = 4;
 
                 }
             }
@@ -302,7 +302,7 @@ public class AutonBlueFar extends LinearOpMode {
             }
             // Also score purple pixel
             if (moveStep == 5){
-                yTarget=10;
+                yTarget = 10;
 
                 if(randomizationResult==1){
                     xTarget=-41;
@@ -313,18 +313,20 @@ public class AutonBlueFar extends LinearOpMode {
 
 
                 if (timer1.milliseconds() > 300) {
-                    integral1=0;
-                    integral2=0;
+                    integral1 = 0;
+                    integral2 = 0;
+
                     moveStep = 6;
+                    timer1.reset();
                 }
             }
 
             // Back up (yellow pixel)
             if (moveStep == 6) {
-                integral1=0;
-                integral2=0;
-                yTarget=12;
-                xTarget=32;
+                integral1 = 0;
+                integral2 = 0;
+                yTarget = 12;
+                xTarget = 32;
                 if ((Math.abs(poseEstimate.getX() - xTarget) > 1) || (Math.abs(poseEstimate.getY() - yTarget) > 1)) {timer1.reset();}
 
 
@@ -338,6 +340,7 @@ public class AutonBlueFar extends LinearOpMode {
                     timer1.reset();
                 }
             }
+
             if (moveStep == 7) {
                 integral1=0;
                 integral2=0;
@@ -388,7 +391,7 @@ public class AutonBlueFar extends LinearOpMode {
             }
 
             if (moveStep == 9) {
-                if(robot.getArmAngle()>145) {
+                if(robot.getArmAngle() > 145) {
                     robot.setSlider(570);
                 }
 
@@ -431,7 +434,7 @@ public class AutonBlueFar extends LinearOpMode {
                     robot.setClawPAngle(180);
                 }
 
-                if(robot.getArmAngle()<20){
+                if(robot.getArmAngle() < 20){
                     robot.arm.setPower(0);
                     robot.arm.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
                     robot.arm.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
@@ -440,13 +443,13 @@ public class AutonBlueFar extends LinearOpMode {
                 if ((Math.abs(poseEstimate.getX() - xTarget) > 1)|| (Math.abs(poseEstimate.getY() - yTarget) > 1)){
                     timer1.reset();
                 }
-                if (timer1.milliseconds() >300) {
+                if (timer1.milliseconds() > 300) {
                     moveStep = 12;
                     timer1.reset();
                 }
 
             }
-            if(moveStep==12){
+            if(moveStep == 12){
                 integral1 = 0;
                 integral2 = 0;
 
