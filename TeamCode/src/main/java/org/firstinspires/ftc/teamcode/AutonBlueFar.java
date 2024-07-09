@@ -217,10 +217,6 @@ public class AutonBlueFar extends LinearOpMode {
                     robot.setClawPAngle(180-robot.getArmAngle()+15);
                 }*/
 
-
-
-
-
                 if ((Math.abs(poseEstimate.getX() - xTarget) > 1) || (Math.abs(poseEstimate.getY() - yTarget) > 1)) {timer1.reset();}
 
 

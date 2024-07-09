@@ -26,7 +26,8 @@ public class  Teleop_v2 extends LinearOpMode {
         READY_SCORE,
         SCORING,
         RETURN_TO_INIT,
-        SIMPLE_SCORING
+        SIMPLE_SCORING,
+        RIGGING
     }
     double direction_y, direction_x, pivot, heading;
     double CPR, revolutions, angle, angleNormalized;
@@ -39,6 +40,8 @@ public class  Teleop_v2 extends LinearOpMode {
     ElapsedTime Timer1 = new ElapsedTime();
     // int state = 0;
     states state = states.INIT;
+
+    int riggingState = 0;
 
     //TODO: Find arrays
     int[] sliderScoringPosition = {};
@@ -66,8 +69,6 @@ public class  Teleop_v2 extends LinearOpMode {
         robot.setSlider(0);
         robot.setDrone();
 
-        //robot.setRiggingServo();
-
         /*lDis = robot.leftDis.getDistance(DistanceUnit.CM);
         rDis = robot.rightDis.getDistance(DistanceUnit.CM);*/
 
@@ -94,12 +95,6 @@ public class  Teleop_v2 extends LinearOpMode {
             if (gamepad.options) {
                 robot.imu.resetYaw();
             }
-
-            /* if (gamepad.circle) {
-                robot.extendRiggingServo();
-            }
-
-             */
 
             if(gamepad.square) {
                 robot.droneLaunch();
@@ -147,23 +142,6 @@ public class  Teleop_v2 extends LinearOpMode {
 
                     robot.setClawPAngle(180);
                    robot.bothClawClose();
-
-                    //Rigging
-                    /*if (gamepad.triangle) {
-                        robot.extendRiggingMotor();
-                    } else {
-                        robot.lRigging.setPower(0);
-                        robot.rRigging.setPower(0);
-                    }
-
-                    if (gamepad.cross) {
-                        robot.retractRiggingMotor();
-                    } else {
-                        robot.lRigging.setPower(0);
-                        robot.rRigging.setPower(0);
-                    }
-
-                     */
 
                     if(gamepad.right_bumper && !lastGamepad.right_bumper){
                         state = states.GROUND;
@@ -369,10 +347,8 @@ public class  Teleop_v2 extends LinearOpMode {
                     if(simpleHeight < 0){
                         simpleHeight = 0;
                     }
-                    if(simpleHeight<0){
-                        simpleHeight=0;
-                    }
-                    if(simpleHeight>4){
+
+                    if(simpleHeight > 4){
                         simpleHeight=4;
                     }
 
@@ -429,6 +405,64 @@ public class  Teleop_v2 extends LinearOpMode {
                         Timer1.reset();
                     }
                     break;
+
+
+            }
+            if(riggingState == 0){
+                robot.rRiggingUp.setPwmDisable();
+                robot.lRiggingUp.setPwmDisable();
+            }
+
+            if (riggingState == 1) {
+                robot.extendRiggingServo();
+
+                if (gamepad.dpad_up) {
+                    robot.lRigging.setPower(1);
+                } else if (gamepad.dpad_down) {
+                    robot.lRigging.setPower(-1);
+                } else {
+                    robot.lRigging.setPower(0);
+                }
+
+                if (gamepad.triangle) {
+                    robot.rRigging.setPower(1);
+                } else if (gamepad.cross) {
+                    robot.rRigging.setPower(-1);
+                } else {
+                    robot.rRigging.setPower(0);
+                }
+            }
+
+            if (riggingState == 2) {
+                robot.rRiggingUp.setPwmDisable();
+                robot.lRiggingUp.setPwmDisable();
+            }
+
+            if (riggingState == 3) {
+                if (gamepad.triangle) {
+                    robot.extendRiggingMotor();
+                } else if (gamepad.cross) {
+                    robot.retractRiggingMotor();
+                } else {
+                    robot.lRigging.setPower(0);
+                    robot.rRigging.setPower(0);
+                }
+            }
+
+            if (gamepad.dpad_left && !lastGamepad.dpad_left) {
+                riggingState += 1;
+            }
+
+            if (gamepad.dpad_right && !lastGamepad.dpad_right) {
+                riggingState -= 1;
+            }
+
+            if (riggingState > 3) {
+                riggingState = 3;
+            }
+
+            if (riggingState < 0) {
+                riggingState = 0;
             }
 
             //if (state < 0) {state = 0;}
@@ -445,6 +479,7 @@ public class  Teleop_v2 extends LinearOpMode {
 
              */
             telemetry.addData("state", state);
+            telemetry.addData("RiggingState", riggingState);
             telemetry.addData("arm", robot.getArmAngle());
 
             drivetrain.remote(direction_y, direction_x, -pivot, heading);

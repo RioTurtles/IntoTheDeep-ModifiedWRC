@@ -58,16 +58,7 @@ public class Project1Hardware {
         motorFR = hardwareMap.get(DcMotor.class, "motorFR");
         motorBL = hardwareMap.get(DcMotor.class, "motorBL");
         motorBR = hardwareMap.get(DcMotor.class, "motorBR");
-        /*motorSliderLeft = hardwareMap.get(DcMotorEx.class, "motorSliderLeft");
-        motorSliderRight = hardwareMap.get(DcMotorEx.class, "motorSliderRight");
-        servoClawUpper = hardwareMap.get(Servo.class, "servoClawUpper");
-        servoClawLower = hardwareMap.get(Servo.class, "servoClawLower");
-        servoClawPitchLeft = hardwareMap.get(Servo.class, "servoClawPitchLeft");
-        servoClawPitchRight = hardwareMap.get(Servo.class, "servoClawPitchRight");
-        servoArmLeft = hardwareMap.get(Servo.class, "servoArmLeft");
-        servoArmRight = hardwareMap.get(Servo.class, "servoArmRight");
-        servoDrone = hardwareMap.get(CRServo.class, "servoDrone");
-         */
+
         slider = hardwareMap.get(DcMotorEx.class, "slider");
         arm = hardwareMap.get(DcMotorEx.class, "arm");
         lRigging = hardwareMap.get(DcMotorEx.class,"lRigging");
@@ -90,10 +81,18 @@ public class Project1Hardware {
         motorFR.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         motorBL.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         motorBR.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+
         slider.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
         arm.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
         lRigging.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         rRigging.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+
+        motorFL.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        motorFR.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        motorBL.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        motorBR.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        lRigging.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        rRigging.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
         motorFL.setDirection(DcMotorSimple.Direction.REVERSE);
         motorFR.setDirection(DcMotorSimple.Direction.FORWARD);
@@ -101,32 +100,19 @@ public class Project1Hardware {
         motorBR.setDirection(DcMotorSimple.Direction.FORWARD);
         slider.setDirection(DcMotorEx.Direction.FORWARD);
         arm.setDirection(DcMotorEx.Direction.FORWARD);
-        lRigging.setDirection(DcMotorEx.Direction.FORWARD);
-        rRigging.setDirection(DcMotorSimple.Direction.REVERSE);
+        lRigging.setDirection(DcMotorEx.Direction.REVERSE);
+        rRigging.setDirection(DcMotorSimple.Direction.FORWARD);
         leftClaw.setDirection(ServoImplEx.Direction.FORWARD);
         rightClaw.setDirection(ServoImplEx.Direction.REVERSE);
         clawP.setDirection(ServoImplEx.Direction.REVERSE);
         drone.setDirection(Servo.Direction.FORWARD);
         arm.setPower(0);
         arm.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+
         setDrone();
         bothClawClose();
         setClawPAngle(180);
-        /*motorSliderLeft.setDirection(DcMotorSimple.Direction.FORWARD);
-        motorSliderRight.setDirection(DcMotorSimple.Direction.REVERSE);
-        servoClawPitchLeft.setDirection(Servo.Direction.FORWARD);
-        servoClawPitchRight.setDirection(Servo.Direction.REVERSE);
-        servoClawUpper.setDirection(Servo.Direction.FORWARD);
-        servoClawLower.setDirection(Servo.Direction.FORWARD);
-        servoArmLeft.setDirection(Servo.Direction.FORWARD);
-        servoArmRight.setDirection(Servo.Direction.REVERSE);
-        servoDrone.setDirection(DcMotorSimple.Direction.REVERSE);
 
-        motorSliderLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-
-       motorSliderRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-
-         */
         imu.initialize(
                 new IMU.Parameters(
                         new RevHubOrientationOnRobot(
@@ -164,7 +150,7 @@ public class Project1Hardware {
     //Movements
     public void extendRiggingServo() {
         lRiggingUp.setPosition(0.5);
-        rRiggingUp.setPosition(0.5);
+        rRiggingUp.setPosition(0.7);
     }
     public void retractRiggingMotor() {
         lRigging.setPower(-1);
