@@ -368,12 +368,13 @@ public class AutonBlueClose extends LinearOpMode {
 
             if (moveStep == 10) {
                 xTarget = 50;
+                robot.bothClawClose();
 
                 if ((Math.abs(poseEstimate.getX() - xTarget) > 1) || (Math.abs(poseEstimate.getY() - yTarget) > 1) ) {
                     timer1.reset();
                 }
 
-                if (timer1.milliseconds()>400){
+                if (timer1.milliseconds() > 400){
                     moveStep = 10;
                     timer1.reset();
                 }
@@ -473,7 +474,8 @@ public class AutonBlueClose extends LinearOpMode {
             // TODO: tune values when new car
             Rect leftRect = new Rect(0, 100, 100, 79);
             Rect middleRect = new Rect(280, 100, 100, 79);
-            Rect rightRect = new Rect(539, 100, 100, 79);
+            Rect rightRect = new Rect(539, 130, 100, 79);
+            //Rect rightRect = new Rect(539, 90, 100, 79);
 
             input.copyTo(output);
             Imgproc.rectangle(output, leftRect, rectColour, 2);

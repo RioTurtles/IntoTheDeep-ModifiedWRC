@@ -329,8 +329,9 @@ public class AutonBlueFar extends LinearOpMode {
 
 
                 if (timer1.milliseconds() > 300) {
-                    integral1=0;
-                    integral2=0;
+                    integral1 = 0;
+                    integral2 = 0;
+
                     robot.leftClawClose();
                     moveStep = 7;
                     timer1.reset();
@@ -338,10 +339,11 @@ public class AutonBlueFar extends LinearOpMode {
             }
 
             if (moveStep == 7) {
-                integral1=0;
-                integral2=0;
-                yTarget=12;
-                xTarget=32;
+                integral1 = 0;
+                integral2 = 0;
+
+                yTarget = 12;
+                xTarget = 32;
                 if ((Math.abs(poseEstimate.getX() - xTarget) > 1) || (Math.abs(poseEstimate.getY() - yTarget) > 1)) {timer1.reset();}
 
 
@@ -452,6 +454,7 @@ public class AutonBlueFar extends LinearOpMode {
                 xTarget = 45;
                 yTarget = 12;
                 headingTarget=270;
+                robot.bothClawClose();
             }
 
 
@@ -503,21 +506,6 @@ public class AutonBlueFar extends LinearOpMode {
             }
 
             drivetrain.remote(-left_y,left_x,-rot_x,poseEstimate.getHeading());
-
-
-            /*if(moveStep==11){
-                robot.motorBR.setPower(0);
-                robot.motorFR.setPower(0);
-                robot.motorBL.setPower(0);
-                robot.motorFL.setPower(0);
-            }*/
-
-
-
-
-
-
-
             drive.update();
 
            // telemetry.addData("ly", left_y);
@@ -554,7 +542,8 @@ public class AutonBlueFar extends LinearOpMode {
             // TODO: tune values when new car
             Rect leftRect = new Rect(0, 100, 100, 79);
             Rect middleRect = new Rect(280, 100, 100, 79);
-            Rect rightRect = new Rect(539, 100, 100, 79);
+            Rect rightRect = new Rect(539, 130, 100, 79);
+            //Rect rightRect = new Rect(539, 90, 100, 79);
 
             input.copyTo(output);
             Imgproc.rectangle(output, leftRect, rectColour, 2);

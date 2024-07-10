@@ -63,6 +63,7 @@ public class AutonRedFar extends LinearOpMode {
         double integral1=0;
         double kp1 = 0.16;
         double ki1 =0.02;
+        //ki1=0;
 
 
         double kd1 =0.6         ;
@@ -186,14 +187,15 @@ public class AutonRedFar extends LinearOpMode {
                 if ((Math.abs(poseEstimate.getX() - xTarget) > 1) || (Math.abs(poseEstimate.getY() - yTarget) > 2)) {timer1.reset();}
                 if (timer1.milliseconds() > 300) {
                     moveStep = 2;
-
+                    integral1 = 0;
+                    integral2 = 0;
                     timer1.reset();
                 }
             }
 
             // Rotate (purple pixel)
             if (moveStep == 2) {
-                xTarget = -37;
+                xTarget = -36;
 
                 robot.bothClawClose();
                 robot.arm.setPower(0);
@@ -219,13 +221,14 @@ public class AutonRedFar extends LinearOpMode {
                 if (timer1.milliseconds() > 400) {
                     integral1 = 0;
                     integral2 = 0;
+
                     robot.clawRIntake();
                     moveStep = 3;
                     timer1.reset();
                 }
             }
 
-            // Path to pixel position (purple pixel
+            // Path to pixel position (purple pixel)
             if (moveStep == 3) {
 /*
                 if (randomizationResult == 1) {
@@ -259,7 +262,8 @@ public class AutonRedFar extends LinearOpMode {
                 }
 
                  */
-                if(timer1.milliseconds() > 200) {
+
+                if(timer1.milliseconds() > 400) {
                     integral1 = 0;
                     integral2 = 0;
                     robot.rightClawOpen();
@@ -272,11 +276,14 @@ public class AutonRedFar extends LinearOpMode {
             // Score purple pixel
             if (moveStep == 4) {
 
-                if (randomizationResult == 3) {
+                if (randomizationResult == 3 && timer1.milliseconds() > 300) {
                     xTarget = -41;
                 }
                 if(randomizationResult == 2) {
                     yTarget = -12;
+                }
+                if(timer1.milliseconds()>200) {
+                    robot.setClawPAngle(180);
                 }
 
 
@@ -287,20 +294,24 @@ public class AutonRedFar extends LinearOpMode {
                     integral2 = 0;
 
                     robot.bothClawClose();
-                    robot.setClawPAngle(180);
+
                     moveStep = 5;
                     timer1.reset();
                 }
             }
+
             // Also score purple pixel
             if (moveStep == 5){
+
+                if (timer1.milliseconds() > 300) {
+                    headingTarget = 0;
+                }
+
                 yTarget = -10;
 
                 if(randomizationResult == 3){
                     xTarget = -41;
                 }
-
-                headingTarget = 0;
 
                 if ((Math.abs(poseEstimate.getX() - xTarget) > 1) || (Math.abs(poseEstimate.getY() - yTarget) > 1)) {timer1.reset();}
 
@@ -315,10 +326,13 @@ public class AutonRedFar extends LinearOpMode {
 
             // Back up (yellow pixel)
             if (moveStep == 6) {
-                integral1 = 0;
-                integral2 = 0;
-                yTarget = -12;
-                xTarget = 32;
+                integral1=0;
+                integral2=0;
+
+
+
+                yTarget = -10;
+                xTarget = 33;
 
                 if ((Math.abs(poseEstimate.getX() - xTarget) > 1) || (Math.abs(poseEstimate.getY() - yTarget) > 1)) {timer1.reset();}
 
@@ -331,29 +345,32 @@ public class AutonRedFar extends LinearOpMode {
                     timer1.reset();
                 }
             }
+
+            //
             if (moveStep == 7) {
-                integral1 = 0;
-                integral2 = 0;
-                yTarget = -12;
-                xTarget = 32;
+
+                yTarget = -10;
+                xTarget = 33;
 
                 if ((Math.abs(poseEstimate.getX() - xTarget) > 1) || (Math.abs(poseEstimate.getY() - yTarget) > 1)) {timer1.reset();}
 
                 if (timer1.milliseconds() > 300) {
                     robot.leftClawClose();
                     moveStep = 8;
+                    integral1 = 0;
+                    integral2 = 0;
+
                     timer1.reset();
                 }
             }
 
             if(moveStep == 8) {
-                robot.setArm(152);
+                robot.setArm(151);
                 headingTarget = 0;
 
-                if (robot.getArmAngle() > 145) {
-                    robot.setSlider(570);
+                if (robot.getArmAngle() > 140) {
+                    robot.setSlider(550);
                 }
-
 
                 if (randomizationResult == 1) {
                     yTarget = -25;
@@ -362,7 +379,7 @@ public class AutonRedFar extends LinearOpMode {
                     yTarget = -32;
 
                 } else if (randomizationResult == 3) {
-                    yTarget = -37;
+                    yTarget = -40;
                 }
 
                 if ((Math.abs(poseEstimate.getX() - xTarget) > 1) || (Math.abs(poseEstimate.getY() - yTarget) > 1)) {
@@ -375,11 +392,13 @@ public class AutonRedFar extends LinearOpMode {
             }
 
             if (moveStep == 9) {
-                if(robot.getArmAngle() > 145) {
-                    robot.setSlider(570);
+                integral1=0;
+                integral2=0;
+                if(robot.getArmAngle() > 140) {
+                    robot.setSlider(550);
                 }
 
-                if (robot.slider.getCurrentPosition() < 530) {
+                if (robot.slider.getCurrentPosition() < 550) {
                     timer1.reset();
                 }
 
@@ -394,8 +413,9 @@ public class AutonRedFar extends LinearOpMode {
             }
 
             if (moveStep == 10) {
-                integral1 = 0;
-                integral2 = 0;
+                integral1=0;
+                integral2=0;
+
 
                 if (timer1.milliseconds() > 300) {
                     robot.retractSlider();
@@ -405,13 +425,16 @@ public class AutonRedFar extends LinearOpMode {
                 if (robot.getArmAngle() < 120) {
                     robot.setClawPAngle(180);
                     moveStep = 11;
+                    integral1 = 0;
+                    integral2 = 0;
                     timer1.reset();
                 }
             }
 
             if (moveStep == 11) {
-                integral1 = 0;
-                integral2 = 0;
+                integral1=0;
+                integral2=0;
+
                 xTarget = 40;
 
                 if (robot.getArmAngle() < 120) {
@@ -431,15 +454,21 @@ public class AutonRedFar extends LinearOpMode {
                 if (timer1.milliseconds() > 300) {
                     moveStep = 12;
                     timer1.reset();
+                    integral1 = 0;
+                    integral2 = 0;
                 }
             }
+
             if(moveStep == 12){
-                integral1 = 0;
-                integral2 = 0;
+                integral1=0;
+                integral2=0;
+
 
                 xTarget = 45;
                 yTarget = -12;
                 headingTarget = 90;
+
+                robot.bothClawClose();
             }
 
 
@@ -473,7 +502,30 @@ public class AutonRedFar extends LinearOpMode {
             lastError1 = error1;
             lastError2 = error2;
             lastError3 = error3;
+            telemetry.addData("leftxorig",left_x);
+            telemetry.addData("leftyorig",left_y);
             //rot_x = (headingTarget - poseEstimate.getHeading()) * -kp3;
+
+            if((Math.abs(left_x)>0.5||Math.abs(left_y)>0.5)&&(left_y!=0)&&left_x!=0) {
+
+
+                if (Math.abs(left_y) > Math.abs(left_x)) {
+                    left_x = left_x * Math.abs((0.5 / left_y));
+                    if(left_y>0){
+                        left_y=0.5;
+                    }else {
+                        left_y=-0.5;
+                    }
+                }else{
+                    left_y = left_y * Math.abs((0.5 / left_x));
+                    if(left_x>0){
+                        left_x=0.5;
+                    }else {
+                        left_x=-0.5;
+                    }
+                }
+            }
+            /*
             if(left_y>0.5){
                 left_y=0.5;
             }
@@ -486,6 +538,8 @@ public class AutonRedFar extends LinearOpMode {
             if(left_x<(-0.5)){
                 left_x=(-0.5);
             }
+
+             */
 
             drivetrain.remote(-left_y,left_x,-rot_x,poseEstimate.getHeading());
 
@@ -515,6 +569,8 @@ public class AutonRedFar extends LinearOpMode {
             telemetry.addData("Move",moveStep);
             telemetry.addData("xT",xTarget);
             telemetry.addData("yT",yTarget);
+            telemetry.addData("left_x",left_x);
+            telemetry.addData("left_y",left_y);
 
 
 //
@@ -539,7 +595,8 @@ public class AutonRedFar extends LinearOpMode {
             // TODO: tune values when new car
             Rect leftRect = new Rect(0, 100, 100, 79);
             Rect middleRect = new Rect(280, 100, 100, 79);
-            Rect rightRect = new Rect(539, 80, 100, 79);
+            Rect rightRect = new Rect(539, 130, 100, 79);
+            //Rect rightRect = new Rect(539, 90, 100, 79);
 
             input.copyTo(output);
             Imgproc.rectangle(output, leftRect, rectColour, 2);
