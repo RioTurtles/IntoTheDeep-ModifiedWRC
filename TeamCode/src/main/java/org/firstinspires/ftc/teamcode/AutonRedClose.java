@@ -38,7 +38,7 @@ public class AutonRedClose extends LinearOpMode {
 
     //Teleop_v2.states state = Teleop_v2.states.INIT;
     OpenCvWebcam webcam = null;
-    int randomizationResult = 0;
+    int randomizationResult = 3;
 
     @Override
     public void runOpMode() throws InterruptedException {
@@ -175,6 +175,7 @@ public class AutonRedClose extends LinearOpMode {
 
             // Initial movement
             if (moveStep == 1) {
+                robot.retractSlider();
                 robot.bothClawClose();
                 xTarget = 32;
                 yTarget = -45;
@@ -217,16 +218,16 @@ public class AutonRedClose extends LinearOpMode {
             if (moveStep == 3) {
 
                 if (randomizationResult == 1) {
-                    robot.setSlider(1000);
+                    robot.setSlider(900);
 
-                    if (robot.slider.getCurrentPosition() > 950) {
+                    if (robot.slider.getCurrentPosition() > 850) {
                         robot.rightClawOpen();
                     } else {
                         timer1.reset();
                     }
 
                 } else if (randomizationResult == 2) {
-                    headingTarget = 335;
+                    headingTarget = 330;
                     robot.setSlider(600);
 
                     if (robot.slider.getCurrentPosition() > 550) {
@@ -313,7 +314,7 @@ public class AutonRedClose extends LinearOpMode {
                     robot.setSlider(560);
                 }
 
-                if (robot.slider.getCurrentPosition() < 250) {timer1.reset();}
+                if (robot.slider.getCurrentPosition() < 500) {timer1.reset();}
 
                 if (timer1.milliseconds() > 300) {
                     robot.leftClawOpen();
@@ -343,7 +344,7 @@ public class AutonRedClose extends LinearOpMode {
                     robot.setClawPAngle(180);
                 }
 
-                if(robot.getArmAngle() < 20){
+                if(robot.getArmAngle() < 10){
                     robot.arm.setPower(0);
                     robot.arm.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
                 }
@@ -357,19 +358,24 @@ public class AutonRedClose extends LinearOpMode {
             }
 
             if (moveStep == 9) {
+                if(robot.getArmAngle() < 100){
+                    robot.arm.setPower(0);
+                    robot.arm.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+                }
                 integral1 = 0;
                 integral2 = 0;
                 headingTarget = 90;
 
                 if (timer1.milliseconds() > 100) {
+                    integral1 = 0;
+                    integral2 = 0;
+
                     moveStep = 10;
                     timer1.reset();
                 }
             }
 
             if (moveStep == 10) {
-                integral1 = 0;
-                integral2 = 0;
                 xTarget = 50;
 
                 robot.bothClawClose();
@@ -420,6 +426,25 @@ public class AutonRedClose extends LinearOpMode {
             lastError2 = error2;
             lastError3 = error3;
             //rot_x = (headingTarget - poseEstimate.getHeading()) * -kp3;
+            if((Math.abs(left_x)>0.5||Math.abs(left_y)>0.5)&&(left_y!=0)&&left_x!=0) {
+
+
+                if (Math.abs(left_y) > Math.abs(left_x)) {
+                    left_x = left_x * Math.abs((0.5 / left_y));
+                    if(left_y>0){
+                        left_y=0.5;
+                    }else {
+                        left_y=-0.5;
+                    }
+                }else{
+                    left_y = left_y * Math.abs((0.5 / left_x));
+                    if(left_x>0){
+                        left_x=0.5;
+                    }else {
+                        left_x=-0.5;
+                    }
+                }
+            }
 
             drivetrain.remote(-left_y,left_x,-rot_x,poseEstimate.getHeading());
             drive.update();
@@ -455,7 +480,7 @@ public class AutonRedClose extends LinearOpMode {
             // TODO: tune values when new car
             Rect leftRect = new Rect(0, 100, 100, 79);
             Rect middleRect = new Rect(280, 100, 100, 79);
-            Rect rightRect = new Rect(539, 130, 100, 79);
+            Rect rightRect = new Rect(539, 150, 100, 79);
 
             input.copyTo(output);
             Imgproc.rectangle(output, leftRect, rectColour, 2);

@@ -38,7 +38,7 @@ public class AutonBlueClose extends LinearOpMode {
 
     //Teleop_v2.states state = Teleop_v2.states.INIT;
     OpenCvWebcam webcam = null;
-    int randomizationResult = 0;
+    int randomizationResult = 1;
 
     @Override
     public void runOpMode() throws InterruptedException {
@@ -176,10 +176,15 @@ public class AutonBlueClose extends LinearOpMode {
 
             // Initial movement
             if (moveStep == 1) {
+                robot.retractSlider();
                 robot.bothClawClose();
                 xTarget = 32;
                 yTarget = 45;
                 headingTarget = 0;
+
+                if (randomizationResult == 1) {
+                    xTarget = 35;
+                }
 
                 if ((Math.abs(poseEstimate.getX() - xTarget) > 1) || (Math.abs(poseEstimate.getY() - yTarget) > 1)) {timer1.reset();}
                 if (timer1.milliseconds() > 300) {
@@ -235,11 +240,19 @@ public class AutonBlueClose extends LinearOpMode {
                 } else if (randomizationResult == 2) {
                     headingTarget = 25;
                     robot.setSlider(600);
-                    robot.leftClawOpen();
+                    if (robot.slider.getCurrentPosition() > 550) {
+                        robot.leftClawOpen();
+                    } else {
+                        timer1.reset();
+                    }
 
                 } else if (randomizationResult == 3) {
-                    robot.setSlider(1000);
-                    robot.leftClawOpen();
+                    robot.setSlider(900);
+                    if (robot.slider.getCurrentPosition() > 850) {
+                        robot.leftClawOpen();
+                    } else {
+                        timer1.reset();
+                    }
                 }
 
                 /*if (robot.getArmAngle() > 150) {
@@ -259,20 +272,22 @@ public class AutonBlueClose extends LinearOpMode {
                 }
 
                  */
-                if(timer1.milliseconds() > 1200){
+                if(timer1.milliseconds() > 300){
                     robot.retractSlider();
                     timer1.reset();
-                    moveStep=4;
+                    moveStep = 4;
                 }
             }
 
             // Score purple pixel
             if (moveStep == 4) {
 
-                robot.leftClawClose();
-                robot.setClawPAngle(180);
+                if(timer1.milliseconds()>100) {
+                    robot.setClawPAngle(180);
+                }
 
                 if (robot.slider.getCurrentPosition() < 100) {
+                    robot.setClawPAngle(180);
                     moveStep = 5;
                     robot.retractSlider();
 
@@ -282,10 +297,12 @@ public class AutonBlueClose extends LinearOpMode {
 
             // Also score purple pixel
             if (moveStep == 5) {
+                robot.bothClawClose();
                 robot.setArm(160);
                 headingTarget = 0;
+
                 if(robot.getArmAngle() > 155) {
-                    robot.setSlider(600);
+                    robot.setSlider(300);
                 }
 
 
@@ -309,11 +326,11 @@ public class AutonBlueClose extends LinearOpMode {
             // Back up (yellow pixel)
             if (moveStep == 6) {
                 if(robot.getArmAngle() > 155) {
-                    robot.setSlider(600);
+                    robot.setSlider(560);
                 }
 
 
-                if (robot.slider.getCurrentPosition() < 550) {timer1.reset();}
+                if (robot.slider.getCurrentPosition() < 500) {timer1.reset();}
                 if (timer1.milliseconds() > 300) {
                     robot.rightClawOpen();
                     moveStep = 7;
@@ -338,12 +355,12 @@ public class AutonBlueClose extends LinearOpMode {
 
             }
             if(moveStep == 8){
-               yTarget=60;
+               yTarget = 60;
                 if (robot.getArmAngle() < 120) {
                     robot.setClawPAngle(180);
                 }
 
-                if(robot.getArmAngle() < 20){
+                if(robot.getArmAngle() < 10) {
                     robot.arm.setPower(0);
                     robot.arm.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
                 }
@@ -358,9 +375,17 @@ public class AutonBlueClose extends LinearOpMode {
             }
 
             if (moveStep == 9) {
+                if(robot.getArmAngle() < 10){
+                    robot.arm.setPower(0);
+                    robot.arm.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+                }
+                integral1=0;
+                integral2=0;
                 headingTarget = 270;
 
                 if (timer1.milliseconds() > 100) {
+                    integral1 = 0;
+                    integral2 = 0;
                     moveStep = 10;
                     timer1.reset();
                 }
@@ -424,6 +449,25 @@ public class AutonBlueClose extends LinearOpMode {
             lastError2 = error2;
             lastError3 = error3;
             //rot_x = (headingTarget - poseEstimate.getHeading()) * -kp3;
+            if((Math.abs(left_x)>0.5||Math.abs(left_y)>0.5)&&(left_y!=0)&&left_x!=0) {
+
+
+                if (Math.abs(left_y) > Math.abs(left_x)) {
+                    left_x = left_x * Math.abs((0.5 / left_y));
+                    if(left_y>0){
+                        left_y=0.5;
+                    }else {
+                        left_y=-0.5;
+                    }
+                }else{
+                    left_y = left_y * Math.abs((0.5 / left_x));
+                    if(left_x>0){
+                        left_x=0.5;
+                    }else {
+                        left_x=-0.5;
+                    }
+                }
+            }
 
             drivetrain.remote(-left_y,left_x,-rot_x,poseEstimate.getHeading());
 
@@ -474,7 +518,7 @@ public class AutonBlueClose extends LinearOpMode {
             // TODO: tune values when new car
             Rect leftRect = new Rect(0, 100, 100, 79);
             Rect middleRect = new Rect(280, 100, 100, 79);
-            Rect rightRect = new Rect(539, 130, 100, 79);
+            Rect rightRect = new Rect(539, 150, 100, 79);
             //Rect rightRect = new Rect(539, 90, 100, 79);
 
             input.copyTo(output);

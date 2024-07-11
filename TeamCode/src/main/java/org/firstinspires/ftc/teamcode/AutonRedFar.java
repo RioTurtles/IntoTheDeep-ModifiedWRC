@@ -21,6 +21,8 @@ import org.openftc.easyopencv.OpenCvCameraRotation;
 import org.openftc.easyopencv.OpenCvPipeline;
 import org.openftc.easyopencv.OpenCvWebcam;
 
+import java.util.Timer;
+
 @Autonomous(name="RedFar")
 public class AutonRedFar extends LinearOpMode {
 
@@ -38,7 +40,7 @@ public class AutonRedFar extends LinearOpMode {
 
     //Teleop_v2.states state = Teleop_v2.states.INIT;
     OpenCvWebcam webcam = null;
-    int randomizationResult = 1;
+    int randomizationResult = 2;
 
     @Override
     public void runOpMode() throws InterruptedException {
@@ -177,6 +179,7 @@ public class AutonRedFar extends LinearOpMode {
 
             // Initial movement
             if (moveStep == 1) {
+                robot.retractSlider();
                 robot.bothClawClose();
                 headingTarget = 270;
 
@@ -321,6 +324,7 @@ public class AutonRedFar extends LinearOpMode {
                     integral2 = 0;
 
                     moveStep = 6;
+                    timer1.reset();
                 }
             }
 
@@ -505,7 +509,10 @@ public class AutonRedFar extends LinearOpMode {
             telemetry.addData("leftxorig",left_x);
             telemetry.addData("leftyorig",left_y);
             //rot_x = (headingTarget - poseEstimate.getHeading()) * -kp3;
-
+            /**
+             * Please add the scaling part to both far and remove the integral accordingly
+             */
+            //Scaling
             if((Math.abs(left_x)>0.5||Math.abs(left_y)>0.5)&&(left_y!=0)&&left_x!=0) {
 
 
@@ -595,7 +602,7 @@ public class AutonRedFar extends LinearOpMode {
             // TODO: tune values when new car
             Rect leftRect = new Rect(0, 100, 100, 79);
             Rect middleRect = new Rect(280, 100, 100, 79);
-            Rect rightRect = new Rect(539, 130, 100, 79);
+            Rect rightRect = new Rect(539, 150, 100, 79);
             //Rect rightRect = new Rect(539, 90, 100, 79);
 
             input.copyTo(output);
