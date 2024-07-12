@@ -285,7 +285,7 @@ public class AutonRedFar extends LinearOpMode {
                 if(randomizationResult == 2) {
                     yTarget = -12;
                 }
-                if(timer1.milliseconds()>200) {
+                if (timer1.milliseconds() > 200) {
                     robot.setClawPAngle(180);
                 }
 
@@ -312,7 +312,7 @@ public class AutonRedFar extends LinearOpMode {
 
                 yTarget = -10;
 
-                if(randomizationResult == 3){
+                if (randomizationResult == 3){
                     xTarget = -41;
                 }
 
@@ -330,8 +330,8 @@ public class AutonRedFar extends LinearOpMode {
 
             // Back up (yellow pixel)
             if (moveStep == 6) {
-                integral1=0;
-                integral2=0;
+                integral1 = 0;
+                integral2 = 0;
 
 
 
@@ -373,7 +373,7 @@ public class AutonRedFar extends LinearOpMode {
                 headingTarget = 0;
 
                 if (robot.getArmAngle() > 140) {
-                    robot.setSlider(550);
+                    robot.setSlider(580);
                 }
 
                 if (randomizationResult == 1) {
@@ -396,10 +396,10 @@ public class AutonRedFar extends LinearOpMode {
             }
 
             if (moveStep == 9) {
-                integral1=0;
-                integral2=0;
+                integral1 = 0;
+                integral2 = 0;
                 if(robot.getArmAngle() > 140) {
-                    robot.setSlider(550);
+                    robot.setSlider(580);
                 }
 
                 if (robot.slider.getCurrentPosition() < 550) {
@@ -417,8 +417,8 @@ public class AutonRedFar extends LinearOpMode {
             }
 
             if (moveStep == 10) {
-                integral1=0;
-                integral2=0;
+                integral1 = 0;
+                integral2 = 0;
 
 
                 if (timer1.milliseconds() > 300) {
@@ -464,8 +464,8 @@ public class AutonRedFar extends LinearOpMode {
             }
 
             if(moveStep == 12){
-                integral1=0;
-                integral2=0;
+                integral1 = 0;
+                integral2 = 0;
 
 
                 xTarget = 45;
@@ -592,6 +592,7 @@ public class AutonRedFar extends LinearOpMode {
         Mat YCbCr = new Mat();
         Mat leftCrop, middleCrop, rightCrop;
         double leftAverageFinal, middleAverageFinal, rightAverageFinal;
+        double leftTarget, middleTarget, rightTarget;
         Mat output = new Mat();
         Scalar rectColour = new Scalar(0, 0.0, 255.0);
 
@@ -614,17 +615,21 @@ public class AutonRedFar extends LinearOpMode {
             middleCrop = YCbCr.submat(middleRect);
             rightCrop = YCbCr.submat(rightRect);
 
-            Core.extractChannel(leftCrop, leftCrop,2);  // Channel 2 = red
-            Core.extractChannel(middleCrop, middleCrop, 2);
-            Core.extractChannel(rightCrop, rightCrop, 2);
+            Core.extractChannel(leftCrop, leftCrop,1);  // Channel 2 = red
+            Core.extractChannel(middleCrop, middleCrop, 1);
+            Core.extractChannel(rightCrop, rightCrop, 0);
 
             Scalar leftAverage = Core.mean(leftCrop);
             Scalar middleAverage = Core.mean(middleCrop);
             Scalar rightAverage = Core.mean(rightCrop);
 
-            leftAverageFinal = Math.abs(leftAverage.val[0] - 115);
-            middleAverageFinal = Math.abs(middleAverage.val[0] - 115);
-            rightAverageFinal = Math.abs(rightAverage.val[0] - 115);
+            /*leftAverageFinal = Math.abs(leftAverage.val[0] - 105);
+            middleAverageFinal = Math.abs(middleAverage.val[0] - 105);
+            rightAverageFinal = Math.abs(rightAverage.val[0] - 105);*/
+
+            leftAverageFinal = Math.abs(leftAverage.val[0] - leftTarget);
+            middleAverageFinal = Math.abs(middleAverage.val[0] - middleTarget);
+            rightAverageFinal = Math.abs(rightAverage.val[0] - rightTarget);
 
             if ((leftAverageFinal < middleAverageFinal) && (leftAverageFinal < rightAverageFinal)) {
                 telemetry.addLine("left");
@@ -637,10 +642,28 @@ public class AutonRedFar extends LinearOpMode {
                 randomizationResult = 3;
             }
 
+            if (gamepad1.dpad_left) {
+                leftTarget = leftAverage.val[0];
+            }
+            if (gamepad1.dpad_up) {
+                middleTarget = middleAverage.val[0];
+            }
+            if (gamepad1.dpad_right) {
+                rightTarget = rightAverage.val[0];
+            }
+
+            telemetry.addData("leftAvg",leftAverage.val[0]);
+            telemetry.addData("rightAvg",rightAverage.val[0]);
+            telemetry.addData("middleAvg",middleAverage.val[0]);
+            telemetry.addLine();
             telemetry.addData("left", leftAverageFinal);
             telemetry.addData("middle", middleAverageFinal);
             telemetry.addData("right", rightAverageFinal);
             telemetry.addData("result",randomizationResult);
+            telemetry.addLine();
+            telemetry.addData("leftTarget", leftTarget);
+            telemetry.addData("middleTarget", middleTarget);
+            telemetry.addData("rightTarget", rightTarget);
 
             telemetry.update();
 

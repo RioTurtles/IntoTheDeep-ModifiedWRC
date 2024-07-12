@@ -1,5 +1,7 @@
 package org.firstinspires.ftc.teamcode;
 
+import android.se.omapi.Channel;
+
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.roadrunner.geometry.Pose2d;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
@@ -247,8 +249,8 @@ public class AutonBlueClose extends LinearOpMode {
                     }
 
                 } else if (randomizationResult == 3) {
-                    robot.setSlider(900);
-                    if (robot.slider.getCurrentPosition() > 850) {
+                    robot.setSlider(800);
+                    if (robot.slider.getCurrentPosition() > 750) {
                         robot.leftClawOpen();
                     } else {
                         timer1.reset();
@@ -307,13 +309,13 @@ public class AutonBlueClose extends LinearOpMode {
 
 
                 if (randomizationResult == 1) {
-                    yTarget=40;
+                    yTarget = 40;
 
                 } else if (randomizationResult == 2) {
-                   yTarget=32;
+                   yTarget = 34;
 
                 } else if (randomizationResult == 3) {
-                    yTarget=28;
+                    yTarget = 28;
                 }
                 if ((Math.abs(poseEstimate.getX() - xTarget) > 1) || (Math.abs(poseEstimate.getY() - yTarget) > 1)) {timer1.reset();}
 
@@ -326,11 +328,11 @@ public class AutonBlueClose extends LinearOpMode {
             // Back up (yellow pixel)
             if (moveStep == 6) {
                 if(robot.getArmAngle() > 155) {
-                    robot.setSlider(560);
+                    robot.setSlider(600);
                 }
 
 
-                if (robot.slider.getCurrentPosition() < 500) {timer1.reset();}
+                if (robot.slider.getCurrentPosition() < 550) {timer1.reset();}
                 if (timer1.milliseconds() > 300) {
                     robot.rightClawOpen();
                     moveStep = 7;
@@ -340,7 +342,7 @@ public class AutonBlueClose extends LinearOpMode {
 
 
             if (moveStep == 7) {
-                if(timer1.milliseconds() > 300) {
+                if(timer1.milliseconds() > 700) {
                     robot.retractSlider();
                     robot.setArm(0);
                 }
@@ -355,7 +357,7 @@ public class AutonBlueClose extends LinearOpMode {
 
             }
             if(moveStep == 8){
-               yTarget = 60;
+               //yTarget = 60;
                 if (robot.getArmAngle() < 120) {
                     robot.setClawPAngle(180);
                 }
@@ -375,34 +377,55 @@ public class AutonBlueClose extends LinearOpMode {
             }
 
             if (moveStep == 9) {
+
+                if(robot.getArmAngle() < 10) {
+                    robot.arm.setPower(0);
+                    robot.arm.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+                }
+
                 if(robot.getArmAngle() < 10){
                     robot.arm.setPower(0);
                     robot.arm.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
                 }
-                integral1=0;
-                integral2=0;
+                integral1 = 0;
+                integral2 = 0;
                 headingTarget = 270;
 
                 if (timer1.milliseconds() > 100) {
                     integral1 = 0;
                     integral2 = 0;
+
                     moveStep = 10;
                     timer1.reset();
                 }
             }
 
             if (moveStep == 10) {
-                xTarget = 50;
+                //xTarget = 50;
+                xTarget = 35;
+                yTarget = 12;
+                headingTarget = 270;
+
                 robot.bothClawClose();
+                robot.bothClawClose();
+
+                if(robot.getArmAngle() < 10) {
+                    robot.arm.setPower(0);
+                    robot.arm.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+                }
 
                 if ((Math.abs(poseEstimate.getX() - xTarget) > 1) || (Math.abs(poseEstimate.getY() - yTarget) > 1) ) {
                     timer1.reset();
                 }
 
                 if (timer1.milliseconds() > 400){
-                    moveStep = 10;
+                    moveStep = 11;
                     timer1.reset();
                 }
+            }
+
+            if (moveStep == 11) {
+                xTarget = 45;
             }
 
             /*if (moveStep == 11) {
@@ -472,12 +495,12 @@ public class AutonBlueClose extends LinearOpMode {
             drivetrain.remote(-left_y,left_x,-rot_x,poseEstimate.getHeading());
 
 
-            if(moveStep==11){
+            /*if(moveStep==11){
                 robot.motorBR.setPower(0);
                 robot.motorFR.setPower(0);
                 robot.motorBL.setPower(0);
                 robot.motorFL.setPower(0);
-            }
+            }*/
 
 
 
@@ -507,7 +530,11 @@ public class AutonBlueClose extends LinearOpMode {
     class TeamPropPipeline extends OpenCvPipeline {
         Mat YCbCr = new Mat();
         Mat leftCrop, middleCrop, rightCrop;
+        /*Mat leftCropBlue, middleCropBlue, rightCropBlue;
+        Mat leftCropGreen, middleCropGreen, rightCropGreen;
+        Mat leftCropRed, middleCropRed, rightCropRed;*/
         double leftAverageFinal, middleAverageFinal, rightAverageFinal;
+        double leftTarget, middleTarget, rightTarget;
         Mat output = new Mat();
         Scalar rectColour = new Scalar(0, 0.0, 255.0);
 
@@ -530,17 +557,22 @@ public class AutonBlueClose extends LinearOpMode {
             middleCrop = YCbCr.submat(middleRect);
             rightCrop = YCbCr.submat(rightRect);
 
-            Core.extractChannel(leftCrop, leftCrop,2);  // Channel 2 = red
-            Core.extractChannel(middleCrop, middleCrop, 2);
-            Core.extractChannel(rightCrop, rightCrop, 2);
+
+            Core.extractChannel(leftCrop, leftCrop,0);  // Channel 2 = red
+            Core.extractChannel(middleCrop, middleCrop, 0);
+            Core.extractChannel(rightCrop, rightCrop, 0);
 
             Scalar leftAverage = Core.mean(leftCrop);
             Scalar middleAverage = Core.mean(middleCrop);
             Scalar rightAverage = Core.mean(rightCrop);
 
-            leftAverageFinal = Math.abs(leftAverage.val[0] - 145);
-            middleAverageFinal = Math.abs(middleAverage.val[0] - 145);
-            rightAverageFinal = Math.abs(rightAverage.val[0] - 145);
+            /*leftAverageFinal = Math.abs(leftAverage.val[0] - 105);
+            middleAverageFinal = Math.abs(middleAverage.val[0] - 105);
+            rightAverageFinal = Math.abs(rightAverage.val[0] - 105);*/
+
+            leftAverageFinal = Math.abs(leftAverage.val[0] - leftTarget);
+            middleAverageFinal = Math.abs(middleAverage.val[0] - middleTarget);
+            rightAverageFinal = Math.abs(rightAverage.val[0] - rightTarget);
 
             if ((leftAverageFinal < middleAverageFinal) && (leftAverageFinal < rightAverageFinal)) {
                 telemetry.addLine("left");
@@ -553,10 +585,28 @@ public class AutonBlueClose extends LinearOpMode {
                 randomizationResult = 3;
             }
 
+            if (gamepad1.dpad_left) {
+                leftTarget = leftAverage.val[0];
+            }
+            if (gamepad1.dpad_up) {
+                middleTarget = middleAverage.val[0];
+            }
+            if (gamepad1.dpad_right) {
+                rightTarget = rightAverage.val[0];
+            }
+
+            telemetry.addData("leftAvg",leftAverage.val[0]);
+            telemetry.addData("rightAvg",rightAverage.val[0]);
+            telemetry.addData("middleAvg",middleAverage.val[0]);
+            telemetry.addLine();
             telemetry.addData("left", leftAverageFinal);
             telemetry.addData("middle", middleAverageFinal);
             telemetry.addData("right", rightAverageFinal);
             telemetry.addData("result",randomizationResult);
+            telemetry.addLine();
+            telemetry.addData("leftTarget", leftTarget);
+            telemetry.addData("middleTarget", middleTarget);
+            telemetry.addData("rightTarget", rightTarget);
 
             telemetry.update();
 

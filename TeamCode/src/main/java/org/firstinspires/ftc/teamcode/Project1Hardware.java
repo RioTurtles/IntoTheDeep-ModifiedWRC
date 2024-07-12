@@ -143,6 +143,7 @@ public class Project1Hardware {
     public void setDrone() {
         drone.setPosition(0);
     }
+
     public void setRiggingServo() {
         lRiggingUp.setPosition(1);
         rRiggingUp.setPosition(1);
@@ -150,7 +151,7 @@ public class Project1Hardware {
     //Movements
     public void extendRiggingServo() {
         lRiggingUp.setPosition(0.5);
-        rRiggingUp.setPosition(0.7);
+        rRiggingUp.setPosition(1);
     }
     public void retractRiggingMotor() {
         lRigging.setPower(-1);

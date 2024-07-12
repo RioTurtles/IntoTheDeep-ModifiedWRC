@@ -177,7 +177,7 @@ public class AutonRedClose extends LinearOpMode {
             if (moveStep == 1) {
                 robot.retractSlider();
                 robot.bothClawClose();
-                xTarget = 32;
+                xTarget = 34;
                 yTarget = -45;
                 headingTarget = 0;
 
@@ -228,9 +228,9 @@ public class AutonRedClose extends LinearOpMode {
 
                 } else if (randomizationResult == 2) {
                     headingTarget = 330;
-                    robot.setSlider(600);
+                    robot.setSlider(400);
 
-                    if (robot.slider.getCurrentPosition() > 550) {
+                    if (robot.slider.getCurrentPosition() > 350) {
                         robot.rightClawOpen();
                     } else {
                         timer1.reset();
@@ -271,13 +271,14 @@ public class AutonRedClose extends LinearOpMode {
 
                 if (timer1.milliseconds() > 100) {
                     robot.setClawPAngle(180);
-                }
 
-                if (robot.slider.getCurrentPosition() < 100) {
-                    robot.setClawPAngle(180);
-                    moveStep = 5;
-                    robot.retractSlider();
-                    timer1.reset();
+
+                    if (robot.slider.getCurrentPosition() < 100) {
+                        robot.setClawPAngle(180);
+                        moveStep = 5;
+                        robot.retractSlider();
+                        timer1.reset();
+                    }
                 }
             }
 
@@ -295,7 +296,7 @@ public class AutonRedClose extends LinearOpMode {
                     yTarget = -28;
 
                 } else if (randomizationResult == 2) {
-                    yTarget = -32;
+                    yTarget = -34;
 
                 } else if (randomizationResult == 3) {
                     yTarget = -40;
@@ -467,9 +468,11 @@ public class AutonRedClose extends LinearOpMode {
 
 
     class TeamPropPipeline extends OpenCvPipeline {
+
         Mat YCbCr = new Mat();
         Mat leftCrop, middleCrop, rightCrop;
         double leftAverageFinal, middleAverageFinal, rightAverageFinal;
+        double leftTarget, middleTarget, rightTarget;
         Mat output = new Mat();
         Scalar rectColour = new Scalar(0, 0.0, 255.0);
 
@@ -491,36 +494,58 @@ public class AutonRedClose extends LinearOpMode {
             middleCrop = YCbCr.submat(middleRect);
             rightCrop = YCbCr.submat(rightRect);
 
-            Core.extractChannel(leftCrop, leftCrop,2);  // Channel 2 = red
-            Core.extractChannel(middleCrop, middleCrop, 2);
-            Core.extractChannel(rightCrop, rightCrop, 2);
+            Core.extractChannel(leftCrop, leftCrop,1);  // Channel 2 = red
+            Core.extractChannel(middleCrop, middleCrop, 1);
+            Core.extractChannel(rightCrop, rightCrop, 0);
 
             Scalar leftAverage = Core.mean(leftCrop);
             Scalar middleAverage = Core.mean(middleCrop);
             Scalar rightAverage = Core.mean(rightCrop);
 
+            /*leftAverageFinal = Math.abs(leftAverage.val[0] - 105);
+            middleAverageFinal = Math.abs(middleAverage.val[0] - 105);
+            rightAverageFinal = Math.abs(rightAverage.val[0] - 105);*/
 
-            leftAverageFinal = Math.abs(leftAverage.val[0] - 115);
-            middleAverageFinal = Math.abs(middleAverage.val[0] - 115);
-            rightAverageFinal = Math.abs(rightAverage.val[0] - 115);
+            leftAverageFinal = Math.abs(leftAverage.val[0] - leftTarget);
+            middleAverageFinal = Math.abs(middleAverage.val[0] - middleTarget);
+            rightAverageFinal = Math.abs(rightAverage.val[0] - rightTarget);
 
             if ((leftAverageFinal < middleAverageFinal) && (leftAverageFinal < rightAverageFinal)) {
                 telemetry.addLine("left");
                 randomizationResult = 1;
-            } else if ((middleAverageFinal < leftAverageFinal) &&  (middleAverageFinal < rightAverageFinal)) {
+
+            } else if ((middleAverageFinal < leftAverageFinal) && (middleAverageFinal < rightAverageFinal)) {
                 telemetry.addLine("middle");
                 randomizationResult = 2;
+
             } else {
                 telemetry.addLine("right");
                 randomizationResult = 3;
             }
-            telemetry.addData("leftavg",leftAverage.val[0]);
 
+            if (gamepad1.dpad_left) {
+                leftTarget = leftAverage.val[0];
+            }
+            if (gamepad1.dpad_up) {
+                middleTarget = middleAverage.val[0];
+            }
+            if (gamepad1.dpad_right) {
+                rightTarget = rightAverage.val[0];
+            }
 
+            telemetry.addData("leftAvg",leftAverage.val[0]);
+            telemetry.addData("rightAvg",rightAverage.val[0]);
+            telemetry.addData("middleAvg",middleAverage.val[0]);
+            telemetry.addLine();
             telemetry.addData("left", leftAverageFinal);
             telemetry.addData("middle", middleAverageFinal);
             telemetry.addData("right", rightAverageFinal);
             telemetry.addData("result",randomizationResult);
+            telemetry.addLine();
+            telemetry.addData("leftTarget", leftTarget);
+            telemetry.addData("middleTarget", middleTarget);
+            telemetry.addData("rightTarget", rightTarget);
+
 
             telemetry.update();
 

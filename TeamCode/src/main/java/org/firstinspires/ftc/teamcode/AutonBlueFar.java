@@ -198,7 +198,7 @@ public class AutonBlueFar extends LinearOpMode {
 
             // Rotate (purple pixel)
             if (moveStep == 2) {
-                xTarget = -37;
+                xTarget = -36;
 
                 robot.bothClawClose();
                 robot.arm.setPower(0);
@@ -271,8 +271,7 @@ public class AutonBlueFar extends LinearOpMode {
                 if(timer1.milliseconds() > 400) {
                     integral1 = 0;
                     integral2 = 0;
-                    //robot.
-                   // timer1.reset();
+
                     robot.leftClawOpen();
                     moveStep = 4;
                     timer1.reset();
@@ -283,16 +282,18 @@ public class AutonBlueFar extends LinearOpMode {
             // Score purple pixel
             if (moveStep == 4) {
 
-                if (randomizationResult == 1) {
+                if (randomizationResult == 1 && timer1.milliseconds() > 300) {
+                    integral1 = 0;
+                    integral2 = 0;
                     xTarget = -41;
                 }
                 if(randomizationResult == 2) {
                     yTarget = 12;
                 }
-                if(timer1.milliseconds()>200) {
+
+                if (timer1.milliseconds() > 200) {
                     robot.setClawPAngle(180);
                 }
-
 
                 if ((Math.abs(poseEstimate.getX() - xTarget) > 1) || (Math.abs(poseEstimate.getY() - yTarget) > 1)) {timer1.reset();}
 
@@ -302,21 +303,21 @@ public class AutonBlueFar extends LinearOpMode {
 
                     robot.leftClawClose();
 
-                    robot.setClawPAngle(180);
                     moveStep = 5;
                     timer1.reset();
                 }
             }
             // Also score purple pixel
             if (moveStep == 5){
+
                 if (timer1.milliseconds() > 300) {
                     headingTarget = 0;
                 }
 
                 yTarget = 10;
 
-                if(randomizationResult==1){
-                    xTarget=-41;
+                if (randomizationResult == 1){
+                    xTarget = -41;
                 }
 
 
@@ -355,6 +356,7 @@ public class AutonBlueFar extends LinearOpMode {
 
                 yTarget = 12;
                 xTarget = 32;
+
                 if ((Math.abs(poseEstimate.getX() - xTarget) > 1) || (Math.abs(poseEstimate.getY() - yTarget) > 1)) {timer1.reset();}
 
 
@@ -363,8 +365,8 @@ public class AutonBlueFar extends LinearOpMode {
                 if (timer1.milliseconds() > 300) {
                     robot.leftClawClose();
                     moveStep = 8;
-                    integral1=0;
-                    integral2=0;
+                    integral1 = 0;
+                    integral2 = 0;
                     timer1.reset();
                 }
             }
@@ -373,39 +375,37 @@ public class AutonBlueFar extends LinearOpMode {
 
 
             if(moveStep==8) {
-                robot.setArm(152);
+                robot.setArm(154);
                 headingTarget = 0;
 
-                if (robot.getArmAngle() > 145) {
-                    robot.setSlider(570);
+                if (robot.getArmAngle() > 140) {
+                    robot.setSlider(572);
                 }
 
-
                 if (randomizationResult == 1) {
-                    yTarget = 37;
+                    yTarget = 38;
 
                 } else if (randomizationResult == 2) {
-                    yTarget = 32;
+                    yTarget = 33.5;
 
                 } else if (randomizationResult == 3) {
-                    yTarget = 25;
+                    yTarget = 28;
                 }
                 if ((Math.abs(poseEstimate.getX() - xTarget) > 1) || (Math.abs(poseEstimate.getY() - yTarget) > 1)) {
                     timer1.reset();
                 }
 
                 if (timer1.milliseconds() > 400) {
-
-
                     moveStep = 9;
                 }
             }
 
             if (moveStep == 9) {
-                integral1=0;
-                integral2=0;
+                integral1 = 0;
+                integral2 = 0;
+
                 if(robot.getArmAngle() > 145) {
-                    robot.setSlider(570);
+                    robot.setSlider(572);
                 }
 
 
@@ -413,7 +413,7 @@ public class AutonBlueFar extends LinearOpMode {
                     timer1.reset();
                 }
 
-                if (timer1.milliseconds() > 500) {
+                if (timer1.milliseconds() > 600) {
                     integral1=0;
                     integral2=0;
 
@@ -434,8 +434,9 @@ public class AutonBlueFar extends LinearOpMode {
 
                 if (robot.getArmAngle() < 120) {
                     robot.setClawPAngle(180);
-                    integral1=0;
-                    integral2=0;
+                    integral1 = 0;
+                    integral2 = 0;
+
                     moveStep = 11;
                     timer1.reset();
                 }
@@ -473,7 +474,7 @@ public class AutonBlueFar extends LinearOpMode {
 
                 xTarget = 45;
                 yTarget = 12;
-                headingTarget=270;
+                headingTarget = 270;
                 robot.bothClawClose();
             }
 
@@ -573,6 +574,7 @@ public class AutonBlueFar extends LinearOpMode {
         Mat YCbCr = new Mat();
         Mat leftCrop, middleCrop, rightCrop;
         double leftAverageFinal, middleAverageFinal, rightAverageFinal;
+        double leftTarget, middleTarget, rightTarget;
         Mat output = new Mat();
         Scalar rectColour = new Scalar(0, 0.0, 255.0);
 
@@ -595,17 +597,21 @@ public class AutonBlueFar extends LinearOpMode {
             middleCrop = YCbCr.submat(middleRect);
             rightCrop = YCbCr.submat(rightRect);
 
-            Core.extractChannel(leftCrop, leftCrop,2);  // Channel 2 = red
-            Core.extractChannel(middleCrop, middleCrop, 2);
-            Core.extractChannel(rightCrop, rightCrop, 2);
+            Core.extractChannel(leftCrop, leftCrop,0);  // Channel 2 = red
+            Core.extractChannel(middleCrop, middleCrop, 0);
+            Core.extractChannel(rightCrop, rightCrop, 0);
 
             Scalar leftAverage = Core.mean(leftCrop);
             Scalar middleAverage = Core.mean(middleCrop);
             Scalar rightAverage = Core.mean(rightCrop);
 
-            leftAverageFinal = Math.abs(leftAverage.val[0] - 145);
-            middleAverageFinal = Math.abs(middleAverage.val[0] - 145);
-            rightAverageFinal = Math.abs(rightAverage.val[0] - 145);
+            /*leftAverageFinal = Math.abs(leftAverage.val[0] - 105);
+            middleAverageFinal = Math.abs(middleAverage.val[0] - 105);
+            rightAverageFinal = Math.abs(rightAverage.val[0] - 105);*/
+
+            leftAverageFinal = Math.abs(leftAverage.val[0] - leftTarget);
+            middleAverageFinal = Math.abs(middleAverage.val[0] - middleTarget);
+            rightAverageFinal = Math.abs(rightAverage.val[0] - rightTarget);
 
             if ((leftAverageFinal < middleAverageFinal) && (leftAverageFinal < rightAverageFinal)) {
                 telemetry.addLine("left");
@@ -618,10 +624,28 @@ public class AutonBlueFar extends LinearOpMode {
                 randomizationResult = 3;
             }
 
+            if (gamepad1.dpad_left) {
+                leftTarget = leftAverage.val[0];
+            }
+            if (gamepad1.dpad_up) {
+                middleTarget = middleAverage.val[0];
+            }
+            if (gamepad1.dpad_right) {
+                rightTarget = rightAverage.val[0];
+            }
+
+            telemetry.addData("leftAvg",leftAverage.val[0]);
+            telemetry.addData("rightAvg",rightAverage.val[0]);
+            telemetry.addData("middleAvg",middleAverage.val[0]);
+            telemetry.addLine();
             telemetry.addData("left", leftAverageFinal);
             telemetry.addData("middle", middleAverageFinal);
             telemetry.addData("right", rightAverageFinal);
             telemetry.addData("result",randomizationResult);
+            telemetry.addLine();
+            telemetry.addData("leftTarget", leftTarget);
+            telemetry.addData("middleTarget", middleTarget);
+            telemetry.addData("rightTarget", rightTarget);
 
             telemetry.update();
 

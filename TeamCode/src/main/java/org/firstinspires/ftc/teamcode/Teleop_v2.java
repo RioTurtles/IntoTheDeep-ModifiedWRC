@@ -48,7 +48,7 @@ public class  Teleop_v2 extends LinearOpMode {
     double[] ArmScoringPosition = {6, 12.5, 23, 37};
     double[] clawScoringPosition = {};
 
-    double [] simpleScoreArmAngle = {160, 155,150,145, 140};
+    double [] simpleScoreArmAngle = {165,160, 155,150,145, 140};
 
     int simpleHeight = 0;
     boolean scoring_extend = false;
@@ -209,6 +209,9 @@ public class  Teleop_v2 extends LinearOpMode {
                     robot.bothClawOpen();
                     robot.clawRIntake();
 
+                    direction_x = direction_x * 0.5;
+                    direction_y = direction_y * 0.5;
+
                     robot.setSlider(700);
                     robot.arm.setPower(0);
                     robot.arm.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
@@ -332,6 +335,7 @@ public class  Teleop_v2 extends LinearOpMode {
                     break;
 
                 case SIMPLE_SCORING:
+
                     robot.setArm(simpleScoreArmAngle[simpleHeight]);
                     robot.arm.setVelocity(1000);
                     //robot.setArm();
