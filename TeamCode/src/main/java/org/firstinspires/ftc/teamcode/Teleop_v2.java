@@ -67,7 +67,6 @@ public class  Teleop_v2 extends LinearOpMode {
         robot.setArm(-12);
         robot.setClawPAngle(170);
         robot.setSlider(0);
-        robot.setDrone();
 
         /*lDis = robot.leftDis.getDistance(DistanceUnit.CM);
         rDis = robot.rightDis.getDistance(DistanceUnit.CM);*/

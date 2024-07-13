@@ -209,7 +209,7 @@ public class AutonBlueFar extends LinearOpMode {
 
 
                 } else if (randomizationResult == 2) {
-                    yTarget = 15;
+                    yTarget = 13;
                     headingTarget = 270;
 
                 } else if (randomizationResult == 3) {
@@ -282,9 +282,10 @@ public class AutonBlueFar extends LinearOpMode {
             // Score purple pixel
             if (moveStep == 4) {
 
+
                 if (randomizationResult == 1 && timer1.milliseconds() > 300) {
-                    integral1 = 0;
-                    integral2 = 0;
+                    integral1=0;
+                    integral2=0;
                     xTarget = -41;
                 }
                 if(randomizationResult == 2) {
@@ -295,7 +296,7 @@ public class AutonBlueFar extends LinearOpMode {
                     robot.setClawPAngle(180);
                 }
 
-                if ((Math.abs(poseEstimate.getX() - xTarget) > 1) || (Math.abs(poseEstimate.getY() - yTarget) > 1)) {timer1.reset();}
+                if ((Math.abs(poseEstimate.getX() - xTarget) > 1.5) || (Math.abs(poseEstimate.getY() - yTarget) > 1.5)) {timer1.reset();}
 
                 if (timer1.milliseconds() > 400) {
                     integral1 = 0;
@@ -321,7 +322,7 @@ public class AutonBlueFar extends LinearOpMode {
                 }
 
 
-                if ((Math.abs(poseEstimate.getX() - xTarget) > 1) || (Math.abs(poseEstimate.getY() - yTarget) > 1)) {timer1.reset();}
+                if ((Math.abs(poseEstimate.getX() - xTarget) > 1.5) || (Math.abs(poseEstimate.getY() - yTarget) > 1.5)) {timer1.reset();}
 
 
                 if (timer1.milliseconds() > 300) {
@@ -379,11 +380,11 @@ public class AutonBlueFar extends LinearOpMode {
                 headingTarget = 0;
 
                 if (robot.getArmAngle() > 140) {
-                    robot.setSlider(572);
+                    robot.setSlider(580);
                 }
 
                 if (randomizationResult == 1) {
-                    yTarget = 38;
+                    yTarget = 45;
 
                 } else if (randomizationResult == 2) {
                     yTarget = 33.5;
@@ -397,6 +398,7 @@ public class AutonBlueFar extends LinearOpMode {
 
                 if (timer1.milliseconds() > 400) {
                     moveStep = 9;
+                    timer1.reset();
                 }
             }
 
@@ -405,7 +407,7 @@ public class AutonBlueFar extends LinearOpMode {
                 integral2 = 0;
 
                 if(robot.getArmAngle() > 145) {
-                    robot.setSlider(572);
+                    robot.setSlider(580);
                 }
 
 

@@ -109,7 +109,6 @@ public class Project1Hardware {
         arm.setPower(0);
         arm.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
 
-        setDrone();
         bothClawClose();
         setClawPAngle(180);
 
@@ -139,9 +138,6 @@ public class Project1Hardware {
     public void setClaw() {
         leftClaw.setPosition(0.05);
         rightClaw.setPosition(0);
-    }
-    public void setDrone() {
-        drone.setPosition(0);
     }
 
     public void setRiggingServo() {
