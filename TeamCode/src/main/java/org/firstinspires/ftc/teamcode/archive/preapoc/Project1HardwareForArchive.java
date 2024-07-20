@@ -15,7 +15,7 @@ import org.firstinspires.ftc.robotcore.external.Telemetry;
 /**
  * This class represents the robot object.
  */
-public class Project1HardwareForArchive {
+class Project1HardwareForArchive {
     DcMotor motorFL, motorFR;
     DcMotor motorBL, motorBR;
     DcMotorEx motorSliderLeft, motorSliderRight;
