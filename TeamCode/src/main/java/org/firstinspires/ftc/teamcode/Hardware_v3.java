@@ -1,15 +1,18 @@
 package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
+import com.qualcomm.robotcore.hardware.AnalogInput;
 import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
+import com.qualcomm.robotcore.hardware.DistanceSensor;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.IMU;
 import com.qualcomm.robotcore.hardware.Servo;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
+import org.firstinspires.ftc.teamcode.util.Encoder;
 
 /**
  * This class represents the robot object.
@@ -23,6 +26,9 @@ public class Hardware_v3 {
     Servo servoArmLeft, servoArmRight;
     CRServo servoDrone;
     IMU imu;
+    DistanceSensor distanceSensor;
+    Encoder parallelEncoder, perpendicularEncoder;
+    AnalogInput ultraF, ultraL;
     Telemetry telemetry;
 
     boolean clawUpperOpen;
@@ -60,6 +66,11 @@ public class Hardware_v3 {
         servoArmLeft = hardwareMap.get(Servo.class, "servoArmLeft");
         servoArmRight = hardwareMap.get(Servo.class, "servoArmRight");
         servoDrone = hardwareMap.get(CRServo.class, "servoDrone");
+        distanceSensor = hardwareMap.get(DistanceSensor.class, "distance");
+        ultraF = hardwareMap.get(AnalogInput.class, "ultraF");
+        ultraL = hardwareMap.get(AnalogInput.class, "ultraL");
+        parallelEncoder = new Encoder(hardwareMap.get(DcMotorEx.class, "motorBL"));
+        perpendicularEncoder = new Encoder(hardwareMap.get(DcMotorEx.class, "motorBR"));
         imu = hardwareMap.get(IMU.class, "imu");
 
         imu.initialize(new IMU.Parameters(new RevHubOrientationOnRobot(
@@ -175,5 +186,25 @@ public class Hardware_v3 {
         servoArmLeft.setPosition(OFFSET_SERVO_ARM_LEFT + ARM_SCORING);
         servoArmRight.setPosition(OFFSET_SERVO_ARM_RIGHT + ARM_SCORING);
         isInScoringPosition = true;
+    }
+
+    public void remote(double vertical, double horizontal, double pivot, double heading) {
+
+        double theta = 2 * Math.PI + Math.atan2(vertical, horizontal) - heading;
+        double power = Math.hypot(horizontal, vertical);
+
+        double sin = Math.sin(theta -Math.PI/4);
+        double cos = Math.cos(theta - Math.PI/4);
+        double max = Math.max(Math.abs(sin),Math.abs(cos));
+
+        double FLPower = power * (cos/max) + pivot;
+        double FRPower = power * sin/max - pivot;
+        double BLPower = power * -(sin/max) - pivot;
+        double BRPower = power * -(cos/max) + pivot;
+
+        motorFL.setPower(-FLPower);
+        motorFR.setPower(-FRPower);
+        motorBL.setPower(BLPower);
+        motorBR.setPower(BRPower);
     }
 }

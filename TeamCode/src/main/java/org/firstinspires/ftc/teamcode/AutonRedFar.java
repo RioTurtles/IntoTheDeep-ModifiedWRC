@@ -213,6 +213,12 @@ public class AutonRedFar extends LinearOpMode {
                 stage = 7;
             }
 
+            // Put post-autonomous actions here.
+            if (stage == 7) {
+                PoseStorage.setCurrentPose(drive.getPoseEstimate());
+                stage = 8;
+            }
+
             drive.update();
             Pose2d poseEstimate = drive.getPoseEstimate();
             telemetry.addData("stage", stage);
@@ -282,5 +288,22 @@ public class AutonRedFar extends LinearOpMode {
 
             return output;
         }
+    }
+
+    private String stateToTelemetry(int state) {
+        String result = "-> Current Finite State: " + state + "- ";
+        switch (state) {
+            case 0: result += "";
+            case 1: result += "";
+            case 2: result += "";
+            case 3: result += "";
+            case 4: result += "";
+            case 5: result += "";
+            case 6: result += "";
+            case 7: result += "Post-autonomous";
+            case 8: result += "END";
+            default: result += "INVALID";
+        }
+        return result;
     }
 }

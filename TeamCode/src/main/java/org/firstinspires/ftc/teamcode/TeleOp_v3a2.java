@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode;
 
 import static java.lang.Math.abs;
 
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
@@ -9,6 +10,7 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 
+@Disabled
 @TeleOp(name="v3 TeleOp A2")
 public class TeleOp_v3a2 extends LinearOpMode {
     @Override
