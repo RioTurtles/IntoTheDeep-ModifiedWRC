@@ -6,6 +6,7 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.Gamepad;
+import com.qualcomm.robotcore.hardware.IMU;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.State;
@@ -16,7 +17,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import java.sql.Time;
 
 @TeleOp
-public class  Teleop_v2 extends LinearOpMode {
+public class  Teleop_v3_Beijing extends LinearOpMode {
     public enum states {
         INIT,
         GROUND,
@@ -24,6 +25,7 @@ public class  Teleop_v2 extends LinearOpMode {
         GROUND_GRIP,
         EXTEND_GRIP,
         READY_SCORE,
+        AUTO_ALIGN,
         SCORING,
         SIMPLE_SCORING,
         RETURN_TO_INIT,
@@ -31,6 +33,8 @@ public class  Teleop_v2 extends LinearOpMode {
     double direction_y, direction_x, pivot, heading;
     double CPR, revolutions, angle, angleNormalized;
     double lDis = 0, rDis = 0;
+    double alignTarget = 270;
+    double kP = 0;
     double boardHeight = 0;
     int x = 0, y = 0;
 
@@ -73,6 +77,7 @@ public class  Teleop_v2 extends LinearOpMode {
         waitForStart();
         robot.imu.resetYaw();
         drivetrain.remote(0, 0, 0, 0);
+        drivetrain.remote2(0,0,0,0);
         robot.slider.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
         while (opModeIsActive()) {
@@ -139,7 +144,7 @@ public class  Teleop_v2 extends LinearOpMode {
                     robot.arm.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
 
                     robot.setClawPAngle(180);
-                   robot.bothClawClose();
+                    robot.bothClawClose();
 
                     if(gamepad.right_bumper && !lastGamepad.right_bumper){
                         state = states.GROUND;
@@ -267,7 +272,7 @@ public class  Teleop_v2 extends LinearOpMode {
                     robot.retractSlider();
 
                     if (gamepad.right_bumper && !lastGamepad.right_bumper) {
-                        state = states.SIMPLE_SCORING;
+                        state = states.AUTO_ALIGN;
                         Timer1.reset();
                     }
                     if(gamepad.left_bumper && !lastGamepad.left_bumper){
@@ -276,57 +281,16 @@ public class  Teleop_v2 extends LinearOpMode {
                     }
                     break;
 
-                // Scoring in position and free to control pixel distribution
-                case SCORING:
-                    robot.setArm(160);
-
-                    boardHeight = 0;
-                    // TODO: Set board height
-                    if (gamepad1.dpad_up) {  //Max
-                        boardHeight = 66;
-                    }
-                    if (gamepad1.dpad_left) {  //High
-                        boardHeight = 57;
-                    }
-                    if (gamepad1.dpad_down) {  //Middle
-                        boardHeight = 37;
-                    }
-                    if (gamepad1.dpad_right) {  //Low
-                        boardHeight = 18;
-                    }
-
-                    /*if (robot.getDis() < 0) {
-                        robot.setArm(Math.atan(boardHeight / (robot.getDis() + boardHeight / Math.tan(60))));
-                        robot.setSliderLength(Math.sqrt(Math.pow(boardHeight, 2) + Math.pow((robot.getDis() + boardHeight / Math.tan(60)), 2)));
-                    }*/
-
-                    if (robot.getArmAngle() > 90) {
-                        robot.clawRScoring();
-                    }
-
-                    if (gamepad.triangle && !lastGamepad.triangle && robot.getArmAngle() > 90 && robot.getArmAngle()>120 && robot.getArmAngle()<170) {
-                        robot.setSlider(900);
-                    } else {
-                        robot.setSlider(0);
-                    }
-
-                    if (gamepad.left_trigger > 0) {
-                        robot.leftClawOpen();
-                    } else {
-                        robot.leftClawClose();
-                    }
-
-                    if (gamepad.right_trigger > 0) {
-                        robot.rightClawOpen();
-                    } else {
-                        robot.rightClawClose();
-                    }
+                case AUTO_ALIGN:
+                    drivetrain.remote(0,0,0,0);
+                    gamepad.right_stick_x = 0;
+                    drivetrain.remote2(direction_y, direction_x, (heading - alignTarget) * kP, heading);
 
                     if (gamepad.right_bumper && !lastGamepad.right_bumper) {
-                        state = states.RETURN_TO_INIT;
+                        state = states.SIMPLE_SCORING;
                         Timer1.reset();
                     }
-                    if(gamepad.left_bumper && !lastGamepad.left_bumper) {
+                    if(gamepad.left_bumper && !lastGamepad.left_bumper){
                         state = states.READY_SCORE;
                         Timer1.reset();
                     }
@@ -384,7 +348,7 @@ public class  Teleop_v2 extends LinearOpMode {
                         Timer1.reset();
                     }
                     if(gamepad.left_bumper && !lastGamepad.left_bumper){
-                        state = states.READY_SCORE;
+                        state = states.AUTO_ALIGN;
                         Timer1.reset();
                     }
 
@@ -412,7 +376,7 @@ public class  Teleop_v2 extends LinearOpMode {
 
 
             }
-            if(riggingState == 0){
+            if (riggingState == 0) {
                 robot.rRiggingUp.setPwmDisable();
                 robot.lRiggingUp.setPwmDisable();
             }
@@ -469,19 +433,10 @@ public class  Teleop_v2 extends LinearOpMode {
                 riggingState = 0;
             }
 
-            //if (state < 0) {state = 0;}
-            //if (state > 6) {state = 6;}
-
 
             /*telemetry.addData("Encoder Angle (Degrees)", angle);
             telemetry.addData("Encoder Angle - Normalized (Degrees)", angleNormalized);*/
 
-            /*telemetry.addData("Distance", robot.getDis());
-            telemetry.addData("Arm position", robot.getArmAngle());
-            telemetry.addData("Slider length ", robot.getSliderLength());
-            telemetry.addData("Board height", boardHeight);
-
-             */
             telemetry.addData("state", state);
             telemetry.addData("RiggingState", riggingState);
             telemetry.addData("arm", robot.getArmAngle());
