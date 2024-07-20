@@ -1,11 +1,13 @@
 package org.firstinspires.ftc.teamcode.archive.preapoc;
 
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 
 import org.firstinspires.ftc.teamcode.Project1Hardware;
 
+@Disabled
 @TeleOp(name="v2 Measurement")
 public class Measurement_v2 extends LinearOpMode {
     @Override
