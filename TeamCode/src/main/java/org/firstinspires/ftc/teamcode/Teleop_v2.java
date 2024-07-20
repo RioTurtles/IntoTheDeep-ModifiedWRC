@@ -388,7 +388,7 @@ public class  Teleop_v2 extends LinearOpMode {
                         Timer1.reset();
                     }
 
-                    drivetrain.remote2(direction_y, direction_x, -pivot, heading);
+                    //drivetrain.remote2(direction_y, direction_x, -pivot, heading);
                     break;
 
 
