@@ -1,14 +1,16 @@
-package org.firstinspires.ftc.teamcode;
+package org.firstinspires.ftc.teamcode.archive.preapoc;
 
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 
+import org.firstinspires.ftc.teamcode.Project1Hardware;
+
 @TeleOp(name="v2 Measurement")
 public class Measurement_v2 extends LinearOpMode {
     @Override
     public void runOpMode() throws InterruptedException {
-        Project1Hardware robot = new Project1Hardware();
+        Project1HardwareForArchive robot = new Project1HardwareForArchive();
         robot.init(hardwareMap, telemetry);
 
         robot.motorSliderLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
