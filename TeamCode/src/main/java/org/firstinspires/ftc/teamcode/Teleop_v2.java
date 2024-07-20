@@ -235,25 +235,29 @@ public class  Teleop_v2 extends LinearOpMode {
                     robot.setSlider(900);
                     robot.clawRIntake();
 
-                    if (gamepad.right_trigger > 0) {
-                        robot.rightClawOpen();
-                    } else {
-                        robot.rightClawClose();
-                    }
+                    //if(Timer1.milliseconds() > 300) {
+                        if (gamepad.right_trigger > 0) {
+                            robot.rightClawOpen();
+                        } else {
+                            robot.rightClawClose();
+                        //}
 
-                    if (gamepad.left_trigger > 0) {
-                        robot.leftClawOpen();
-                    } else {
-                        robot.leftClawClose();
+                        if (gamepad.left_trigger > 0) {
+                            robot.leftClawOpen();
+                        } else {
+                            robot.leftClawClose();
+                        }
                     }
+                    //if(Timer1.milliseconds() > 500) {
+                        if (gamepad.right_bumper && !lastGamepad.right_bumper) {
+                            state = states.READY_SCORE;
+                            Timer1.reset();
+                        }
+                    //}
+                        if (gamepad.left_bumper && !lastGamepad.left_bumper) {
+                            state = states.GROUND_EXTEND;
+                        }
 
-                    if (gamepad.right_bumper && !lastGamepad.right_bumper) {
-                        state = states.READY_SCORE;
-                        Timer1.reset();
-                    }
-                    if(gamepad.left_bumper && !lastGamepad.left_bumper){
-                        state=states.GROUND_EXTEND;
-                    }
                     break;
 
                 //Retract slider and pixels possessed
@@ -335,7 +339,7 @@ public class  Teleop_v2 extends LinearOpMode {
                 case SIMPLE_SCORING:
 
                     robot.setArm(simpleScoreArmAngle[simpleHeight]);
-                    robot.arm.setVelocity(1000);
+                   // robot.arm.setVelocity(1000);
                     //robot.setArm();
 
                     if(gamepad.dpad_up && !lastGamepad.dpad_up) {
@@ -387,8 +391,6 @@ public class  Teleop_v2 extends LinearOpMode {
                         state = states.READY_SCORE;
                         Timer1.reset();
                     }
-
-                    //drivetrain.remote2(direction_y, direction_x, -pivot, heading);
                     break;
 
 
@@ -397,7 +399,7 @@ public class  Teleop_v2 extends LinearOpMode {
                     scoring_extend = false;
 
                     robot.setArm(0);
-                    robot.arm.setVelocity(1600);
+                    //robot.arm.setVelocity(1600);
                     robot.retractSlider();
 
                     if (robot.getArmAngle() < 130) {

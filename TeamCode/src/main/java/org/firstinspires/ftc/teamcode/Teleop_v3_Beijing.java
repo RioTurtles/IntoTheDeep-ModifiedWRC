@@ -299,7 +299,7 @@ public class  Teleop_v3_Beijing extends LinearOpMode {
                 case SIMPLE_SCORING:
 
                     robot.setArm(simpleScoreArmAngle[simpleHeight]);
-                    robot.arm.setVelocity(1000);
+                    //robot.arm.setVelocity(1000);
                     //robot.setArm();
 
                     if(gamepad.dpad_up && !lastGamepad.dpad_up) {
@@ -361,7 +361,7 @@ public class  Teleop_v3_Beijing extends LinearOpMode {
                     scoring_extend = false;
 
                     robot.setArm(0);
-                    robot.arm.setVelocity(1600);
+                    //robot.arm.setVelocity(1600);
                     robot.retractSlider();
 
                     if (robot.getArmAngle() < 130) {

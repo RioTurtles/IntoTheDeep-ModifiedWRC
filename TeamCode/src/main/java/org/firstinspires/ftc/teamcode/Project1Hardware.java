@@ -21,7 +21,7 @@ public class Project1Hardware {
     DcMotorEx motorSliderLeft, motorSliderRight;
     Servo servoClawUpper, servoClawLower;
     Servo servoClawPitchLeft, servoClawPitchRight;
-    Servo servoArmLeft, servoArmRight;
+        Servo servoArmLeft, servoArmRight;
     CRServo servoDrone;
     IMU imu;
     Telemetry telemetry;
@@ -70,6 +70,8 @@ public class Project1Hardware {
         drone = hardwareMap.get(ServoImplEx.class,"drone");
         lRiggingUp = hardwareMap.get(ServoImplEx.class,"lRiggingUp");
         rRiggingUp = hardwareMap.get(ServoImplEx.class,"rRiggingUp");
+        ((DcMotorEx) arm).setPositionPIDFCoefficients(4);
+
         imu = hardwareMap.get(IMU.class, "imu");
 
         imu.initialize(new IMU.Parameters(new RevHubOrientationOnRobot(RevHubOrientationOnRobot.LogoFacingDirection.LEFT, RevHubOrientationOnRobot.UsbFacingDirection.UP)));
@@ -215,12 +217,15 @@ public class Project1Hardware {
 
     public void setArm(double angle) {
         int tmp;
-        arm.setVelocity(1300);
+        //arm.setVelocity(1300);
+        arm.setPower(1);
 
         tmp=angleToEncoderValueArm(angle);
         if(tmp>1900){
             tmp=1900;
         }
+        arm.setPositionPIDFCoefficients(4);
+
         arm.setTargetPosition(angleToEncoderValueArm(angle));
         arm.setMode(DcMotor.RunMode.RUN_TO_POSITION);
     }
