@@ -35,6 +35,7 @@ public class RRAutonRedClose extends LinearOpMode {
         Project1Hardware robot = new Project1Hardware();
         robot.init(hardwareMap, telemetry);
         robot.reset();
+        robot.retractSlider();
         robot.bothClawClose();
 
         ElapsedTime timer1 = new ElapsedTime();

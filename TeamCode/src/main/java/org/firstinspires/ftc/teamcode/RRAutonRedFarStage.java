@@ -7,6 +7,7 @@ import com.acmerobotics.roadrunner.trajectory.Trajectory;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 import org.firstinspires.ftc.teamcode.drive.SampleMecanumDrive;
@@ -28,15 +29,20 @@ public class RRAutonRedFarStage extends LinearOpMode {
     OpenCvWebcam webcam;
     int randomizationResult = 2;
     boolean yReady;
+    boolean parkRight;
 
     @Override
     public void runOpMode() throws InterruptedException {
         Project1Hardware robot = new Project1Hardware();
         robot.init(hardwareMap, telemetry);
         robot.reset();
+        robot.retractSlider();
+        robot.bothClawClose();
 
+        ElapsedTime timer1 = new ElapsedTime();
         SampleMecanumDrive drive = new SampleMecanumDrive(hardwareMap);
         Pose2d startPose = new Pose2d(-40.33, -62.80, Math.toRadians(90.00));
+        Pose2d nowPose;
 
         WebcamName webcamName = hardwareMap.get(WebcamName.class, "Webcam 1");
         int cameraMonitorViewId = hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", hardwareMap.appContext.getPackageName());
@@ -58,35 +64,59 @@ public class RRAutonRedFarStage extends LinearOpMode {
 
         drive.setPoseEstimate(startPose);
         TrajectorySequence pLeft = drive.trajectorySequenceBuilder(startPose)
-                .lineToSplineHeading(new Pose2d(-39.03, -11.83, Math.toRadians(50.00)))
+                .lineToSplineHeading(new Pose2d(-39.03, -11.83, Math.toRadians(75.00)))
+                .addTemporalMarker(() -> {
+                    timer1.reset();
+                    objective = Objective.SCORE_PURPLE;
+                })
                 .build();
         TrajectorySequence pMiddle = drive.trajectorySequenceBuilder(startPose)
-                .lineToSplineHeading(new Pose2d(-34.18, -12.02, Math.toRadians(60.00)))
+                .lineToSplineHeading(new Pose2d(-36.18, -12.52, Math.toRadians(85.00)))
+                .addTemporalMarker(() -> {
+                    timer1.reset();
+                    objective = Objective.SCORE_PURPLE;
+                })
                 .build();
         TrajectorySequence pRight = drive.trajectorySequenceBuilder(startPose)
-                .lineToSplineHeading(new Pose2d(-39.03, -11.83, Math.toRadians(130.00)))
+                .lineToSplineHeading(new Pose2d(-43.53, -11.83, Math.toRadians(135.00)))
+                .addTemporalMarker(() -> {
+                    timer1.reset();
+                    objective = Objective.SCORE_PURPLE;
+                })
                 .build();
         Trajectory yLeft = drive.trajectoryBuilder(pLeft.end())
-                .lineToSplineHeading(new Pose2d(23.94, -13.51, Math.toRadians(0.00)))
+                .lineToSplineHeading(new Pose2d(30.48, -14.44, Math.toRadians(0.00)))
+                .addSpatialMarker(new Vector2d(30.48, -14.44), () -> {
+                    robot.setClawPAngle(180);
+                    robot.setArm(154);
+                })
                 .splineToConstantHeading(new Vector2d(51.32, -29.71), Math.toRadians(-45.00))
                 .build();
         Trajectory yMiddle = drive.trajectoryBuilder(pMiddle.end())
-                .lineToLinearHeading(new Pose2d(23.94, -13.51, Math.toRadians(0.00)))
+                .lineToSplineHeading(new Pose2d(30.48, -14.44, Math.toRadians(0.00)))
+                .addSpatialMarker(new Vector2d(30.48, -14.44), () -> {
+                    robot.setClawPAngle(180);
+                    robot.setArm(154);
+                })
                 .splineToConstantHeading(new Vector2d(50.02, -35.49), Math.toRadians(-50.00))
                 .build();
         Trajectory yRight = drive.trajectoryBuilder(pRight.end())
-                .lineToSplineHeading(new Pose2d(23.94, -13.51, Math.toRadians(0.00)))
+                .lineToSplineHeading(new Pose2d(30.48, -14.44, Math.toRadians(0.00)))
+                .addSpatialMarker(new Vector2d(30.48, -14.44), () -> {
+                    robot.setClawPAngle(180);
+                    robot.setArm(154);
+                })
                 .splineToConstantHeading(new Vector2d(51.32, -42.38), Math.toRadians(-60.00))
                 .build();
-        TrajectorySequence rLeft = drive.trajectorySequenceBuilder(yLeft.end()).build();
-        TrajectorySequence rMiddle = drive.trajectorySequenceBuilder(yMiddle.end()).build();
-        TrajectorySequence rRight = drive.trajectorySequenceBuilder(yRight.end()).build();
 
         waitForStart();
         webcam.stopRecordingPipeline();
         webcam.stopStreaming();
+        timer1.reset();
 
         while (opModeIsActive()) {
+            nowPose = drive.getPoseEstimate();
+
             if (objective == Objective.INITIALISE) {
                 objective = Objective.PATH_TO_PURPLE;
             }
@@ -100,9 +130,21 @@ public class RRAutonRedFarStage extends LinearOpMode {
             }
 
             if (objective == Objective.SCORE_PURPLE) {
-                robot.rightClawOpen();
-                sleep(1000);
-                objective = Objective.PATH_TO_YELLOW;
+                if (timer1.milliseconds() > 2000) objective = Objective.PATH_TO_YELLOW;
+                else if (timer1.milliseconds() > 1760) robot.clawRScoring();
+                else if (timer1.milliseconds() > 1360) {
+                    robot.retractSlider();
+                    robot.bothClawClose();
+                } else if (timer1.milliseconds() > 1060) robot.rightClawOpen();
+                else if (timer1.milliseconds() > 0) {
+                    robot.clawRIntake();
+
+                    switch (randomizationResult) {
+                        case 1: robot.setSlider(425); break;
+                        default: case 2: robot.setSlider(0); break;
+                        case 3: robot.setSlider(700); break;
+                    }
+                }
             }
 
             if (objective == Objective.PATH_TO_YELLOW) {
@@ -112,22 +154,26 @@ public class RRAutonRedFarStage extends LinearOpMode {
                     case 3: drive.followTrajectory(yRight); break;
                 }
 
-                if ((robot.getArmAngle() > 150) && yReady) objective = Objective.SCORE_YELLOW;
+                if ((robot.getArmAngle() > 135) && yReady) {
+                    timer1.reset();
+                    objective = Objective.SCORE_YELLOW;
+                }
             }
 
             if (objective == Objective.SCORE_YELLOW) {
-                robot.leftClawOpen();
-                sleep(1500);
-                robot.setArm(0);
+                if (timer1.milliseconds() > 305) robot.retractSlider();
+                else if (timer1.milliseconds() > 300) robot.setArm(0);
+                else if (timer1.milliseconds() > 0) robot.leftClawOpen();
+
                 if (robot.getArmAngle() < 5) objective = Objective.PARK;
             }
 
             if (objective == Objective.PARK) {
-                switch (randomizationResult) {
-                    case 1: drive.followTrajectorySequence(rLeft);
-                    default: case 2: drive.followTrajectorySequence(rMiddle);
-                    case 3: drive.followTrajectorySequence(rRight);
-                }
+                TrajectorySequence park = drive.trajectorySequenceBuilder(nowPose)
+                        .lineToConstantHeading(new Vector2d(50.97, -14.06))
+                        .addTemporalMarker(() -> objective = Objective.END)
+                        .build();
+                drive.followTrajectorySequence(park);
             }
 
             if (objective == Objective.END) {
@@ -137,18 +183,13 @@ public class RRAutonRedFarStage extends LinearOpMode {
 
             drive.update();
             telemetry.addData("Objective", objective);
+            telemetry.addLine();
+            telemetry.addData("X", nowPose.getX());
+            telemetry.addData("Y", nowPose.getY());
+            telemetry.addData("H(D)", Math.toDegrees(nowPose.getHeading()));
+            telemetry.addData("H(R)", nowPose.getHeading());
             telemetry.update();
         }
-    }
-
-    enum Objective {
-        INITIALISE,
-        PATH_TO_PURPLE,
-        SCORE_PURPLE,
-        PATH_TO_YELLOW,
-        SCORE_YELLOW,
-        PARK,
-        END
     }
 
     class TeamPropPipeline extends OpenCvPipeline {
@@ -223,5 +264,15 @@ public class RRAutonRedFarStage extends LinearOpMode {
 
             return output;
         }
+    }
+
+    enum Objective {
+        INITIALISE,
+        PATH_TO_PURPLE,
+        SCORE_PURPLE,
+        PATH_TO_YELLOW,
+        SCORE_YELLOW,
+        PARK,
+        END
     }
 }
