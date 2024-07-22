@@ -270,6 +270,22 @@ public class  Teleop_v2 extends LinearOpMode {
                     robot.setClawPAngle(180);
                     robot.retractSlider();
 
+                    if(gamepad.dpad_up && !lastGamepad.dpad_up) {
+                        simpleHeight += 1;
+                    }
+
+                    if(gamepad.dpad_down && !lastGamepad.dpad_down) {
+                        simpleHeight -= 1;
+                    }
+
+                    if(simpleHeight < 0) {
+                        simpleHeight = 0;
+                    }
+
+                    if(simpleHeight > 4) {
+                        simpleHeight = 4;
+                    }
+
                     if (gamepad.right_bumper && !lastGamepad.right_bumper) {
                         state = states.SIMPLE_SCORING;
                         Timer1.reset();

@@ -220,9 +220,9 @@ public class Project1Hardware {
         //arm.setVelocity(1300);
         arm.setPower(1);
 
-        tmp=angleToEncoderValueArm(angle);
-        if(tmp>1900){
-            tmp=1900;
+        tmp = angleToEncoderValueArm(angle);
+        if(tmp > 1900){
+            tmp = 1900;
         }
         arm.setPositionPIDFCoefficients(4);
 
@@ -249,6 +249,8 @@ public class Project1Hardware {
         // if(length < 10) length = 0;
         //if (length > 1000) length = 1000;
         slider.setTargetPosition(lengthToEncoderValueSlider(length));
+
+        slider.setPositionPIDFCoefficients(4);
         slider.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         slider.setPower(1);
     }

@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode;
 
 import android.accounts.AccountAuthenticatorResponse;
 
+import com.acmerobotics.roadrunner.geometry.Pose2d;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
@@ -50,8 +51,8 @@ public class  Teleop_v3_Beijing extends LinearOpMode {
     int[] sliderScoringPosition = {};
     double[] ArmScoringPosition = {6, 12.5, 23, 37};
     double[] clawScoringPosition = {};
-
-    double [] simpleScoreArmAngle = {165,160, 155,150,145, 140};
+    double [] simpleScoreArmAngle = {165, 160, 155, 150, 145, 140};
+    double boardHeading = 90;
 
     int simpleHeight = 0;
     boolean scoring_extend = false;
@@ -101,6 +102,7 @@ public class  Teleop_v3_Beijing extends LinearOpMode {
 
             if(gamepad.square) {
                 robot.droneLaunch();
+
             }
 
             /*if (state==99){
@@ -131,9 +133,10 @@ public class  Teleop_v3_Beijing extends LinearOpMode {
             //robot.arm.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
             //robot.setSliderLength((robot.getDis()/Math.cos(Math.toRadians(180-robot.getArmAngle()))-50)+boardHeight);
             //  telemetry.addData("Testing",Math.sqrt(Math.pow(robot.getDis(),2)+Math.pow(boardHeight,2)-2* robot.getDis()*boardHeight*Math.cos(Math.toRadians(120))));
-
             //}
 
+
+            //target position - board heading
             //Reset claws and stuff
             switch (state) {
                 case INIT:
@@ -271,6 +274,22 @@ public class  Teleop_v3_Beijing extends LinearOpMode {
                     robot.setClawPAngle(180);
                     robot.retractSlider();
 
+                    if(gamepad.dpad_up && !lastGamepad.dpad_up) {
+                        simpleHeight += 1;
+                    }
+
+                    if(gamepad.dpad_down && !lastGamepad.dpad_down) {
+                        simpleHeight -= 1;
+                    }
+
+                    if(simpleHeight < 0) {
+                        simpleHeight = 0;
+                    }
+
+                    if(simpleHeight > 4) {
+                        simpleHeight = 4;
+                    }
+
                     if (gamepad.right_bumper && !lastGamepad.right_bumper) {
                         state = states.AUTO_ALIGN;
                         Timer1.reset();
@@ -282,9 +301,21 @@ public class  Teleop_v3_Beijing extends LinearOpMode {
                     break;
 
                 case AUTO_ALIGN:
-                    drivetrain.remote(0,0,0,0);
+                    /*drivetrain.remote(0,0,0,0);
                     gamepad.right_stick_x = 0;
-                    drivetrain.remote2(direction_y, direction_x, (heading - alignTarget) * kP, heading);
+                    drivetrain.remote2(direction_y, direction_x, (heading - alignTarget) * kP, heading);*/
+
+                    if (gamepad.cross && !lastGamepad.cross) {
+                        pivot = (boardHeading - heading) * kP;
+                    } else {
+                        if (pivot > Math.PI) {pivot -= 2 * Math.PI;}
+                        if (pivot < -Math.PI) {pivot += 2 * Math.PI;}
+                        boardHeading = pivot;
+                    }
+
+                    if (!gamepad.cross) {
+                        pivot = gamepad.right_stick_x;
+                    }
 
                     if (gamepad.right_bumper && !lastGamepad.right_bumper) {
                         state = states.SIMPLE_SCORING;
