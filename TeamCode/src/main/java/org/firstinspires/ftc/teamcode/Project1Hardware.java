@@ -262,11 +262,11 @@ public class Project1Hardware {
         double length = revolutions * 35.65 * Math.PI;
         return length;
     }
-    public void clawRIntake(){
+    public void clawRIntake() {
         setClawPAngle(90 - getArmAngle() * 0.5 - 18);
     }
     public void clawRScoring(){
-        setClawPAngle(180-getArmAngle() + 8);
+        setClawPAngle(180 - getArmAngle() + 8);
         //setClawPAngle(180);
     }
 }
