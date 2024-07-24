@@ -103,16 +103,16 @@ public class RRAutonRedFarStage extends LinearOpMode {
                     robot.setClawPAngle(180);
                     robot.setArm(154);
                 })
-                .splineToConstantHeading(new Vector2d(35.20, -34.51 + offset), Math.toRadians(-50.00))
+                .splineToConstantHeading(new Vector2d(35.20, -33.51 + offset), Math.toRadians(-50.00))
                 .build();
         Trajectory yRight = drive.trajectoryBuilder(pRight.end())
                 .splineToSplineHeading(new Pose2d(-20.91, -14.44, Math.toRadians(0.00)), Math.toRadians(0.00))
                 .splineTo(new Vector2d(30.48, -14.44), Math.toRadians(0.00))
                 .addSpatialMarker(new Vector2d(30.48, -14.44), () -> {
                     robot.setClawPAngle(180);
-                    robot.setArm(154);
+                    robot.setArm(153);
                 })
-                .splineToConstantHeading(new Vector2d(35.20, -42.71 + offset), Math.toRadians(-60.00))
+                .splineToConstantHeading(new Vector2d(35.20, -44.01 + offset), Math.toRadians(-60.00))
                 .build();
 
         webcam.stopRecordingPipeline();
@@ -165,9 +165,9 @@ public class RRAutonRedFarStage extends LinearOpMode {
                 }
 
                 if ((robot.getArmAngle() > 135) && yReady) {
-                    robot.setSlider(390);
+                    robot.setSlider(400);
 
-                    if (robot.slider.getCurrentPosition() > 385) {
+                    if (robot.slider.getCurrentPosition() > 390) {
                         timer1.reset();
                         objective = Objective.SCORE_YELLOW;
                     }
