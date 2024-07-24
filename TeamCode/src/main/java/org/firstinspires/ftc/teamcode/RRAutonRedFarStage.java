@@ -29,7 +29,9 @@ public class RRAutonRedFarStage extends LinearOpMode {
     OpenCvWebcam webcam;
     int randomizationResult = 2;
     boolean yReady;
+    boolean scoreRight = true;
     boolean parkRight;
+    double offset;
 
     @Override
     public void runOpMode() throws InterruptedException {
@@ -62,7 +64,10 @@ public class RRAutonRedFarStage extends LinearOpMode {
         telemetry.addData("Status", "Initialised");
         telemetry.update();
 
+        waitForStart();
+        if (scoreRight) offset = 0.0; else offset = 3.0;
         drive.setPoseEstimate(startPose);
+
         TrajectorySequence pLeft = drive.trajectorySequenceBuilder(startPose)
                 .splineToSplineHeading(new Pose2d(-30.22, -14.33, Math.toRadians(55.00)), Math.toRadians(65.00))
                 .addTemporalMarker(() -> {
@@ -90,7 +95,7 @@ public class RRAutonRedFarStage extends LinearOpMode {
                     robot.setClawPAngle(180);
                     robot.setArm(154);
                 })
-                .splineToConstantHeading(new Vector2d(35.20, -30.01), Math.toRadians(-45.00))
+                .splineToConstantHeading(new Vector2d(35.20, -30.01 + offset), Math.toRadians(-45.00))
                 .build();
         Trajectory yMiddle = drive.trajectoryBuilder(pMiddle.end())
                 .lineToSplineHeading(new Pose2d(30.48, -14.44, Math.toRadians(0.00)))
@@ -98,7 +103,7 @@ public class RRAutonRedFarStage extends LinearOpMode {
                     robot.setClawPAngle(180);
                     robot.setArm(154);
                 })
-                .splineToConstantHeading(new Vector2d(35.20, -34.51), Math.toRadians(-50.00))
+                .splineToConstantHeading(new Vector2d(35.20, -34.51 + offset), Math.toRadians(-50.00))
                 .build();
         Trajectory yRight = drive.trajectoryBuilder(pRight.end())
                 .splineToSplineHeading(new Pose2d(-20.91, -14.44, Math.toRadians(0.00)), Math.toRadians(0.00))
@@ -107,10 +112,9 @@ public class RRAutonRedFarStage extends LinearOpMode {
                     robot.setClawPAngle(180);
                     robot.setArm(154);
                 })
-                .splineToConstantHeading(new Vector2d(35.20, -42.71), Math.toRadians(-60.00))
+                .splineToConstantHeading(new Vector2d(35.20, -42.71 + offset), Math.toRadians(-60.00))
                 .build();
 
-        waitForStart();
         webcam.stopRecordingPipeline();
         webcam.stopStreaming();
         timer1.reset();
@@ -163,7 +167,7 @@ public class RRAutonRedFarStage extends LinearOpMode {
                 if ((robot.getArmAngle() > 135) && yReady) {
                     robot.setSlider(390);
 
-                    if (robot.slider.getCurrentPosition() > 380) {
+                    if (robot.slider.getCurrentPosition() > 385) {
                         timer1.reset();
                         objective = Objective.SCORE_YELLOW;
                     }
@@ -171,9 +175,9 @@ public class RRAutonRedFarStage extends LinearOpMode {
             }
 
             if (objective == Objective.SCORE_YELLOW) {
-                if (timer1.milliseconds() > 555) {robot.setArm(0); robot.bothClawClose();}
-                else if (timer1.milliseconds() > 300) robot.retractSlider();
-                else if (timer1.milliseconds() > 0) robot.leftClawOpen();
+                if (timer1.milliseconds() > 705) {robot.setArm(0); robot.bothClawClose();}
+                else if (timer1.milliseconds() > 450) robot.retractSlider();
+                else if (timer1.milliseconds() > 150) robot.leftClawOpen();
 
                 if (robot.getArmAngle() < 5) objective = Objective.PARK;
             }
@@ -266,6 +270,8 @@ public class RRAutonRedFarStage extends LinearOpMode {
 
             if (parkRight) telemetry.addData("Park", "Right");
             else telemetry.addData("Park", "Left");
+            if (scoreRight) telemetry.addData("Score on", "Right");
+            else telemetry.addData("Score on", "Left");
             telemetry.addLine();
 
             if (gamepad1.dpad_left) leftTarget = leftAverage.val[0];
@@ -274,6 +280,8 @@ public class RRAutonRedFarStage extends LinearOpMode {
 
             if (gamepad1.square) parkRight = false;
             else if (gamepad1.circle) parkRight = true;
+            if (gamepad1.left_bumper) scoreRight = false;
+            else if (gamepad1.right_bumper) scoreRight = true;
 
             telemetry.addData("leftAvg", leftAverage.val[0]);
             telemetry.addData("rightAvg", rightAverage.val[0]);
