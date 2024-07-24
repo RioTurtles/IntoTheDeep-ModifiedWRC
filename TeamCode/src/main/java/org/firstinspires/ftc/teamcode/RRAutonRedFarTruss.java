@@ -66,21 +66,21 @@ public class RRAutonRedFarTruss extends LinearOpMode {
 
         drive.setPoseEstimate(startPose);
         TrajectorySequence pLeft = drive.trajectorySequenceBuilder(startPose)
-                .splineToSplineHeading(new Pose2d(-36.61, -44.99, Math.toRadians(240.00)), Math.toRadians(253.60))
+                .lineToLinearHeading(new Pose2d(-44.61, -44.99, Math.toRadians(295.00)))
                 .addTemporalMarker(() -> {
                     timer1.reset();
                     objective = Objective.SCORE_PURPLE;
                 })
                 .build();
         TrajectorySequence pMiddle = drive.trajectorySequenceBuilder(startPose)
-                .splineToSplineHeading(new Pose2d(-36.61, -44.99, Math.toRadians(270.00)), Math.toRadians(253.60))
+                .lineToLinearHeading(new Pose2d(-44.61, -44.99, Math.toRadians(260.00)))
                 .addTemporalMarker(() -> {
                     timer1.reset();
                     objective = Objective.SCORE_PURPLE;
                 })
                 .build();
         TrajectorySequence pRight = drive.trajectorySequenceBuilder(startPose)
-                .splineToSplineHeading(new Pose2d(-36.61, -44.99, Math.toRadians(300.00)), Math.toRadians(253.60))
+                .lineToLinearHeading(new Pose2d(-44.61, -44.99, Math.toRadians(220.00)))
                 .addTemporalMarker(() -> {
                     timer1.reset();
                     objective = Objective.SCORE_PURPLE;
@@ -117,32 +117,33 @@ public class RRAutonRedFarTruss extends LinearOpMode {
                 } else if (timer1.milliseconds() > 1360) {
                     robot.clawRScoring();
                     robot.retractSlider();
-                } else if (timer1.milliseconds() > 1060) robot.rightClawOpen();
+                } else if ((Math.abs(robot.slider.getCurrentPosition() - robot.slider.getTargetPosition()) <= 5 && timer1.milliseconds() > 800)
+                                || timer1.milliseconds() > 1060) robot.rightClawOpen();
                 else if (timer1.milliseconds() > 0) {
                     robot.clawRIntake();
 
                     switch (randomizationResult) {
-                        case 1: robot.setSlider(630); break;
-                        default: case 2: robot.setSlider(135); break;
-                        case 3: robot.setSlider(550); break;
+                        case 1: robot.setSlider(100); break;
+                        default: case 2: robot.setSlider(400); break;
+                        case 3: robot.setSlider(565); break;
                     }
                 }
             }
 
             if (objective == Objective.PATH_TO_YELLOW_GENERATION) {
                 TrajectoryBuilder builder = drive.trajectoryBuilder(nowPose)
-                        .splineToLinearHeading(
+                        .splineToSplineHeading(
                                 new Pose2d(-32.51, -60.08, Math.toRadians(0.00)),
                                 Math.toRadians(0.00),
                                 SampleMecanumDrive.getVelocityConstraint(30, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
-                                null
+                                SampleMecanumDrive.getAccelerationConstraint(17.5)
                         )
-                        .splineTo(new Vector2d(13.88, -60.08), Math.toRadians(0.00));
+                        .splineToConstantHeading(new Vector2d(13.88, -60.08), Math.toRadians(0.00));
 
                 switch (randomizationResult) {
-                    case 1: builder.splineToConstantHeading(new Vector2d(35.20, -30.01), Math.toRadians(0.00)); break;
-                    default: case 2: builder.splineToConstantHeading(new Vector2d(35.20, -34.51), Math.toRadians(0.00)); break;
-                    case 3: builder.splineToConstantHeading(new Vector2d(35.20, -42.71), Math.toRadians(0.00)); break;
+                    case 1: builder.splineToConstantHeading(new Vector2d(35.20, -26.01), Math.toRadians(0.00)); break;
+                    default: case 2: builder.splineToConstantHeading(new Vector2d(35.20, -33.01), Math.toRadians(0.00)); break;
+                    case 3: builder.splineToConstantHeading(new Vector2d(35.20, -41.36), Math.toRadians(0.00)); break;
                 }
 
                 yellow = builder
@@ -163,7 +164,7 @@ public class RRAutonRedFarTruss extends LinearOpMode {
                 if ((robot.getArmAngle() > 135) && yReady) {
                     robot.setSlider(390);
 
-                    if (robot.slider.getCurrentPosition() > 380) {
+                    if (robot.slider.getCurrentPosition() > 385) {
                         timer1.reset();
                         objective = Objective.SCORE_YELLOW;
                     }
@@ -171,9 +172,9 @@ public class RRAutonRedFarTruss extends LinearOpMode {
             }
 
             if (objective == Objective.SCORE_YELLOW) {
-                if (timer1.milliseconds() > 555) {robot.setArm(0); robot.bothClawClose();}
-                else if (timer1.milliseconds() > 300) robot.retractSlider();
-                else if (timer1.milliseconds() > 0) robot.leftClawOpen();
+                if (timer1.milliseconds() > 705) {robot.setArm(0); robot.bothClawClose();}
+                else if (timer1.milliseconds() > 450) robot.retractSlider();
+                else if (timer1.milliseconds() > 150) robot.leftClawOpen();
 
                 if (robot.getArmAngle() < 5) objective = Objective.PARK;
             }
@@ -265,19 +266,26 @@ public class RRAutonRedFarTruss extends LinearOpMode {
             avgRFinal = Math.abs(rightAverage.val[0] - rightTarget);
 
             if ((avgLFinal < avgMFinal) && (avgLFinal < avgRFinal)) {
-                telemetry.addLine("left");
+                telemetry.addLine("LEFT");
                 randomizationResult = 1;
             } else if ((avgMFinal < avgLFinal) && (avgMFinal < avgRFinal)) {
-                telemetry.addLine("middle");
+                telemetry.addLine("MIDDLE");
                 randomizationResult = 2;
             } else {
-                telemetry.addLine("right");
+                telemetry.addLine("RIGHT");
                 randomizationResult = 3;
             }
+
+            if (parkRight) telemetry.addData("Park", "Right");
+            else telemetry.addData("Park", "Left");
+            telemetry.addLine();
 
             if (gamepad1.dpad_left) leftTarget = leftAverage.val[0];
             if (gamepad1.dpad_up) middleTarget = middleAverage.val[0];
             if (gamepad1.dpad_right) rightTarget = rightAverage.val[0];
+
+            if (gamepad1.square) parkRight = false;
+            else if (gamepad1.circle) parkRight = true;
 
             telemetry.addData("leftAvg", leftAverage.val[0]);
             telemetry.addData("rightAvg", rightAverage.val[0]);

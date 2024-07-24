@@ -228,22 +228,26 @@ public class RRAutonRedClose extends LinearOpMode {
             avgRFinal = Math.abs(rightAverage.val[0] - rightTarget);
 
             if ((avgLFinal < avgMFinal) && (avgLFinal < avgRFinal)) {
-                telemetry.addLine("left");
+                telemetry.addLine("LEFT");
                 randomizationResult = 1;
             } else if ((avgMFinal < avgLFinal) && (avgMFinal < avgRFinal)) {
-                telemetry.addLine("middle");
+                telemetry.addLine("MIDDLE");
                 randomizationResult = 2;
             } else {
-                telemetry.addLine("right");
+                telemetry.addLine("RIGHT");
                 randomizationResult = 3;
             }
+
+            if (parkRight) telemetry.addData("Park", "Right");
+            else telemetry.addData("Park", "Left");
+            telemetry.addLine();
 
             if (gamepad1.dpad_left) leftTarget = leftAverage.val[0];
             if (gamepad1.dpad_up) middleTarget = middleAverage.val[0];
             if (gamepad1.dpad_right) rightTarget = rightAverage.val[0];
 
-            if (gamepad1.circle) parkRight = true;
             if (gamepad1.square) parkRight = false;
+            else if (gamepad1.circle) parkRight = true;
 
             telemetry.addData("leftAvg", leftAverage.val[0]);
             telemetry.addData("rightAvg", rightAverage.val[0]);
