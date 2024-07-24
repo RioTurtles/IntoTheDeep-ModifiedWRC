@@ -23,7 +23,7 @@ import org.openftc.easyopencv.OpenCvCameraRotation;
 import org.openftc.easyopencv.OpenCvPipeline;
 import org.openftc.easyopencv.OpenCvWebcam;
 
-@Autonomous(group="new")
+@Autonomous(name="2+0 Red Far, Stage Door")
 public class RRAutonRedFarStage extends LinearOpMode {
     Objective objective = Objective.INITIALISE;
     OpenCvWebcam webcam;
@@ -179,10 +179,18 @@ public class RRAutonRedFarStage extends LinearOpMode {
             }
 
             if (objective == Objective.PARK) {
-                TrajectorySequence park = drive.trajectorySequenceBuilder(nowPose)
-                        .lineToConstantHeading(new Vector2d(50.97, -11.06))
-                        .addTemporalMarker(() -> objective = Objective.END)
-                        .build();
+                TrajectorySequence park;
+                if (parkRight) {
+                    park = drive.trajectorySequenceBuilder(nowPose)
+                            .lineToConstantHeading(new Vector2d(50.97, -62.18))
+                            .addTemporalMarker(() -> objective = Objective.END)
+                            .build();
+                } else {
+                    park = drive.trajectorySequenceBuilder(nowPose)
+                            .lineToConstantHeading(new Vector2d(50.97, -11.06))
+                            .addTemporalMarker(() -> objective = Objective.END)
+                            .build();
+                }
                 drive.followTrajectorySequence(park);
             }
 
@@ -193,6 +201,8 @@ public class RRAutonRedFarStage extends LinearOpMode {
 
             drive.update();
             telemetry.addData("Objective", objective);
+            if (parkRight) telemetry.addData("Park", "Right");
+            else telemetry.addData("Park", "Left");
             telemetry.addLine();
             telemetry.addData("X", nowPose.getX());
             telemetry.addData("Y", nowPose.getY());
