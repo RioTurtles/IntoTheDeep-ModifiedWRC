@@ -155,7 +155,7 @@ public class  Teleop_v2 extends LinearOpMode {
                 //Set claw to intake position
                 case GROUND:
                     robot.retractSlider();
-                    robot.clawRIntake();
+                    robot.clawPIntake();
                     robot.arm.setPower(0);
                     robot.arm.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
 
@@ -180,7 +180,7 @@ public class  Teleop_v2 extends LinearOpMode {
                 //Ready for intake, no extend
                 case GROUND_GRIP:
                     robot.retractSlider();
-                    robot.clawRIntake();
+                    robot.clawPIntake();
                     if (gamepad.right_trigger > 0) {
                         robot.rightClawOpen();
                     } else {
@@ -205,7 +205,7 @@ public class  Teleop_v2 extends LinearOpMode {
                 //Ready for intake, extended slider
                 case GROUND_EXTEND:
                     robot.bothClawOpen();
-                    robot.clawRIntake();
+                    robot.clawPIntake();
 
                     direction_x = direction_x * 0.5;
                     direction_y = direction_y * 0.5;
@@ -233,7 +233,7 @@ public class  Teleop_v2 extends LinearOpMode {
                     robot.arm.setPower(0);
                     robot.arm.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
                     robot.setSlider(900);
-                    robot.clawRIntake();
+                    robot.clawPIntake();
 
                     //if(Timer1.milliseconds() > 300) {
                         if (gamepad.right_trigger > 0) {
@@ -321,7 +321,7 @@ public class  Teleop_v2 extends LinearOpMode {
                     }*/
 
                     if (robot.getArmAngle() > 90) {
-                        robot.clawRScoring();
+                        robot.clawPScoring();
                     }
 
                     if (gamepad.triangle && !lastGamepad.triangle && robot.getArmAngle() > 90 && robot.getArmAngle()>120 && robot.getArmAngle()<170) {
@@ -385,7 +385,7 @@ public class  Teleop_v2 extends LinearOpMode {
                     }
 
                     if (robot.getArmAngle() > 70) {
-                        robot.clawRScoring();
+                        robot.clawPScoring();
                     }
 
                     if (gamepad.left_trigger > 0) {

@@ -202,7 +202,7 @@ public class AutonBlueClose extends LinearOpMode {
                 robot.bothClawClose();
                 robot.arm.setPower(0);
                 robot.arm.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
-                robot.clawRIntake();
+                robot.clawPIntake();
 
                 /*if (robot.getArmAngle() > 50) {
                     robot.setClawPAngle(180-robot.getArmAngle()+15);

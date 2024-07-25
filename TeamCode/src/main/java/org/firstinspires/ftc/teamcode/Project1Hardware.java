@@ -1,5 +1,7 @@
 package org.firstinspires.ftc.teamcode;
 
+import com.qualcomm.robotcore.hardware.DcMotorImplEx;
+import com.qualcomm.robotcore.hardware.DistanceSensor;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
@@ -11,6 +13,7 @@ import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
 import com.qualcomm.robotcore.hardware.ServoImplEx;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
+import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 
 /**
  * This class represents the robot object.
@@ -18,18 +21,13 @@ import org.firstinspires.ftc.robotcore.external.Telemetry;
 public class Project1Hardware {
     DcMotor motorFL, motorFR;
     DcMotor motorBL, motorBR;
-    DcMotorEx motorSliderLeft, motorSliderRight;
-    Servo servoClawUpper, servoClawLower;
-    Servo servoClawPitchLeft, servoClawPitchRight;
-        Servo servoArmLeft, servoArmRight;
-    CRServo servoDrone;
     IMU imu;
     Telemetry telemetry;
     DcMotorEx slider, arm, lRigging, rRigging;
     ServoImplEx leftClaw, rightClaw, clawP, drone;
     ServoImplEx lRiggingUp, rRiggingUp;
     //DistanceSensor leftDis, rightDis;
-    //HardwareMap hwmap;
+    HardwareMap hwmap;
 
    /* boolean clawUpperOpen;
     boolean clawLowerOpen;
@@ -39,8 +37,6 @@ public class Project1Hardware {
     final static double OFFSET_SERVO_ARM_RIGHT = 0;
     final static double OFFSET_SERVO_CLAW_PITCH_LEFT = 0;
     final static double OFFSET_SERVO_CLAW_PITCH_RIGHT = 0;
-
-
 
     final static double ARM_INTAKE = 0.8;
     final static double ARM_LIFTED = 1;
@@ -70,7 +66,13 @@ public class Project1Hardware {
         drone = hardwareMap.get(ServoImplEx.class,"drone");
         lRiggingUp = hardwareMap.get(ServoImplEx.class,"lRiggingUp");
         rRiggingUp = hardwareMap.get(ServoImplEx.class,"rRiggingUp");
+
+        //leftDis = hardwareMap.get(DistanceSensor.class, "lDis");
+        //rightDis = hardwareMap.get(DistanceSensor.class, "rDis");
+
+
         ((DcMotorEx) arm).setPositionPIDFCoefficients(4);
+        ((DcMotorEx) slider).setPositionPIDFCoefficients(4);
 
         imu = hardwareMap.get(IMU.class, "imu");
 
@@ -127,9 +129,11 @@ public class Project1Hardware {
     // Regular methods.
     public void setSlider(int pos) {
 
-        if(pos>900){
-            pos=900;
+        if (pos > 900) {
+            pos = 900;
         }
+
+        slider.setPositionPIDFCoefficients(4);
         slider.setTargetPosition(pos + (int) (arm.getCurrentPosition() / 19));
         slider.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         slider.setPower(1);
@@ -141,15 +145,14 @@ public class Project1Hardware {
         leftClaw.setPosition(0.05);
         rightClaw.setPosition(0);
     }
-
-    public void setRiggingServo() {
-        lRiggingUp.setPosition(1);
-        rRiggingUp.setPosition(1);
-    }
     //Movements
     public void extendRiggingServo() {
         lRiggingUp.setPosition(0.5);
         rRiggingUp.setPosition(1);
+    }
+    public void retractRiggingServo() {
+        lRiggingUp.setPosition(0);
+        rRiggingUp.setPosition(0);
     }
     public void retractRiggingMotor() {
         lRigging.setPower(-1);
@@ -203,9 +206,8 @@ public class Project1Hardware {
         slider.setTargetPosition(0);
         slider.setMode(DcMotorEx.RunMode.RUN_TO_POSITION);
     }
-
     public void setClawPAngle(double angle) {
-        clawP.setPosition(angle / 174);
+        clawP.setPosition(angle / 172);
     }
 
     public int angleToEncoderValueArm(double angle) {
@@ -245,7 +247,7 @@ public class Project1Hardware {
         return (int) tmp;
     }
 
-    public void setSliderLength(double length) {
+    /*public void setSliderLength(double length) {
         // if(length < 10) length = 0;
         //if (length > 1000) length = 1000;
         slider.setTargetPosition(lengthToEncoderValueSlider(length));
@@ -261,11 +263,12 @@ public class Project1Hardware {
         double revolutions = position / CPR;
         double length = revolutions * 35.65 * Math.PI;
         return length;
+    }*/
+    public static double clawPIntakeAngle = 18;
+    public void clawPIntake() {
+        setClawPAngle(90 - getArmAngle() * 0.5 - clawPIntakeAngle);
     }
-    public void clawRIntake() {
-        setClawPAngle(90 - getArmAngle() * 0.5 - 18);
-    }
-    public void clawRScoring(){
+    public void clawPScoring() {
         setClawPAngle(180 - getArmAngle() + 8);
         //setClawPAngle(180);
     }

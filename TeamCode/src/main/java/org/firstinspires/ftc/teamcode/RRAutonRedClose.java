@@ -102,7 +102,7 @@ public class RRAutonRedClose extends LinearOpMode {
             }
 
             if (objective == Objective.SCORE_PURPLE) {
-                robot.clawRIntake();
+                robot.clawPIntake();
                 switch (randomizationResult) {
                     case 1: robot.setSlider(900); break;
                     default: case 2: robot.setSlider(400); break;

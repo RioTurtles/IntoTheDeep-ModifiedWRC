@@ -137,11 +137,11 @@ public class RRAutonRedFarStage extends LinearOpMode {
                     robot.arm.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
                     objective = Objective.PATH_TO_YELLOW;
                 } else if (timer1.milliseconds() > 1360) {
-                    robot.clawRScoring();
+                    robot.clawPScoring();
                     robot.retractSlider();
                 } else if (timer1.milliseconds() > 1060) robot.rightClawOpen();
                 else if (timer1.milliseconds() > 0) {
-                    robot.clawRIntake();
+                    robot.clawPIntake();
 
                     switch (randomizationResult) {
                         case 1: robot.setSlider(630); break;

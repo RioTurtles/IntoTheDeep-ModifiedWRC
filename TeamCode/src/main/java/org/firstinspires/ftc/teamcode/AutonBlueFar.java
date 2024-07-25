@@ -228,7 +228,7 @@ public class AutonBlueFar extends LinearOpMode {
                     integral1=0;
                     integral2=0;
 
-                    robot.clawRIntake();
+                    robot.clawPIntake();
                     moveStep = 3;
                     timer1.reset();
                 }

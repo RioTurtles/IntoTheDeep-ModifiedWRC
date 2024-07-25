@@ -194,7 +194,7 @@ public class AutonRedClose extends LinearOpMode {
                 robot.bothClawClose();
                 robot.arm.setPower(0);
                 robot.arm.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
-                robot.clawRIntake();
+                robot.clawPIntake();
 
                 yTarget = -36;
 
