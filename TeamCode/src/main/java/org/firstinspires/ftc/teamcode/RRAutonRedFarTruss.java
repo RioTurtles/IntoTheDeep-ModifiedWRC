@@ -31,7 +31,9 @@ public class RRAutonRedFarTruss extends LinearOpMode {
     OpenCvWebcam webcam;
     int randomizationResult = 2;
     boolean yReady;
+    boolean scoreRight = true;
     boolean parkRight;
+    double offset;
 
     @Override
     public void runOpMode() throws InterruptedException {
@@ -64,7 +66,10 @@ public class RRAutonRedFarTruss extends LinearOpMode {
         telemetry.addData("Status", "Initialised");
         telemetry.update();
 
+        waitForStart();
+        if (scoreRight) offset = 0.0; else offset = 3.0;
         drive.setPoseEstimate(startPose);
+
         TrajectorySequence pLeft = drive.trajectorySequenceBuilder(startPose)
                 .lineToLinearHeading(new Pose2d(-44.61, -44.99, Math.toRadians(295.00)))
                 .addTemporalMarker(() -> {
@@ -141,9 +146,9 @@ public class RRAutonRedFarTruss extends LinearOpMode {
                         .splineToConstantHeading(new Vector2d(13.88, -60.08), Math.toRadians(0.00));
 
                 switch (randomizationResult) {
-                    case 1: builder.splineToConstantHeading(new Vector2d(35.20, -26.01), Math.toRadians(0.00)); break;
-                    default: case 2: builder.splineToConstantHeading(new Vector2d(35.20, -33.01), Math.toRadians(0.00)); break;
-                    case 3: builder.splineToConstantHeading(new Vector2d(35.20, -41.36), Math.toRadians(0.00)); break;
+                    case 1: builder.splineToConstantHeading(new Vector2d(35.20, -26.01 + offset), Math.toRadians(0.00)); break;
+                    default: case 2: builder.splineToConstantHeading(new Vector2d(35.20, -33.01 + offset), Math.toRadians(0.00)); break;
+                    case 3: builder.splineToConstantHeading(new Vector2d(35.20, -41.36 + offset), Math.toRadians(0.00)); break;
                 }
 
                 yellow = builder
@@ -278,6 +283,8 @@ public class RRAutonRedFarTruss extends LinearOpMode {
 
             if (parkRight) telemetry.addData("Park", "Right");
             else telemetry.addData("Park", "Left");
+            if (scoreRight) telemetry.addData("Score on", "Right");
+            else telemetry.addData("Score on", "Left");
             telemetry.addLine();
 
             if (gamepad1.dpad_left) leftTarget = leftAverage.val[0];
@@ -286,6 +293,8 @@ public class RRAutonRedFarTruss extends LinearOpMode {
 
             if (gamepad1.square) parkRight = false;
             else if (gamepad1.circle) parkRight = true;
+            if (gamepad1.left_bumper) scoreRight = false;
+            else if (gamepad1.right_bumper) scoreRight = true;
 
             telemetry.addData("leftAvg", leftAverage.val[0]);
             telemetry.addData("rightAvg", rightAverage.val[0]);

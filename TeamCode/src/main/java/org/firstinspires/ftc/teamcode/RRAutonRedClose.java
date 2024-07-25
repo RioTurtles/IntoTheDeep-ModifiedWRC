@@ -28,7 +28,9 @@ public class RRAutonRedClose extends LinearOpMode {
     OpenCvWebcam webcam;
     int randomizationResult = 2;
     boolean yReady;
-    boolean parkRight;
+    boolean scoreRight = true;
+    boolean parkRight = true;
+    double offset;
 
     @Override
     public void runOpMode() throws InterruptedException {
@@ -61,29 +63,31 @@ public class RRAutonRedClose extends LinearOpMode {
         telemetry.addData("Status", "Initialised");
         telemetry.update();
 
+        waitForStart();
+        if (scoreRight) offset = 0.0; else offset = 3.6;
         drive.setPoseEstimate(startPose);
+
         TrajectorySequence purple = drive.trajectorySequenceBuilder(startPose)
                 .lineToSplineHeading(new Pose2d(34.85, -32.01, Math.toRadians(0.00)))
                 .addTemporalMarker(() -> objective = Objective.SCORE_PURPLE)
                 .build();
         TrajectorySequence purpleM = drive.trajectorySequenceBuilder(startPose)
-                .lineToSplineHeading(new Pose2d(35.20, -32.01, Math.toRadians(-15.00)))
+                .lineToSplineHeading(new Pose2d(35.20, -25.51, Math.toRadians(0.00)))
                 .addTemporalMarker(() -> objective = Objective.SCORE_PURPLE)
                 .build();
         TrajectorySequence yellowL = drive.trajectorySequenceBuilder(purple.end())
-                .lineToConstantHeading(new Vector2d(35.20, -30.01))
+                .lineToConstantHeading(new Vector2d(35.20, -30.01 + offset))
                 .addTemporalMarker(() -> yReady = true)
                 .build();
         TrajectorySequence yellowM = drive.trajectorySequenceBuilder(purpleM.end())
-                .lineToSplineHeading(new Pose2d(35.20, -34.51, Math.toRadians(0.00)))
+                .lineToSplineHeading(new Pose2d(35.20, -35.71 + offset, Math.toRadians(0.00)))
                 .addTemporalMarker(() -> yReady = true)
                 .build();
         TrajectorySequence yellowR = drive.trajectorySequenceBuilder(purple.end())
-                .lineToConstantHeading(new Vector2d(35.20, -42.71))
+                .lineToConstantHeading(new Vector2d(35.20, -42.71 + offset))
                 .addTemporalMarker(() -> yReady = true)
                 .build();
 
-        waitForStart();
         webcam.stopRecordingPipeline();
         webcam.stopStreaming();
         timer1.reset();
@@ -124,12 +128,12 @@ public class RRAutonRedClose extends LinearOpMode {
                     }
                 } else if (timer1.milliseconds() > 0) {
                     robot.retractSlider();
-                    robot.setArm(157);
+                    robot.setArm(155);
                 }
 
-                if (robot.getArmAngle() > 135) robot.setSlider(390);
+                if (robot.getArmAngle() > 135) robot.setSlider(420);
 
-                if (robot.slider.getCurrentPosition() > 380 && yReady) {
+                if (robot.slider.getCurrentPosition() > 410 && yReady) {
                     timer1.reset();
                     objective = Objective.SCORE_YELLOW;
                 }
@@ -240,6 +244,8 @@ public class RRAutonRedClose extends LinearOpMode {
 
             if (parkRight) telemetry.addData("Park", "Right");
             else telemetry.addData("Park", "Left");
+            if (scoreRight) telemetry.addData("Score on", "Right");
+            else telemetry.addData("Score on", "Left");
             telemetry.addLine();
 
             if (gamepad1.dpad_left) leftTarget = leftAverage.val[0];
@@ -248,6 +254,8 @@ public class RRAutonRedClose extends LinearOpMode {
 
             if (gamepad1.square) parkRight = false;
             else if (gamepad1.circle) parkRight = true;
+            if (gamepad1.left_bumper) scoreRight = false;
+            else if (gamepad1.right_bumper) scoreRight = true;
 
             telemetry.addData("leftAvg", leftAverage.val[0]);
             telemetry.addData("rightAvg", rightAverage.val[0]);
