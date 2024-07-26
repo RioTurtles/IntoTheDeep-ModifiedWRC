@@ -94,7 +94,7 @@ public class RRAutonRedFarTruss extends LinearOpMode {
                 .build();
 
         Vector2d yellowLL = new Vector2d(35.20, -23.01);
-        Vector2d yellowML = new Vector2d(35.20, -30.01);
+        Vector2d yellowML = new Vector2d(35.20, -31.01);
         Vector2d yellowRL = new Vector2d(35.20, -38.36);
 
         Vector2d yellowLR = new Vector2d(35.20, -26.01);
@@ -138,7 +138,7 @@ public class RRAutonRedFarTruss extends LinearOpMode {
                     case 3: robot.setSlider(565); break;
                 }
 
-                if (Math.abs(robot.slider.getCurrentPosition() - robot.slider.getTargetPosition()) < 5 || timer1.milliseconds() > 2060) {
+                if (Math.abs(robot.slider.getCurrentPosition() - robot.slider.getTargetPosition()) < 5 || timer1.milliseconds() > 3000) {
                     objective = Objective.SCORE_PURPLE;
                     timer1.reset();
                 }
