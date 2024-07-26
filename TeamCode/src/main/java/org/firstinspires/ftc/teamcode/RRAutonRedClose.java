@@ -44,7 +44,6 @@ public class RRAutonRedClose extends LinearOpMode {
         robot.bothClawClose();
 
         ElapsedTime timer1 = new ElapsedTime();
-        ElapsedTime timer2 = new ElapsedTime();
         SampleMecanumDrive drive = new SampleMecanumDrive(hardwareMap);
         Pose2d startPose = new Pose2d(16.43, -62.80, Math.toRadians(90.00));
         Pose2d nowPose;
@@ -149,13 +148,13 @@ public class RRAutonRedClose extends LinearOpMode {
                     case 3: robot.setSlider(0); break;
                 }
 
-                if ((timer1.milliseconds() > 1500) || (scoredPurple && timer2.milliseconds() > 150)) {
+                if ((timer1.milliseconds() > 1500) || scoredPurple) {
                     timer1.reset();
                     objective = Objective.TRANSITION_TO_YELLOW;
                 } else if (
                         Math.abs(robot.slider.getCurrentPosition() - robot.slider.getTargetPosition()) < 5 && timer1.milliseconds() > 500
                         || timer1.milliseconds() > 1200
-                ) {robot.rightClawOpen(); scoredPurple = true; timer2.reset();}
+                ) {robot.rightClawOpen(); scoredPurple = true;}
             }
 
             if (objective == Objective.TRANSITION_TO_YELLOW) {
@@ -163,7 +162,7 @@ public class RRAutonRedClose extends LinearOpMode {
                     drive.followTrajectorySequence(yellow);
                 } else if (timer1.milliseconds() > 0) {
                     robot.retractSlider();
-                    robot.setArm(153);
+                    robot.setArm(152);
                 }
 
                 if (robot.getArmAngle() > 135) robot.setSlider(420);
