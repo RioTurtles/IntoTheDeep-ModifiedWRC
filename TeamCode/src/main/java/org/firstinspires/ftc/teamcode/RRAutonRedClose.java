@@ -276,10 +276,10 @@ public class RRAutonRedClose extends LinearOpMode {
                 randomizationResult = 3;
             }
 
-            if (parkRight) telemetry.addData("Park", "Right");
-            else telemetry.addData("Park", "Left");
             if (scoreRight) telemetry.addData("Score on", "Right");
             else telemetry.addData("Score on", "Left");
+            if (parkRight) telemetry.addData("Park", "Right");
+            else telemetry.addData("Park", "Left");
             telemetry.addLine();
 
             if (gamepad1.dpad_left) leftTarget = leftAverage.val[0];

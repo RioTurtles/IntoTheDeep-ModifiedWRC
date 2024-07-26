@@ -4,7 +4,6 @@ import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.roadrunner.geometry.Pose2d;
 import com.acmerobotics.roadrunner.geometry.Vector2d;
 import com.acmerobotics.roadrunner.trajectory.Trajectory;
-import com.acmerobotics.roadrunner.trajectory.TrajectoryBuilder;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
@@ -30,10 +29,13 @@ public class RRAutonRedFarTruss extends LinearOpMode {
     Objective objective = Objective.INITIALISE;
     OpenCvWebcam webcam;
     int randomizationResult = 2;
-    boolean yReady;
+    boolean pReady, yReady, scoredPurple;
     boolean scoreRight = true;
     boolean parkRight;
-    double offset;
+
+    TrajectorySequence purple, park;
+    Trajectory yellow;
+    Vector2d yellowVector;
 
     @Override
     public void runOpMode() throws InterruptedException {
@@ -44,6 +46,7 @@ public class RRAutonRedFarTruss extends LinearOpMode {
         robot.bothClawClose();
 
         ElapsedTime timer1 = new ElapsedTime();
+        ElapsedTime timer2 = new ElapsedTime();
         SampleMecanumDrive drive = new SampleMecanumDrive(hardwareMap);
         Pose2d startPose = new Pose2d(-40.33, -62.80, Math.toRadians(90.00));
         Pose2d nowPose;
@@ -66,34 +69,55 @@ public class RRAutonRedFarTruss extends LinearOpMode {
         telemetry.addData("Status", "Initialised");
         telemetry.update();
 
-        waitForStart();
-        if (scoreRight) offset = 0.0; else offset = 3.0;
         drive.setPoseEstimate(startPose);
 
-        TrajectorySequence pLeft = drive.trajectorySequenceBuilder(startPose)
+        TrajectorySequence purpleL = drive.trajectorySequenceBuilder(startPose)
                 .lineToLinearHeading(new Pose2d(-44.61, -44.99, Math.toRadians(295.00)))
                 .addTemporalMarker(() -> {
                     timer1.reset();
                     objective = Objective.SCORE_PURPLE;
                 })
                 .build();
-        TrajectorySequence pMiddle = drive.trajectorySequenceBuilder(startPose)
+        TrajectorySequence purpleM = drive.trajectorySequenceBuilder(startPose)
                 .lineToLinearHeading(new Pose2d(-44.61, -44.99, Math.toRadians(260.00)))
                 .addTemporalMarker(() -> {
                     timer1.reset();
                     objective = Objective.SCORE_PURPLE;
                 })
                 .build();
-        TrajectorySequence pRight = drive.trajectorySequenceBuilder(startPose)
+        TrajectorySequence purpleR = drive.trajectorySequenceBuilder(startPose)
                 .lineToLinearHeading(new Pose2d(-44.61, -44.99, Math.toRadians(220.00)))
                 .addTemporalMarker(() -> {
                     timer1.reset();
                     objective = Objective.SCORE_PURPLE;
                 })
                 .build();
-        Trajectory yellow = null;
+
+        Vector2d yellowLL = new Vector2d(35.20, -23.01);
+        Vector2d yellowML = new Vector2d(35.20, -30.01);
+        Vector2d yellowRL = new Vector2d(35.20, -38.36);
+
+        Vector2d yellowLR = new Vector2d(35.20, -26.01);
+        Vector2d yellowMR = new Vector2d(35.20, -33.01);
+        Vector2d yellowRR = new Vector2d(35.20, -41.36);
 
         waitForStart();
+        switch (randomizationResult) {
+            case 1:
+                if (scoreRight) yellowVector = yellowLR; else yellowVector = yellowLL;
+                purple = purpleL;
+                break;
+            default:
+            case 2:
+                if (scoreRight) yellowVector = yellowMR; else yellowVector = yellowML;
+                purple = purpleM;
+                break;
+            case 3:
+                if (scoreRight) yellowVector = yellowRR; else yellowVector = yellowRL;
+                purple = purpleR;
+                break;
+        }
+
         webcam.stopRecordingPipeline();
         webcam.stopStreaming();
         timer1.reset();
@@ -106,58 +130,49 @@ public class RRAutonRedFarTruss extends LinearOpMode {
             }
 
             if (objective == Objective.PATH_TO_PURPLE) {
+                if (!pReady) {drive.followTrajectorySequence(purple); pReady = true; timer1.reset();}
+                robot.clawPIntake();
                 switch (randomizationResult) {
-                    case 1: drive.followTrajectorySequence(pLeft); break;
-                    default: case 2: drive.followTrajectorySequence(pMiddle); break;
-                    case 3: drive.followTrajectorySequence(pRight); break;
+                    case 1: robot.setSlider(100); break;
+                    default: case 2: robot.setSlider(400); break;
+                    case 3: robot.setSlider(565); break;
+                }
+
+                if (Math.abs(robot.slider.getCurrentPosition() - robot.slider.getTargetPosition()) < 5 || timer1.milliseconds() > 2060) {
+                    objective = Objective.SCORE_PURPLE;
+                    timer1.reset();
                 }
             }
 
             if (objective == Objective.SCORE_PURPLE) {
-                if (timer1.milliseconds() > 1760) {
+                if (timer1.milliseconds() > 1760 || scoredPurple && timer2.milliseconds() > 300) {
                     robot.bothClawClose();
                     robot.arm.setPower(0);
                     robot.arm.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
-                    objective = Objective.PATH_TO_YELLOW_GENERATION;
-                } else if (timer1.milliseconds() > 1360) {
+                    objective = Objective.PATH_TO_YELLOW;
+                } else if (timer1.milliseconds() > 1360 || scoredPurple) {
                     robot.clawPScoring();
                     robot.retractSlider();
-                } else if ((Math.abs(robot.slider.getCurrentPosition() - robot.slider.getTargetPosition()) <= 5 && timer1.milliseconds() > 800)
-                                || timer1.milliseconds() > 1060) robot.rightClawOpen();
-                else if (timer1.milliseconds() > 0) {
-                    robot.clawPIntake();
 
-                    switch (randomizationResult) {
-                        case 1: robot.setSlider(100); break;
-                        default: case 2: robot.setSlider(400); break;
-                        case 3: robot.setSlider(565); break;
-                    }
+                    yellow = drive.trajectoryBuilder(nowPose)
+                            .splineToSplineHeading(
+                                    new Pose2d(-32.51, -60.08, Math.toRadians(0.00)),
+                                    Math.toRadians(0.00),
+                                    SampleMecanumDrive.getVelocityConstraint(30, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
+                                    SampleMecanumDrive.getAccelerationConstraint(17.5)
+                            )
+                            .splineToConstantHeading(new Vector2d(13.88, -60.08), Math.toRadians(0.00))
+                            .splineToConstantHeading(yellowVector, Math.toRadians(0.00))
+                            .addSpatialMarker(new Vector2d(13.88, -60.08), () -> {
+                                robot.setClawPAngle(180);
+                                robot.setArm(154);
+                            })
+                            .build();
+                } else if (timer1.milliseconds() > 0) {
+                    robot.rightClawOpen();
+                    scoredPurple = true;
+                    timer2.reset();
                 }
-            }
-
-            if (objective == Objective.PATH_TO_YELLOW_GENERATION) {
-                TrajectoryBuilder builder = drive.trajectoryBuilder(nowPose)
-                        .splineToSplineHeading(
-                                new Pose2d(-32.51, -60.08, Math.toRadians(0.00)),
-                                Math.toRadians(0.00),
-                                SampleMecanumDrive.getVelocityConstraint(30, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
-                                SampleMecanumDrive.getAccelerationConstraint(17.5)
-                        )
-                        .splineToConstantHeading(new Vector2d(13.88, -60.08), Math.toRadians(0.00));
-
-                switch (randomizationResult) {
-                    case 1: builder.splineToConstantHeading(new Vector2d(35.20, -26.01 + offset), Math.toRadians(0.00)); break;
-                    default: case 2: builder.splineToConstantHeading(new Vector2d(35.20, -33.01 + offset), Math.toRadians(0.00)); break;
-                    case 3: builder.splineToConstantHeading(new Vector2d(35.20, -41.36 + offset), Math.toRadians(0.00)); break;
-                }
-
-                yellow = builder
-                        .addSpatialMarker(new Vector2d(13.88, -60.08), () -> {
-                            robot.setClawPAngle(180);
-                            robot.setArm(154);
-                        })
-                        .build();
-                objective = Objective.PATH_TO_YELLOW;
             }
 
             if (objective == Objective.PATH_TO_YELLOW) {
@@ -182,10 +197,7 @@ public class RRAutonRedFarTruss extends LinearOpMode {
                 else if (timer1.milliseconds() > 150) robot.leftClawOpen();
 
                 if (robot.getArmAngle() < 5) objective = Objective.PARK;
-            }
 
-            if (objective == Objective.PARK) {
-                TrajectorySequence park;
                 if (parkRight) {
                     park = drive.trajectorySequenceBuilder(nowPose)
                             .lineToConstantHeading(new Vector2d(50.97, -62.18))
@@ -197,6 +209,9 @@ public class RRAutonRedFarTruss extends LinearOpMode {
                             .addTemporalMarker(() -> objective = Objective.END)
                             .build();
                 }
+            }
+
+            if (objective == Objective.PARK) {
                 drive.followTrajectorySequence(park);
             }
 
@@ -216,17 +231,6 @@ public class RRAutonRedFarTruss extends LinearOpMode {
             telemetry.addData("H(R)", nowPose.getHeading());
             telemetry.update();
         }
-    }
-
-    enum Objective {
-        INITIALISE,
-        PATH_TO_PURPLE,
-        SCORE_PURPLE,
-        PATH_TO_YELLOW_GENERATION,
-        PATH_TO_YELLOW,
-        SCORE_YELLOW,
-        PARK,
-        END
     }
 
     class TeamPropPipeline extends OpenCvPipeline {
@@ -281,10 +285,10 @@ public class RRAutonRedFarTruss extends LinearOpMode {
                 randomizationResult = 3;
             }
 
-            if (parkRight) telemetry.addData("Park", "Right");
-            else telemetry.addData("Park", "Left");
             if (scoreRight) telemetry.addData("Score on", "Right");
             else telemetry.addData("Score on", "Left");
+            if (parkRight) telemetry.addData("Park", "Right");
+            else telemetry.addData("Park", "Left");
             telemetry.addLine();
 
             if (gamepad1.dpad_left) leftTarget = leftAverage.val[0];
@@ -312,5 +316,15 @@ public class RRAutonRedFarTruss extends LinearOpMode {
 
             return output;
         }
+    }
+
+    enum Objective {
+        INITIALISE,
+        PATH_TO_PURPLE,
+        SCORE_PURPLE,
+        PATH_TO_YELLOW,
+        SCORE_YELLOW,
+        PARK,
+        END
     }
 }
