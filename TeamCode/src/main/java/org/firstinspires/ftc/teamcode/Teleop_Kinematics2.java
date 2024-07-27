@@ -17,7 +17,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 
 @Config
 @TeleOp
-public class Teleop_v3_WRC extends LinearOpMode {
+public class Teleop_Kinematics2 extends LinearOpMode {
     public enum states {
         INIT,
         GROUND,
@@ -35,6 +35,8 @@ public class Teleop_v3_WRC extends LinearOpMode {
     double lDis = 0, rDis = 0;
     double avgDis = 0;
     public static double  kP = 2, kI = 0.1, kD = 0.08;
+    public static double clawPAngle = 174;
+    double boardHeight = 0;
 
     int position;
 
@@ -46,12 +48,12 @@ public class Teleop_v3_WRC extends LinearOpMode {
 
     double [] simpleScoreArmAngle = {165, 160, 155, 150, 145, 140};
     int simpleHeight = 0;
-
-    double [] scoreArmAngle = {10, 20, 30, 40, 50, 60, 70, 80};
+    double [] scoreArmAngle = {15, 20, 25, 30};
     int scoreHeight = 0;
     double boardHeading = -Math.PI/2;
     boolean scoring_extend = false;
     PIDController heading_pid = new PIDController(kP, kI, kD);
+    double horizontalOffset = 0, maxScoringDis = 0;
 
     @Override
     public void runOpMode() throws InterruptedException {
@@ -250,7 +252,7 @@ public class Teleop_v3_WRC extends LinearOpMode {
                 case EXTEND_GRIP:
                     robot.arm.setPower(0);
                     robot.arm.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
-                    robot.setSlider(900);
+                    robot.setSlider(950);
                     robot.clawPIntake();
 
                     if (Timer1.milliseconds() > 200) {
@@ -296,65 +298,132 @@ public class Teleop_v3_WRC extends LinearOpMode {
                     }
                     break;
 
-               // case AUTO_ALIGN:
+                // case AUTO_ALIGN:
                     /*drivetrain.remote(0,0,0,0);
                     Gamepad1.right_stick_x = 0;
                     drivetrain.remote2(direction_y, direction_x, (heading - alignTarget) * kP, heading);*/
 
-                    //break;
-
-                case SIMPLE_SCORING:
-
-                        if(heading > Math.PI/2){
-                            heading -= 2 * Math.PI;
-                        }
-                        double align_output = heading_pid.calculate(
-                                heading, boardHeading
-                        );
-                        pivot = -align_output;
+                //break;
+                case SCORING:
+                    double align_output = heading_pid.calculate(
+                            heading, boardHeading
+                    );
+                    pivot = -align_output;
 
                     if (Gamepad1.right_stick_x > 0.1 || Gamepad1.right_stick_x < 0.1) {
                         pivot = Gamepad1.right_stick_x * 0.8;
                     }
 
-                    robot.setArm(simpleScoreArmAngle[simpleHeight]);
-                    //robot.arm.setVelocity(1000);
+                    /*if (gamepad1.dpad_up) {  //Max
+                        boardHeight = 66;
+                        maxScoringDis = 0;
+                    }
+                    if (gamepad1.dpad_left) {  //High
+                        boardHeight = 57;
+                        maxScoringDis = 0;
+                    }
+                    if (gamepad1.dpad_down) {  //Middle
+                        boardHeight = 37;
+                        maxScoringDis = 0;
+                    }
+                    if (gamepad1.dpad_right) {  //Low
+                        boardHeight = 18;
+                        maxScoringDis = 0;
+                    }*/
 
-                    if (Gamepad1.triangle && !lastGamepad1.triangle && robot.getArmAngle() > 130) {
-                        scoring_extend = !scoring_extend;
+                    if (scoreHeight == 0) maxScoringDis = 0;
+                    if (scoreHeight == 1) maxScoringDis = 0;
+                    if (scoreHeight == 2) maxScoringDis = 0;
+                    if (scoreHeight == 3) maxScoringDis = 0;
+
+                    if (avgDis < maxScoringDis) direction_y = 0;
+
+
+                    if (avgDis < maxScoringDis) {
+                        robot.setArm(Math.atan(Math.toRadians(scoreArmAngle[scoreHeight] / (avgDis + scoreArmAngle[scoreHeight] / Math.tan(Math.toRadians(60))))));
+                        robot.setSliderLength(Math.sqrt(Math.pow(scoreArmAngle[scoreHeight], 2) + Math.pow((avgDis + horizontalOffset + scoreArmAngle[scoreHeight] / Math.tan(Math.toRadians(60))), 2)));
                     }
 
-                    if (scoring_extend) {
-                        robot.setSlider(900);
-                    } else {
-                        robot.setSlider(0);
-                    }
-
-                    if (robot.getArmAngle() > 70) {
+                    if (robot.getArmAngle() > 90) {
                         robot.clawPScoring();
                     }
 
-                    if (Gamepad1.left_trigger > 0) {
-                        robot.rightClawOpen();
-                    } else {
-                        robot.rightClawClose();
-                    }
-                    if (Gamepad1.right_trigger > 0) {
+                    if (gamepad1.left_trigger > 0) {
                         robot.leftClawOpen();
                     } else {
                         robot.leftClawClose();
                     }
 
-                    if (Gamepad1.right_bumper && !lastGamepad1.right_bumper) {
+                    if (gamepad1.right_trigger > 0) {
+                        robot.rightClawOpen();
+                    } else {
+                        robot.rightClawClose();
+                    }
+
+                    if (gamepad1.right_bumper && !lastGamepad1.right_bumper) {
                         state = states.RETURN_TO_INIT;
                         Timer1.reset();
                     }
-                    if(Gamepad1.left_bumper && !lastGamepad1.left_bumper){
+                    if(gamepad1.left_bumper && !lastGamepad1.left_bumper){
                         state = states.READY_SCORE;
                         Timer1.reset();
                     }
 
+                    drivetrain.remote2(direction_y, direction_x, -pivot, heading);
                     break;
+
+//                case SIMPLE_SCORING:
+//
+//                    if(heading > Math.PI/2){
+//                        heading -= 2 * Math.PI;
+//                    }
+//                    double align_output = heading_pid.calculate(
+//                            heading, boardHeading
+//                    );
+//                    pivot = -align_output;
+//
+//                    if (Gamepad1.right_stick_x > 0.1 || Gamepad1.right_stick_x < 0.1) {
+//                        pivot = Gamepad1.right_stick_x * 0.8;
+//                    }
+//
+//                    robot.setArm(simpleScoreArmAngle[simpleHeight]);
+//                    //robot.arm.setVelocity(1000);
+//
+//                    if (Gamepad1.triangle && !lastGamepad1.triangle && robot.getArmAngle() > 130) {
+//                        scoring_extend = !scoring_extend;
+//                    }
+//
+//                    if (scoring_extend) {
+//                        robot.setSlider(900);
+//                    } else {
+//                        robot.setSlider(0);
+//                    }
+//
+//                    if (robot.getArmAngle() > 70) {
+//                        robot.clawPScoring();
+//                    }
+//
+//                    if (Gamepad1.left_trigger > 0) {
+//                        robot.rightClawOpen();
+//                    } else {
+//                        robot.rightClawClose();
+//                    }
+//                    if (Gamepad1.right_trigger > 0) {
+//                        robot.leftClawOpen();
+//                    } else {
+//                        robot.leftClawClose();
+//                    }
+//
+//                    if (Gamepad1.right_bumper && !lastGamepad1.right_bumper) {
+//                        state = states.RETURN_TO_INIT;
+//                        Timer1.reset();
+//                    }
+//                    if(Gamepad1.left_bumper && !lastGamepad1.left_bumper){
+//                        state = states.READY_SCORE;
+//                        Timer1.reset();
+//                    }
+//
+//                    break;
 
 
                 //Back to intake position
@@ -394,7 +463,7 @@ public class Teleop_v3_WRC extends LinearOpMode {
             }
 
             //Rigging
-            /*if (riggingState == 0) {
+            if (riggingState == 0) {
                 robot.rRiggingUp.setPwmDisable();
                 robot.lRiggingUp.setPwmDisable();
             }
@@ -433,7 +502,7 @@ public class Teleop_v3_WRC extends LinearOpMode {
                     robot.lRigging.setPower(0);
                     robot.rRigging.setPower(0);
                 }
-            }*/
+            }
 
             if (Gamepad1.dpad_left && !lastGamepad1.dpad_left) {
                 riggingState += 1;
@@ -491,8 +560,11 @@ public class Teleop_v3_WRC extends LinearOpMode {
             telemetry.addData("arm", robot.getArmAngle());
             telemetry.addData("Arm height", simpleHeight);
             telemetry.addLine();
+            telemetry.addData("pivot", pivot);
+            telemetry.addData("heading", heading);
+            telemetry.addLine();
             telemetry.addData("simpleHeight", simpleHeight);
-
+            telemetry.addData("array", simpleScoreArmAngle);
             drivetrain.remote(direction_y, direction_x, -pivot, heading);
             telemetry.update();
         }

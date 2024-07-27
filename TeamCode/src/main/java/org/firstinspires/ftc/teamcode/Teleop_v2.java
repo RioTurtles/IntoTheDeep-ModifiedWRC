@@ -324,7 +324,7 @@ public class  Teleop_v2 extends LinearOpMode {
                         robot.clawPScoring();
                     }
 
-                    if (gamepad.triangle && !lastGamepad.triangle && robot.getArmAngle() > 90 && robot.getArmAngle()>120 && robot.getArmAngle()<170) {
+                    if (gamepad.triangle && !lastGamepad.triangle && robot.getArmAngle() > 90 && robot.getArmAngle() > 120 && robot.getArmAngle()<170) {
                         robot.setSlider(900);
                     } else {
                         robot.setSlider(0);

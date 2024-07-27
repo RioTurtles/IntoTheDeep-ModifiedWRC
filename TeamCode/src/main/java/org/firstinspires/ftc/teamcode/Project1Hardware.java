@@ -26,29 +26,8 @@ public class Project1Hardware {
     DcMotorEx slider, arm, lRigging, rRigging;
     ServoImplEx leftClaw, rightClaw, clawP, drone;
     ServoImplEx lRiggingUp, rRiggingUp;
-    //DistanceSensor leftDis, rightDis;
+    DistanceSensor leftDis, rightDis;
     HardwareMap hwmap;
-
-   /* boolean clawUpperOpen;
-    boolean clawLowerOpen;
-    boolean isInScoringPosition = false;
-
-    final static double OFFSET_SERVO_ARM_LEFT = 0;
-    final static double OFFSET_SERVO_ARM_RIGHT = 0;
-    final static double OFFSET_SERVO_CLAW_PITCH_LEFT = 0;
-    final static double OFFSET_SERVO_CLAW_PITCH_RIGHT = 0;
-
-    final static double ARM_INTAKE = 0.8;
-    final static double ARM_LIFTED = 1;
-    final static double ARM_SCORING = 0.2;
-    final static double CLAW_PITCH_INTAKE = 0.935;
-    final static double CLAW_PITCH_LIFTED = 0.7;
-    final static double CLAW_PITCH_SCORING = 0.63;
-
-    /**
-     * Init method. Call upon the initialisation of an OpMode. Maps hardware to its variables. Call <code>reset()</code> afterwards.
-     * @param hardwareMap the HardwareMap object used to map hardware.
-     */
     public void init(HardwareMap hardwareMap, Telemetry telemetry) {
         motorFL = hardwareMap.get(DcMotor.class, "motorFL");
         motorFR = hardwareMap.get(DcMotor.class, "motorFR");
@@ -67,8 +46,8 @@ public class Project1Hardware {
         lRiggingUp = hardwareMap.get(ServoImplEx.class,"lRiggingUp");
         rRiggingUp = hardwareMap.get(ServoImplEx.class,"rRiggingUp");
 
-        //leftDis = hardwareMap.get(DistanceSensor.class, "lDis");
-        //rightDis = hardwareMap.get(DistanceSensor.class, "rDis");
+        leftDis = hardwareMap.get(DistanceSensor.class, "lDis");
+        rightDis = hardwareMap.get(DistanceSensor.class, "rDis");
 
 
         ((DcMotorEx) arm).setPositionPIDFCoefficients(4);
@@ -76,7 +55,14 @@ public class Project1Hardware {
 
         imu = hardwareMap.get(IMU.class, "imu");
 
-        imu.initialize(new IMU.Parameters(new RevHubOrientationOnRobot(RevHubOrientationOnRobot.LogoFacingDirection.LEFT, RevHubOrientationOnRobot.UsbFacingDirection.UP)));
+        imu.initialize(
+                new IMU.Parameters(
+                        new RevHubOrientationOnRobot(
+                                RevHubOrientationOnRobot.LogoFacingDirection.LEFT,
+                                RevHubOrientationOnRobot.UsbFacingDirection.UP
+                        )
+                )
+        );
         this.telemetry = telemetry;
     }
 
@@ -102,6 +88,7 @@ public class Project1Hardware {
         motorFR.setDirection(DcMotorSimple.Direction.FORWARD);
         motorBL.setDirection(DcMotorSimple.Direction.REVERSE);
         motorBR.setDirection(DcMotorSimple.Direction.FORWARD);
+
         slider.setDirection(DcMotorEx.Direction.FORWARD);
         arm.setDirection(DcMotorEx.Direction.FORWARD);
         lRigging.setDirection(DcMotorEx.Direction.REVERSE);
@@ -252,7 +239,7 @@ public class Project1Hardware {
         return (int) tmp;
     }
 
-    /*public void setSliderLength(double length) {
+    public void setSliderLength(double length) {
         // if(length < 10) length = 0;
         //if (length > 1000) length = 1000;
         slider.setTargetPosition(lengthToEncoderValueSlider(length));
@@ -268,7 +255,7 @@ public class Project1Hardware {
         double revolutions = position / CPR;
         double length = revolutions * 35.65 * Math.PI;
         return length;
-    }*/
+    }
     public static double clawPIntakeAngle = 18;
     public void clawPIntake() {
         setClawPAngle(90 - getArmAngle() * 0.5 - clawPIntakeAngle);
