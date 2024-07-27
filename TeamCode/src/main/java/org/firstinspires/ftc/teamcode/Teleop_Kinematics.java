@@ -318,7 +318,7 @@ public class Teleop_Kinematics extends LinearOpMode {
 
                     //robot.setArm(simpleScoreArmAngle[simpleHeight]);
 
-                    extension = Math.sqrt(Math.pow((avgDis - distanceOffset), 2) + (boardHeight[scoreHeight] - (7.2 * Math.sqrt(3) / 3)) + (avgDis - distanceOffset) * (boardHeight[scoreHeight] - (7.2 * Math.sqrt(3) / 3)) - 40);
+                    extension = Math.sqrt(Math.pow((avgDis - distanceOffset), 2) + Math.pow((boardHeight[scoreHeight] - (7.2 * Math.sqrt(3) / 3)), 2) + (avgDis - distanceOffset) * (boardHeight[scoreHeight] - (7.2 * Math.sqrt(3) / 3)) - 40);
                     armAngle = Math.asin((20 - 3 * boardHeight[scoreHeight]) / (2 * (50 + extension)));
 
                     robot.setArm(armAngle);
