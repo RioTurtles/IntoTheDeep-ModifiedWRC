@@ -32,7 +32,7 @@ public class RRAutonRedFarStage extends LinearOpMode {
     Objective objective = Objective.INITIALISE;
     OpenCvWebcam webcam;
     int randomizationResult = 2;
-    boolean pReady, yReady, scoredPurple;
+    boolean yReady, scoredPurple;
     boolean scoreRight = true;
     boolean parkRight;
 
@@ -152,7 +152,12 @@ public class RRAutonRedFarStage extends LinearOpMode {
             }
 
             if (objective == Objective.PATH_TO_PURPLE) {
-                if (!pReady) {drive.followTrajectorySequence(purple); pReady = true; timer1.reset();}
+                drive.followTrajectorySequence(purple);
+                objective = Objective.TRANSITION_TO_PURPLE;
+                timer1.reset();
+            }
+
+            if (objective == Objective.TRANSITION_TO_PURPLE) {
                 robot.clawPIntake();
                 switch (randomizationResult) {
                     case 1: robot.setSlider(650); break;
@@ -160,7 +165,7 @@ public class RRAutonRedFarStage extends LinearOpMode {
                     case 3: robot.setSlider(550); break;
                 }
 
-                if (Math.abs(robot.slider.getCurrentPosition() - robot.slider.getTargetPosition()) < 5 || timer1.milliseconds() > 2060) {
+                if (robot.sliderInPosition(5) || timer1.milliseconds() > 2060) {
                     objective = Objective.SCORE_PURPLE;
                     timer1.reset();
                 }
@@ -328,6 +333,7 @@ public class RRAutonRedFarStage extends LinearOpMode {
     enum Objective {
         INITIALISE,
         PATH_TO_PURPLE,
+        TRANSITION_TO_PURPLE,
         SCORE_PURPLE,
         PATH_TO_YELLOW,
         SCORE_YELLOW,

@@ -151,9 +151,7 @@ public class RRAutonRedClose extends LinearOpMode {
                 if ((timer1.milliseconds() > 1500) || scoredPurple) {
                     timer1.reset();
                     objective = Objective.TRANSITION_TO_YELLOW;
-                } else if (
-                        Math.abs(robot.slider.getCurrentPosition() - robot.slider.getTargetPosition()) < 5 && timer1.milliseconds() > 500
-                        || timer1.milliseconds() > 1200
+                } else if (robot.sliderInPosition(5) && timer1.milliseconds() > 500 || timer1.milliseconds() > 1200
                 ) {robot.rightClawOpen(); scoredPurple = true;}
             }
 

@@ -29,7 +29,7 @@ public class RRAutonRedFarTruss extends LinearOpMode {
     Objective objective = Objective.INITIALISE;
     OpenCvWebcam webcam;
     int randomizationResult = 2;
-    boolean pReady, yReady, scoredPurple;
+    boolean yReady, scoredPurple;
     boolean scoreRight = true;
     boolean parkRight;
 
@@ -93,12 +93,12 @@ public class RRAutonRedFarTruss extends LinearOpMode {
                 })
                 .build();
 
-        Vector2d yellowLL = new Vector2d(35.20, -23.01);
-        Vector2d yellowML = new Vector2d(35.20, -31.01);
-        Vector2d yellowRL = new Vector2d(35.20, -38.36);
+        Vector2d yellowLL = new Vector2d(35.20, -24.01);
+        Vector2d yellowML = new Vector2d(35.20, -32.01);
+        Vector2d yellowRL = new Vector2d(35.20, -39.46);
 
         Vector2d yellowLR = new Vector2d(35.20, -26.01);
-        Vector2d yellowMR = new Vector2d(35.20, -33.01);
+        Vector2d yellowMR = new Vector2d(35.20, -34.21);
         Vector2d yellowRR = new Vector2d(35.20, -41.36);
 
         waitForStart();
@@ -130,7 +130,12 @@ public class RRAutonRedFarTruss extends LinearOpMode {
             }
 
             if (objective == Objective.PATH_TO_PURPLE) {
-                if (!pReady) {drive.followTrajectorySequence(purple); pReady = true; timer1.reset();}
+                drive.followTrajectorySequence(purple);
+                objective = Objective.TRANSITION_TO_PURPLE;
+                timer1.reset();
+            }
+
+            if (objective == Objective.TRANSITION_TO_PURPLE) {
                 robot.clawPIntake();
                 switch (randomizationResult) {
                     case 1: robot.setSlider(100); break;
@@ -138,7 +143,7 @@ public class RRAutonRedFarTruss extends LinearOpMode {
                     case 3: robot.setSlider(565); break;
                 }
 
-                if (Math.abs(robot.slider.getCurrentPosition() - robot.slider.getTargetPosition()) < 5 || timer1.milliseconds() > 3000) {
+                if (robot.sliderInPosition(5) || timer1.milliseconds() > 3000) {
                     objective = Objective.SCORE_PURPLE;
                     timer1.reset();
                 }
@@ -146,12 +151,12 @@ public class RRAutonRedFarTruss extends LinearOpMode {
 
             if (objective == Objective.SCORE_PURPLE) {
                 if (timer1.milliseconds() > 1760 || scoredPurple && timer2.milliseconds() > 300) {
-                    robot.bothClawClose();
                     robot.arm.setPower(0);
                     robot.arm.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
                     objective = Objective.PATH_TO_YELLOW;
                 } else if (timer1.milliseconds() > 1360 || scoredPurple) {
                     robot.clawPScoring();
+                    robot.bothClawClose();
                     robot.retractSlider();
 
                     yellow = drive.trajectoryBuilder(nowPose)
@@ -165,7 +170,7 @@ public class RRAutonRedFarTruss extends LinearOpMode {
                             .splineToConstantHeading(yellowVector, Math.toRadians(0.00))
                             .addSpatialMarker(new Vector2d(13.88, -60.08), () -> {
                                 robot.setClawPAngle(180);
-                                robot.setArm(154);
+                                robot.setArm(146.5);
                             })
                             .build();
                 } else if (timer1.milliseconds() > 0) {
@@ -182,9 +187,9 @@ public class RRAutonRedFarTruss extends LinearOpMode {
                 }
 
                 if ((robot.getArmAngle() > 135) && yReady) {
-                    robot.setSlider(390);
+                    robot.setSlider(470);
 
-                    if (robot.slider.getCurrentPosition() > 385) {
+                    if (robot.slider.getCurrentPosition() > 467) {
                         timer1.reset();
                         objective = Objective.SCORE_YELLOW;
                     }
@@ -321,6 +326,7 @@ public class RRAutonRedFarTruss extends LinearOpMode {
     enum Objective {
         INITIALISE,
         PATH_TO_PURPLE,
+        TRANSITION_TO_PURPLE,
         SCORE_PURPLE,
         PATH_TO_YELLOW,
         SCORE_YELLOW,

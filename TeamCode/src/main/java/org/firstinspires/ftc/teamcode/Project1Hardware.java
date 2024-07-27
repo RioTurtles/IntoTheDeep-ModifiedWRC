@@ -138,6 +138,11 @@ public class Project1Hardware {
         slider.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         slider.setPower(1);
     }
+
+    public boolean sliderInPosition(int tolerance) {
+        return Math.abs(slider.getCurrentPosition() - slider.getTargetPosition()) < tolerance;
+    }
+
     public void setScoringArm(double angle) {
         arm.setTargetPosition(angleToEncoderValueArm(angle));
     }
