@@ -278,8 +278,10 @@ public class Teleop_v3_WRC extends LinearOpMode {
 
                 //Retract slider and pixels possessed
                 case READY_SCORE:
-                    robot.arm.setPower(0);
-                    robot.arm.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+                    if (Timer1.milliseconds() > 300) {
+                        robot.arm.setPower(0);
+                        robot.arm.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+                    }
                     scoring_extend = false;
 
                     robot.bothClawClose();
@@ -351,6 +353,7 @@ public class Teleop_v3_WRC extends LinearOpMode {
                     }
                     if(Gamepad1.left_bumper && !lastGamepad1.left_bumper){
                         state = states.READY_SCORE;
+                        robot.setArm(0);
                         Timer1.reset();
                     }
 
