@@ -336,8 +336,6 @@ public class Teleop_Kinematics2 extends LinearOpMode {
                     if (scoreHeight == 2) maxScoringDis = 0;
                     if (scoreHeight == 3) maxScoringDis = 0;
 
-                    if (avgDis < maxScoringDis) direction_y = 0;
-
 
                     if (avgDis < maxScoringDis) {
                         robot.setArm(Math.atan(Math.toRadians(scoreArmAngle[scoreHeight] / (avgDis + scoreArmAngle[scoreHeight] / Math.tan(Math.toRadians(60))))));

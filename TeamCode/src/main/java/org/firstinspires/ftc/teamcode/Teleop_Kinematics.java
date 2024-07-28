@@ -32,8 +32,8 @@ public class Teleop_Kinematics extends LinearOpMode {
     double CPR, revolutions, angle, angleNormalized;
     double lDis = 0, rDis = 0;
     double avgDis = 0;
-    double leftError = 0;
-    double leftLastError = 0;
+    double disError = 0;
+    double disLastError = 0;
     public static double  kP = 2, kI = 0.1, kD = 0.08;
     public static double clawPAngle = 174;
 
@@ -328,9 +328,21 @@ public class Teleop_Kinematics extends LinearOpMode {
                     if (scoreHeight == 2) maxDistance = 0;
                     if (scoreHeight == 3) maxDistance = 0;
 
-                    if (avgDis < maxDistance) direction_y = 0;
+                    if (avgDis > maxDistance) {
+                        disError = 15 - avgDis;
+                        direction_y = -((disError) * kp + ((disError - disLastError) * kd));
+                        disLastError = disError;
 
-                   if (Gamepad1.triangle && !lastGamepad1.triangle && robot.getArmAngle() > 130) {
+                        if (direction_y < 0.35) {
+                            direction_y = 0.35;
+                        }
+                    } else {
+                        if (avgDis == maxDistance) {
+                            direction_y = 0;
+                        }
+                    }
+
+                    if (Gamepad1.triangle && !lastGamepad1.triangle && robot.getArmAngle() > 130) {
                         scoring_extend = !scoring_extend;
                     }
 
