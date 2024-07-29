@@ -48,7 +48,7 @@ public class Teleop_Kinematics2 extends LinearOpMode {
 
     double [] simpleScoreArmAngle = {165, 160, 155, 150, 145, 140};
     int simpleHeight = 0;
-    double [] scoreArmAngle = {15, 20, 25, 30};
+    double [] scoreArmAngle = {40, 60, 80, 100};
     int scoreHeight = 0;
     double boardHeading = -Math.PI/2;
     boolean scoring_extend = false;
@@ -76,9 +76,6 @@ public class Teleop_Kinematics2 extends LinearOpMode {
         robot.setClawPAngle(170);
         robot.setSlider(0);
 
-        lDis = robot.leftDis.getDistance(DistanceUnit.CM);
-        rDis = robot.rightDis.getDistance(DistanceUnit.CM);
-
         waitForStart();
         robot.imu.resetYaw();
         drivetrain.remote(0, 0, 0, 0);
@@ -90,6 +87,8 @@ public class Teleop_Kinematics2 extends LinearOpMode {
             pivot = gamepad1.right_stick_x * 0.8;
             heading = robot.imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.RADIANS);
             avgDis = (lDis + rDis) / 2;
+            lDis = robot.leftDis.getDistance(DistanceUnit.CM);
+            rDis = robot.rightDis.getDistance(DistanceUnit.CM);
 
             /*lastGamepad.copy(gamepad);
             gamepad.copy(gamepad1);*/
@@ -243,7 +242,7 @@ public class Teleop_Kinematics2 extends LinearOpMode {
                     }
 
                     if(Gamepad1.right_trigger > 0 && !(lastGamepad1.right_trigger > 0)){
-                        state = states.GROUND;
+                        state = states.EXTEND_GRIP;
                         Timer1.reset();
                     }
                     break;
@@ -280,7 +279,7 @@ public class Teleop_Kinematics2 extends LinearOpMode {
 
                 //Retract slider and pixels possessed
                 case READY_SCORE:
-                    if (Timer1.milliseconds() > 300) {
+                    if (Timer1.milliseconds() > 1000) {
                         robot.arm.setPower(0);
                         robot.arm.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
                     }
@@ -291,7 +290,7 @@ public class Teleop_Kinematics2 extends LinearOpMode {
                     robot.retractSlider();
 
                     if (Gamepad1.right_bumper && !lastGamepad1.right_bumper) {
-                        state = states.SIMPLE_SCORING;
+                        state = states.SCORING;
                         Timer1.reset();
                     }
                     if(Gamepad1.left_bumper && !lastGamepad1.left_bumper){
@@ -307,6 +306,9 @@ public class Teleop_Kinematics2 extends LinearOpMode {
 
                 //break;
                 case SCORING:
+                    if(heading > Math.PI/2) {
+                        heading -= 2 * Math.PI;
+                    }
                     double align_output = heading_pid.calculate(
                             heading, boardHeading
                     );
@@ -339,9 +341,18 @@ public class Teleop_Kinematics2 extends LinearOpMode {
                     if (scoreHeight == 3) maxScoringDis = 0;
 
 
-                    if (avgDis < maxScoringDis) {
+                    //if (avgDis < maxScoringDis) {
                         robot.setArm(Math.atan(Math.toRadians(scoreArmAngle[scoreHeight] / (avgDis + scoreArmAngle[scoreHeight] / Math.tan(Math.toRadians(60))))));
+                    //}
+
+                    if (Gamepad1.triangle && !lastGamepad1.triangle && robot.getArmAngle() > 130) {
+                        scoring_extend = !scoring_extend;
+                    }
+
+                    if (scoring_extend) {
                         robot.setSliderLength(Math.sqrt(Math.pow(scoreArmAngle[scoreHeight], 2) + Math.pow((avgDis + horizontalOffset + scoreArmAngle[scoreHeight] / Math.tan(Math.toRadians(60))), 2)));
+                    } else {
+                        robot.setSliderLength(-1);
                     }
 
                     if (robot.getArmAngle() > 90) {
@@ -370,7 +381,6 @@ public class Teleop_Kinematics2 extends LinearOpMode {
                         Timer1.reset();
                     }
 
-                    drivetrain.remote2(direction_y, direction_x, -pivot, heading);
                     break;
 
 //                case SIMPLE_SCORING:
@@ -487,6 +497,8 @@ public class Teleop_Kinematics2 extends LinearOpMode {
                 } else {
                     robot.rRigging.setPower(0);
                 }
+
+                if (Gamepad1.circle) drivetrain.remote(0,0,0,0);
             }
 
             if (riggingState == 2) {
@@ -565,7 +577,7 @@ public class Teleop_Kinematics2 extends LinearOpMode {
             telemetry.addData("heading", heading);
             telemetry.addLine();
             telemetry.addData("simpleHeight", simpleHeight);
-            telemetry.addData("array", simpleScoreArmAngle);
+            telemetry.addData("array", scoreArmAngle[simpleHeight]);
             drivetrain.remote(direction_y, direction_x, -pivot, heading);
             telemetry.update();
         }

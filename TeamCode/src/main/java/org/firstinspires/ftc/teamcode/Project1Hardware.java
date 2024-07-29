@@ -51,7 +51,6 @@ public class Project1Hardware {
 
 
         ((DcMotorEx) arm).setPositionPIDFCoefficients(4);
-        ((DcMotorEx) slider).setPositionPIDFCoefficients(4);
 
         imu = hardwareMap.get(IMU.class, "imu");
 
@@ -120,7 +119,6 @@ public class Project1Hardware {
             pos = 900;
         }
 
-        slider.setPositionPIDFCoefficients(4);
         slider.setTargetPosition(pos + (int) (arm.getCurrentPosition() / 19));
         slider.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         slider.setPower(1);
@@ -244,7 +242,6 @@ public class Project1Hardware {
         //if (length > 1000) length = 1000;
         slider.setTargetPosition(lengthToEncoderValueSlider(length));
 
-        slider.setPositionPIDFCoefficients(4);
         slider.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         slider.setPower(1);
     }

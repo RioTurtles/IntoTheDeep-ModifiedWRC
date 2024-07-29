@@ -34,6 +34,7 @@ public class Teleop_Kinematics extends LinearOpMode {
     double avgDis = 0;
     double disError = 0;
     double disLastError = 0;
+    double extension = 0, armAngle = 0;
     public static double  kP = 2, kI = 0.1, kD = 0.08;
     public static double clawPAngle = 174;
 
@@ -48,7 +49,7 @@ public class Teleop_Kinematics extends LinearOpMode {
     /*double [] simpleScoreArmAngle = {165, 160, 155, 150, 145, 140};
     int simpleHeight = 0;*/
 
-    double [] boardHeight = {20, 40, 60, 80};
+    double [] boardHeight = {30, 40, 60, 80};
     int scoreHeight = 0;
     double boardHeading = -Math.PI/2;
     boolean scoring_extend = false;
@@ -88,7 +89,10 @@ public class Teleop_Kinematics extends LinearOpMode {
             direction_x = -gamepad1.left_stick_x;
             pivot = gamepad1.right_stick_x * 0.8;
             heading = robot.imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.RADIANS);
+
             avgDis = (lDis + rDis) / 2;
+            lDis = robot.leftDis.getDistance(DistanceUnit.CM);
+            rDis = robot.rightDis.getDistance(DistanceUnit.CM);
 
             /*lastGamepad.copy(gamepad);
             gamepad.copy(gamepad1);*/
@@ -279,7 +283,7 @@ public class Teleop_Kinematics extends LinearOpMode {
 
                 //Retract slider and pixels possessed
                 case READY_SCORE:
-                    if (Timer1.milliseconds() > 300) {
+                    if (Timer1.milliseconds() > 1000) {
                         robot.arm.setPower(0);
                         robot.arm.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
                     }
@@ -300,13 +304,11 @@ public class Teleop_Kinematics extends LinearOpMode {
                     break;
 
                 case SCORING:
-
-                    double extension, armAngle;
                     double distanceOffset = 0;
                     double maxDistance = 0;
                     double kp = 0, kd = 0;
 
-                    if(heading > Math.PI/2){
+                    if(heading > Math.PI/2) {
                         heading -= 2 * Math.PI;
                     }
                     double align_output = heading_pid.calculate(
@@ -320,29 +322,25 @@ public class Teleop_Kinematics extends LinearOpMode {
 
                     //robot.setArm(simpleScoreArmAngle[simpleHeight]);
 
-                    extension = Math.sqrt(Math.pow((avgDis - distanceOffset), 2) + Math.pow((boardHeight[scoreHeight] - (7.2 * Math.sqrt(3) / 3)), 2) + (avgDis - distanceOffset) * (boardHeight[scoreHeight] - (7.2 * Math.sqrt(3) / 3)) - 40);
-                    armAngle = Math.asin((20 - 3 * boardHeight[scoreHeight]) / (2 * (50 + extension)));
+                    extension = Math.sqrt(Math.pow((avgDis - distanceOffset), 2) + Math.pow((boardHeight[scoreHeight] - (7 * Math.sqrt(3) / 3)), 2) + ((avgDis - distanceOffset) * (boardHeight[scoreHeight] - (7 * Math.sqrt(3) / 3)))) - 40;
+                    armAngle = Math.asin(((Math.sqrt(3) * boardHeight[scoreHeight]) - 7) / (2 * (40 + extension)));
 
                     robot.setArm(armAngle);
 
-                    if (scoreHeight == 0) maxDistance = 0;
+                    /*if (scoreHeight == 0) maxDistance = 0;
                     if (scoreHeight == 1) maxDistance = 0;
                     if (scoreHeight == 2) maxDistance = 0;
-                    if (scoreHeight == 3) maxDistance = 0;
+                    if (scoreHeight == 3) maxDistance = 0;*/
 
-                    if (avgDis > maxDistance) {
+                    /*if (avgDis > maxDistance) {
                         disError = 15 - avgDis;
                         direction_y = -((disError) * kp + ((disError - disLastError) * kd));
                         disLastError = disError;
 
-                        if (direction_y < 0.35) {
-                            direction_y = 0.35;
+                        if (direction_x > 0.5) {
+                            direction_x = 0.5;
                         }
-                    } else {
-                        if (avgDis == maxDistance) {
-                            direction_y = 0;
-                        }
-                    }
+                    }*/
 
                     if (Gamepad1.triangle && !lastGamepad1.triangle && robot.getArmAngle() > 130) {
                         scoring_extend = !scoring_extend;
@@ -406,6 +404,7 @@ public class Teleop_Kinematics extends LinearOpMode {
                         robot.setArm(0);
                         Timer1.reset();
                     }
+                    break;
 
 
                 /*case SIMPLE_SCORING:
@@ -494,8 +493,8 @@ public class Teleop_Kinematics extends LinearOpMode {
                 scoreHeight = 0;
             }
 
-            if (scoreHeight > 5) {
-                scoreHeight = 5;
+            if (scoreHeight > 3) {
+                scoreHeight = 3;
             }
 
             //Rigging
@@ -596,6 +595,10 @@ public class Teleop_Kinematics extends LinearOpMode {
             telemetry.addData("arm", robot.getArmAngle());
             telemetry.addLine();
             telemetry.addData("simpleHeight", scoreHeight);
+            telemetry.addData("avgDis", avgDis);
+            telemetry.addData("array height", boardHeight[scoreHeight]);
+            telemetry.addData("extension", extension);
+            telemetry.addData("armAngle", -armAngle);
 
             drivetrain.remote(direction_y, direction_x, -pivot, heading);
             telemetry.update();

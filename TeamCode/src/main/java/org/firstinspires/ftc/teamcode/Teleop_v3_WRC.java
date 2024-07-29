@@ -44,7 +44,7 @@ public class Teleop_v3_WRC extends LinearOpMode {
 
     int riggingState = 0;
 
-    double [] simpleScoreArmAngle = {165, 160, 155, 150, 145, 140};
+    double [] simpleScoreArmAngle = {155, 150, 145, 140, 135, 130};
     int simpleHeight = 0;
 
     double [] scoreArmAngle = {10, 20, 30, 40, 50, 60, 70, 80};
@@ -74,9 +74,6 @@ public class Teleop_v3_WRC extends LinearOpMode {
         robot.setClawPAngle(170);
         robot.setSlider(0);
 
-        lDis = robot.leftDis.getDistance(DistanceUnit.CM);
-        rDis = robot.rightDis.getDistance(DistanceUnit.CM);
-
         waitForStart();
         robot.imu.resetYaw();
         drivetrain.remote(0, 0, 0, 0);
@@ -87,7 +84,10 @@ public class Teleop_v3_WRC extends LinearOpMode {
             direction_x = -gamepad1.left_stick_x;
             pivot = gamepad1.right_stick_x * 0.8;
             heading = robot.imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.RADIANS);
+
             avgDis = (lDis + rDis) / 2;
+            lDis = robot.leftDis.getDistance(DistanceUnit.CM);
+            rDis = robot.rightDis.getDistance(DistanceUnit.CM);
 
             /*lastGamepad.copy(gamepad);
             gamepad.copy(gamepad1);*/
@@ -278,7 +278,7 @@ public class Teleop_v3_WRC extends LinearOpMode {
 
                 //Retract slider and pixels possessed
                 case READY_SCORE:
-                    if (Timer1.milliseconds() > 300) {
+                    if (Timer1.milliseconds() > 1000) {
                         robot.arm.setPower(0);
                         robot.arm.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
                     }
@@ -298,26 +298,21 @@ public class Teleop_v3_WRC extends LinearOpMode {
                     }
                     break;
 
-               // case AUTO_ALIGN:
+                // case AUTO_ALIGN:
                     /*drivetrain.remote(0,0,0,0);
                     Gamepad1.right_stick_x = 0;
                     drivetrain.remote2(direction_y, direction_x, (heading - alignTarget) * kP, heading);*/
 
-                    //break;
+                //break;
 
                 case SIMPLE_SCORING:
-
-                        if(heading > Math.PI/2){
+                        if(heading > Math.PI/2) {
                             heading -= 2 * Math.PI;
                         }
                         double align_output = heading_pid.calculate(
                                 heading, boardHeading
                         );
                         pivot = -align_output;
-
-                    if (Gamepad1.right_stick_x > 0.1 || Gamepad1.right_stick_x < 0.1) {
-                        pivot = Gamepad1.right_stick_x * 0.8;
-                    }
 
                     robot.setArm(simpleScoreArmAngle[simpleHeight]);
                     //robot.arm.setVelocity(1000);
@@ -356,7 +351,6 @@ public class Teleop_v3_WRC extends LinearOpMode {
                         robot.setArm(0);
                         Timer1.reset();
                     }
-
                     break;
 
 
@@ -482,10 +476,6 @@ public class Teleop_v3_WRC extends LinearOpMode {
                 pivot = -align_output;
             }
 
-
-
-
-
             /*telemetry.addData("Encoder Angle (Degrees)", angle);
             telemetry.addData("Encoder Angle - Normalized (Degrees)", angleNormalized);*/
 
@@ -493,8 +483,9 @@ public class Teleop_v3_WRC extends LinearOpMode {
             telemetry.addData("RiggingState", riggingState);
             telemetry.addData("arm", robot.getArmAngle());
             telemetry.addData("Arm height", simpleHeight);
-            telemetry.addLine();
             telemetry.addData("simpleHeight", simpleHeight);
+            telemetry.addLine();
+            telemetry.addData("avgDis", avgDis);
 
             drivetrain.remote(direction_y, direction_x, -pivot, heading);
             telemetry.update();
