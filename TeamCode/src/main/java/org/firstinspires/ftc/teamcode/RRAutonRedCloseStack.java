@@ -5,6 +5,7 @@ import com.acmerobotics.roadrunner.geometry.Pose2d;
 import com.acmerobotics.roadrunner.geometry.Vector2d;
 import com.acmerobotics.roadrunner.trajectory.MarkerCallback;
 import com.acmerobotics.roadrunner.trajectory.Trajectory;
+import com.acmerobotics.roadrunner.trajectory.TrajectoryBuilder;
 import com.acmerobotics.roadrunner.trajectory.constraints.TrajectoryAccelerationConstraint;
 import com.acmerobotics.roadrunner.trajectory.constraints.TrajectoryVelocityConstraint;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
@@ -33,6 +34,7 @@ public class RRAutonRedCloseStack extends LinearOpMode {
     OpenCvWebcam webcam;
     int randomizationResult = 2;
     int stackStep = 1;
+    boolean pathGenerating;
     boolean yReady, wReady, scoredPurple;
     boolean scoreRight = true;
     boolean parkRight = true;
@@ -80,11 +82,11 @@ public class RRAutonRedCloseStack extends LinearOpMode {
 
         drive.setPoseEstimate(startPose);
 
-        MarkerCallback setBackdropScoringPosition = () -> {robot.setClawPAngle(180); robot.setArm(147.5);};
+        MarkerCallback setBackdropScoringPosition = () -> {robot.setClawPAngle(180); robot.setArm(145.5);};
         MarkerCallback setArmStackPosition = () -> {
             robot.arm.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-            robot.setClawPAngle(84);
-            robot.setArm(5.5);
+            robot.setClawPAngle(90);
+            robot.setArm(2);
             robot.clawPIntake();
             robot.bothClawOpen();
         };
@@ -103,12 +105,12 @@ public class RRAutonRedCloseStack extends LinearOpMode {
                 .addTemporalMarker(() -> objective = Objective.SCORE_PURPLE)
                 .build();
         TrajectorySequence purpleR = drive.trajectorySequenceBuilder(startPose)
-                .lineToSplineHeading(new Pose2d(34.85, -32.01, Math.toRadians(0.00)))
+                .lineToSplineHeading(new Pose2d(35.20, -32.01, Math.toRadians(0.00)))
                 .addTemporalMarker(() -> objective = Objective.SCORE_PURPLE)
                 .build();
 
         yellowLL = drive.trajectorySequenceBuilder(purpleL.end())
-                .lineToConstantHeading(new Vector2d(35.20, -27.01))
+                .lineToConstantHeading(new Vector2d(35.20, -26.01))
                 .addTemporalMarker(() -> yReady = true)
                 .build();
         yellowML = drive.trajectorySequenceBuilder(purpleM.end())
@@ -121,7 +123,7 @@ public class RRAutonRedCloseStack extends LinearOpMode {
                 .build();
 
         yellowLR = drive.trajectorySequenceBuilder(purpleL.end())
-                .lineToConstantHeading(new Vector2d(35.20, -29.01))
+                .lineToConstantHeading(new Vector2d(35.20, -28.01))
                 .addTemporalMarker(() -> yReady = true)
                 .build();
         yellowMR = drive.trajectorySequenceBuilder(purpleM.end())
@@ -186,12 +188,12 @@ public class RRAutonRedCloseStack extends LinearOpMode {
                     drive.followTrajectorySequence(yellow);
                 } else if (timer1.milliseconds() > 0) {
                     robot.retractSlider();
-                    robot.setArm(152);
+                    robot.setArm(150);
                 }
 
-                if (robot.getArmAngle() > 135) robot.setSlider(420);
+                if (robot.getArmAngle() > 135) robot.setSlider(450);
 
-                if (robot.slider.getCurrentPosition() > 410 && yReady) {
+                if (robot.slider.getCurrentPosition() > 440 && yReady) {
                     timer1.reset();
                     objective = Objective.SCORE_YELLOW;
                 }
@@ -213,37 +215,32 @@ public class RRAutonRedCloseStack extends LinearOpMode {
                 if (robot.getArmAngle() < 130) robot.bothClawClose();
                 if (robot.getArmAngle() < 5) objective = Objective.PATH_TO_STACK;
 
-                stackGrab = drive.trajectoryBuilder(nowPose, true)
-                        .splineToConstantHeading(new Vector2d(32.93, -9.42), Math.toRadians(180.00))
-                        .splineToConstantHeading(new Vector2d(-49.99, -9.42), Math.toRadians(180.00))
-                        .addSpatialMarker(new Vector2d(-49.99, -9.42), setArmStackPosition)
-                        .splineToConstantHeading(new Vector2d(-56.51, -9.42), Math.toRadians(180.00), param1, param2)
-                        .build();
+                if (!pathGenerating) {
+                    TrajectoryBuilder builder = drive.trajectoryBuilder(nowPose, true);
+                    if (randomizationResult == 3) builder = builder.forward(2);
+                    stackGrab = builder
+                            .splineToConstantHeading(new Vector2d(32.93, -9.22), Math.toRadians(180.00))
+                            .splineToConstantHeading(new Vector2d(-49.99, -9.22), Math.toRadians(180.00))
+                            .addSpatialMarker(new Vector2d(-52.99, -9.22), setArmStackPosition)
+                            .splineToConstantHeading(new Vector2d(-58.71, -9.22), Math.toRadians(180.00), param1, param2)
+                            .build();
+                    pathGenerating = true;
+                }
             }
 
             if (objective == Objective.PATH_TO_STACK) {
                 drive.followTrajectory(stackGrab);
-                objective = Objective.PATH_TO_BACKDROP_GENERATION;
+                pathGenerating = false;
+                objective = Objective.GRAB_STACK;
                 timer1.reset();
                 continue;
-            }
-
-            if (objective == Objective.PATH_TO_BACKDROP_GENERATION) {
-                stackReturn = drive.trajectoryBuilder(nowPose, false)
-                        .splineToSplineHeading(new Pose2d(32.93, -9.42, Math.toRadians(0.00)), Math.toRadians(180.00))
-                        .addSpatialMarker(new Vector2d(-21.99, -9.42), setArmRelease)
-                        .addSpatialMarker(new Vector2d(32.93, -9.42), setBackdropScoringPosition)
-                        .splineToConstantHeading(new Vector2d(35.20, -35.71), Math.toRadians(180.00), param3, param4)
-                        .build();
-                timer1.reset();
-                objective = Objective.GRAB_STACK;
             }
 
             if (objective == Objective.GRAB_STACK) {
                 switch (stackStep) {
                     case 1: robot.leftClawClose(); stackStep = 2; break;
-                    case 2: drive.turn(Math.toRadians(20)); stackStep = 3; break;
-                    case 3: robot.setArm(3); robot.setClawPAngle(86); stackStep = 4; timer1.reset(); break;
+                    case 2: drive.turn(Math.toRadians(25)); stackStep = 3; break;
+                    case 3: robot.setArm(1); robot.setClawPAngle(93); stackStep = 4; timer1.reset(); break;
                     case 4:
                         if (timer1.milliseconds() > 300) {
                             robot.rightClawClose();
@@ -251,11 +248,21 @@ public class RRAutonRedCloseStack extends LinearOpMode {
                         }
                         break;
                 }
+
+                if (!pathGenerating) {
+                    stackReturn = drive.trajectoryBuilder(nowPose, false)
+                            .splineToSplineHeading(new Pose2d(32.93, -9.22, Math.toRadians(0.00)), Math.toRadians(180.00))
+                            .addSpatialMarker(new Vector2d(-21.99, -9.22), setArmRelease)
+                            .addSpatialMarker(new Vector2d(32.93, -9.22), setBackdropScoringPosition)
+                            .splineToConstantHeading(new Vector2d(35.20, -35.71), Math.toRadians(180.00), param3, param4)
+                            .build();
+                    pathGenerating = true;
+                }
             }
 
             if (objective == Objective.PATH_TO_BACKDROP) {
                 if (!wReady) {drive.followTrajectory(stackReturn); wReady = true;}
-                robot.setSlider(450);
+                robot.setSlider(480);
                 if (robot.sliderInPosition(5)) {
                     objective = Objective.SCORE_BACKDROP;
                     timer1.reset();
@@ -280,12 +287,12 @@ public class RRAutonRedCloseStack extends LinearOpMode {
 
                 if (parkRight) {
                     park = drive.trajectorySequenceBuilder(nowPose)
-                            .lineToConstantHeading(new Vector2d(50.97, -62.18))
+                            .lineToLinearHeading(new Pose2d(50.97, -62.18, Math.toRadians(90.00)))
                             .addTemporalMarker(() -> objective = Objective.END)
                             .build();
                 } else {
                     park = drive.trajectorySequenceBuilder(nowPose)
-                            .lineToConstantHeading(new Vector2d(50.97, -11.06))
+                            .lineToLinearHeading(new Pose2d(50.97, -11.06, Math.toRadians(90.00)))
                             .addTemporalMarker(() -> objective = Objective.END)
                             .build();
                 }

@@ -205,12 +205,12 @@ public class RRAutonRedFarTruss extends LinearOpMode {
 
                 if (parkRight) {
                     park = drive.trajectorySequenceBuilder(nowPose)
-                            .lineToConstantHeading(new Vector2d(50.97, -62.18))
+                            .lineToLinearHeading(new Pose2d(50.97, -62.18, Math.toRadians(90.00)))
                             .addTemporalMarker(() -> objective = Objective.END)
                             .build();
                 } else {
                     park = drive.trajectorySequenceBuilder(nowPose)
-                            .lineToConstantHeading(new Vector2d(50.97, -11.06))
+                            .lineToLinearHeading(new Pose2d(50.97, -11.06, Math.toRadians(90.00)))
                             .addTemporalMarker(() -> objective = Objective.END)
                             .build();
                 }

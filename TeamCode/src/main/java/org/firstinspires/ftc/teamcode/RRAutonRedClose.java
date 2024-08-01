@@ -77,12 +77,12 @@ public class RRAutonRedClose extends LinearOpMode {
                 .addTemporalMarker(() -> objective = Objective.SCORE_PURPLE)
                 .build();
         TrajectorySequence purpleR = drive.trajectorySequenceBuilder(startPose)
-                .lineToSplineHeading(new Pose2d(34.85, -32.01, Math.toRadians(0.00)))
+                .lineToSplineHeading(new Pose2d(35.20, -32.01, Math.toRadians(0.00)))
                 .addTemporalMarker(() -> objective = Objective.SCORE_PURPLE)
                 .build();
 
         yellowLL = drive.trajectorySequenceBuilder(purpleL.end())
-                .lineToConstantHeading(new Vector2d(35.20, -27.01))
+                .lineToConstantHeading(new Vector2d(35.20, -26.01))
                 .addTemporalMarker(() -> yReady = true)
                 .build();
         yellowML = drive.trajectorySequenceBuilder(purpleM.end())
@@ -95,7 +95,7 @@ public class RRAutonRedClose extends LinearOpMode {
                 .build();
 
         yellowLR = drive.trajectorySequenceBuilder(purpleL.end())
-                .lineToConstantHeading(new Vector2d(35.20, -29.01))
+                .lineToConstantHeading(new Vector2d(35.20, -28.01))
                 .addTemporalMarker(() -> yReady = true)
                 .build();
         yellowMR = drive.trajectorySequenceBuilder(purpleM.end())
@@ -160,12 +160,12 @@ public class RRAutonRedClose extends LinearOpMode {
                     drive.followTrajectorySequence(yellow);
                 } else if (timer1.milliseconds() > 0) {
                     robot.retractSlider();
-                    robot.setArm(152);
+                    robot.setArm(150);
                 }
 
-                if (robot.getArmAngle() > 135) robot.setSlider(420);
+                if (robot.getArmAngle() > 135) robot.setSlider(430);
 
-                if (robot.slider.getCurrentPosition() > 410 && yReady) {
+                if (robot.slider.getCurrentPosition() > 420 && yReady) {
                     timer1.reset();
                     objective = Objective.SCORE_YELLOW;
                 }
@@ -189,12 +189,12 @@ public class RRAutonRedClose extends LinearOpMode {
 
                 if (parkRight) {
                     park = drive.trajectorySequenceBuilder(nowPose)
-                            .lineToConstantHeading(new Vector2d(50.97, -62.18))
+                            .lineToLinearHeading(new Pose2d(50.97, -62.18, Math.toRadians(90.00)))
                             .addTemporalMarker(() -> objective = Objective.END)
                             .build();
                 } else {
                     park = drive.trajectorySequenceBuilder(nowPose)
-                            .lineToConstantHeading(new Vector2d(50.97, -11.06))
+                            .lineToLinearHeading(new Pose2d(50.97, -11.06, Math.toRadians(90.00)))
                             .addTemporalMarker(() -> objective = Objective.END)
                             .build();
                 }
