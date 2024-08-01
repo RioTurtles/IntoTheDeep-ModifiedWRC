@@ -44,11 +44,8 @@ public class Teleop_v3_WRC extends LinearOpMode {
 
     int riggingState = 0;
 
-    double [] simpleScoreArmAngle = {155, 150, 145, 140, 135, 130};
+    double [] simpleScoreArmAngle = {160, 155, 150, 145, 140, 135};
     int simpleHeight = 0;
-
-    double [] scoreArmAngle = {10, 20, 30, 40, 50, 60, 70, 80};
-    int scoreHeight = 0;
     double boardHeading = -Math.PI/2;
     boolean scoring_extend = false;
     PIDController heading_pid = new PIDController(kP, kI, kD);

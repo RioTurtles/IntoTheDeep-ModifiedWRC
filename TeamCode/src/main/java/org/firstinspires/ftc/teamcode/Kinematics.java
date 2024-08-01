@@ -1,13 +1,12 @@
 package org.firstinspires.ftc.teamcode;
 
 import com.acmerobotics.dashboard.config.Config;
-import com.acmerobotics.roadrunner.control.PIDFController;
+import com.arcrobotics.ftclib.hardware.SensorDistanceEx;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.Gamepad;
-import com.qualcomm.robotcore.hardware.PIDFCoefficients;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import com.arcrobotics.ftclib.controller.PIDController;
 
@@ -15,9 +14,11 @@ import com.arcrobotics.ftclib.controller.PIDController;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 
+import java.net.CookieManager;
+
 @Config
 @TeleOp
-public class Teleop_Kinematics2 extends LinearOpMode {
+public class Kinematics extends LinearOpMode {
     public enum states {
         INIT,
         GROUND,
@@ -34,9 +35,13 @@ public class Teleop_Kinematics2 extends LinearOpMode {
     double CPR, revolutions, angle, angleNormalized;
     double lDis = 0, rDis = 0;
     double avgDis = 0;
+    double disError = 0;
+    double disLastError = 0;
+    double extension = 0, armAngle = 0;
+    double extension_1 = 0, armAngle_1 = 0;
     public static double  kP = 2, kI = 0.1, kD = 0.08;
     public static double clawPAngle = 174;
-    double boardHeight = 0;
+    public static double multiplier = 7.5;
 
     int position;
 
@@ -46,14 +51,14 @@ public class Teleop_Kinematics2 extends LinearOpMode {
 
     int riggingState = 0;
 
-    double [] simpleScoreArmAngle = {165, 160, 155, 150, 145, 140};
-    int simpleHeight = 0;
-    double [] scoreArmAngle = {40, 60, 80, 100};
+    /*double [] simpleScoreArmAngle = {165, 160, 155, 150, 145, 140};
+    int simpleHeight = 0;*/
+
+    double [] boardHeight = {30, 40, 60, 80};
     int scoreHeight = 0;
     double boardHeading = -Math.PI/2;
     boolean scoring_extend = false;
     PIDController heading_pid = new PIDController(kP, kI, kD);
-    double horizontalOffset = 0, maxScoringDis = 0;
 
     @Override
     public void runOpMode() throws InterruptedException {
@@ -86,6 +91,7 @@ public class Teleop_Kinematics2 extends LinearOpMode {
             direction_x = -gamepad1.left_stick_x;
             pivot = gamepad1.right_stick_x * 0.8;
             heading = robot.imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.RADIANS);
+
             avgDis = (lDis + rDis) / 2;
             lDis = robot.leftDis.getDistance(DistanceUnit.CM);
             rDis = robot.rightDis.getDistance(DistanceUnit.CM);
@@ -242,7 +248,7 @@ public class Teleop_Kinematics2 extends LinearOpMode {
                     }
 
                     if(Gamepad1.right_trigger > 0 && !(lastGamepad1.right_trigger > 0)){
-                        state = states.EXTEND_GRIP;
+                        state = states.GROUND;
                         Timer1.reset();
                     }
                     break;
@@ -251,7 +257,7 @@ public class Teleop_Kinematics2 extends LinearOpMode {
                 case EXTEND_GRIP:
                     robot.arm.setPower(0);
                     robot.arm.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
-                    robot.setSlider(950);
+                    robot.setSlider(900);
                     robot.clawPIntake();
 
                     if (Timer1.milliseconds() > 200) {
@@ -299,14 +305,15 @@ public class Teleop_Kinematics2 extends LinearOpMode {
                     }
                     break;
 
-                // case AUTO_ALIGN:
-                    /*drivetrain.remote(0,0,0,0);
-                    Gamepad1.right_stick_x = 0;
-                    drivetrain.remote2(direction_y, direction_x, (heading - alignTarget) * kP, heading);*/
-
-                //break;
                 case SCORING:
-                    if(heading > Math.PI/2) {
+                    double distanceOffset = 0;
+                    double maxDistance = 0;
+                    double kp = 0, kd = 0;
+
+                    robot.arm.setVelocity(1000);
+
+                    //Auto align
+                    if(heading > Math.PI/2){
                         heading -= 2 * Math.PI;
                     }
                     double align_output = heading_pid.calculate(
@@ -318,123 +325,140 @@ public class Teleop_Kinematics2 extends LinearOpMode {
                         pivot = Gamepad1.right_stick_x * 0.8;
                     }
 
-                    /*if (gamepad1.dpad_up) {  //Max
-                        boardHeight = 66;
-                        maxScoringDis = 0;
+                    if (extension < 0) extension = 0;
+
+                    /*extension = Math.sqrt(Math.pow((avgDis - distanceOffset), 2) + Math.pow((boardHeight[scoreHeight] - (Math.sqrt(3) * 24.60 / 3)), 2) + ((avgDis - distanceOffset) * (boardHeight[scoreHeight] - (Math.sqrt(3) * 24.60 /  3)))) - 40;
+                    armAngle = Math.toDegrees(180) - (Math.asin(((Math.sqrt(3) * boardHeight[scoreHeight]) - 24.6)/ (2 * (40 + extension))));*/
+
+                    extension = Math.sqrt(Math.pow(boardHeight[scoreHeight], 2) + (avgDis + 8.1) * (avgDis + 8.1) + (30 * (avgDis + 8))) - 35;
+                    armAngle = 180 - Math.toDegrees(Math.asin((15 * Math.sqrt(3)) / (35 + extension)));
+
+                    if (avgDis < 60) {
+                        robot.setArm(armAngle);
                     }
-                    if (gamepad1.dpad_left) {  //High
-                        boardHeight = 57;
-                        maxScoringDis = 0;
-                    }
-                    if (gamepad1.dpad_down) {  //Middle
-                        boardHeight = 37;
-                        maxScoringDis = 0;
-                    }
-                    if (gamepad1.dpad_right) {  //Low
-                        boardHeight = 18;
-                        maxScoringDis = 0;
+
+                    /*if (scoreHeight == 0) maxDistance = 0;
+                    if (scoreHeight == 1) maxDistance = 0;
+                    if (scoreHeight == 2) maxDistance = 0;
+                    if (scoreHeight == 3) maxDistance = 0;*/
+
+                    /*if (avgDis > maxDistance) {
+                        disError = 15 - avgDis;
+                        direction_y = -((disError) * kp + ((disError - disLastError) * kd));
+                        disLastError = disError;
+
+                        if (direction_x > 0.5) {
+                            direction_x = 0.5;
+                        }
                     }*/
-
-                    if (scoreHeight == 0) maxScoringDis = 0;
-                    if (scoreHeight == 1) maxScoringDis = 0;
-                    if (scoreHeight == 2) maxScoringDis = 0;
-                    if (scoreHeight == 3) maxScoringDis = 0;
-
-
-                    //if (avgDis < maxScoringDis) {
-                        robot.setArm(Math.atan(Math.toRadians(scoreArmAngle[scoreHeight] / (avgDis + scoreArmAngle[scoreHeight] / Math.tan(Math.toRadians(60))))));
-                    //}
 
                     if (Gamepad1.triangle && !lastGamepad1.triangle && robot.getArmAngle() > 130) {
                         scoring_extend = !scoring_extend;
                     }
 
                     if (scoring_extend) {
-                        robot.setSliderLength(Math.sqrt(Math.pow(scoreArmAngle[scoreHeight], 2) + Math.pow((avgDis + horizontalOffset + scoreArmAngle[scoreHeight] / Math.tan(Math.toRadians(60))), 2)));
+                        robot.setSliderLength(extension * multiplier);
                     } else {
-                        robot.setSliderLength(-1);
+                        robot.setSlider(-1);
                     }
 
-                    if (robot.getArmAngle() > 90) {
+
+                    /*if (gamepad1.right_trigger > 0) {
+                        leftError = 15 - avgDis;
+                        direction_x = -((leftError) * kp + ((leftError - leftLastError) * kd));
+                        leftLastError = leftError;
+
+
+                        if (avgDis <= 7) {
+                            direction_x = 0;
+                            direction_y = 0;
+                        }
+
+                        if (direction_x < 0.35) {
+                            direction_x = 0.35;
+                        }
+
+                    }*/
+
+                    if (robot.getArmAngle() > 70) {
                         robot.clawPScoring();
                     }
 
-                    if (gamepad1.left_trigger > 0) {
+                    if (Gamepad1.left_trigger > 0) {
+                        robot.rightClawOpen();
+                    } else {
+                        robot.rightClawClose();
+                    }
+                    if (Gamepad1.right_trigger > 0) {
                         robot.leftClawOpen();
                     } else {
                         robot.leftClawClose();
                     }
 
-                    if (gamepad1.right_trigger > 0) {
-                        robot.rightClawOpen();
-                    } else {
-                        robot.rightClawClose();
-                    }
-
-                    if (gamepad1.right_bumper && !lastGamepad1.right_bumper) {
+                    if (Gamepad1.right_bumper && !lastGamepad1.right_bumper) {
                         state = states.RETURN_TO_INIT;
                         Timer1.reset();
                     }
-                    if(gamepad1.left_bumper && !lastGamepad1.left_bumper){
+                    if(Gamepad1.left_bumper && !lastGamepad1.left_bumper){
                         state = states.READY_SCORE;
                         robot.setArm(0);
                         Timer1.reset();
                     }
-
                     break;
 
-//                case SIMPLE_SCORING:
-//
-//                    if(heading > Math.PI/2){
-//                        heading -= 2 * Math.PI;
-//                    }
-//                    double align_output = heading_pid.calculate(
-//                            heading, boardHeading
-//                    );
-//                    pivot = -align_output;
-//
-//                    if (Gamepad1.right_stick_x > 0.1 || Gamepad1.right_stick_x < 0.1) {
-//                        pivot = Gamepad1.right_stick_x * 0.8;
-//                    }
-//
-//                    robot.setArm(simpleScoreArmAngle[simpleHeight]);
-//                    //robot.arm.setVelocity(1000);
-//
-//                    if (Gamepad1.triangle && !lastGamepad1.triangle && robot.getArmAngle() > 130) {
-//                        scoring_extend = !scoring_extend;
-//                    }
-//
-//                    if (scoring_extend) {
-//                        robot.setSlider(900);
-//                    } else {
-//                        robot.setSlider(0);
-//                    }
-//
-//                    if (robot.getArmAngle() > 70) {
-//                        robot.clawPScoring();
-//                    }
-//
-//                    if (Gamepad1.left_trigger > 0) {
-//                        robot.rightClawOpen();
-//                    } else {
-//                        robot.rightClawClose();
-//                    }
-//                    if (Gamepad1.right_trigger > 0) {
-//                        robot.leftClawOpen();
-//                    } else {
-//                        robot.leftClawClose();
-//                    }
-//
-//                    if (Gamepad1.right_bumper && !lastGamepad1.right_bumper) {
-//                        state = states.RETURN_TO_INIT;
-//                        Timer1.reset();
-//                    }
-//                    if(Gamepad1.left_bumper && !lastGamepad1.left_bumper){
-//                        state = states.READY_SCORE;
-//                        Timer1.reset();
-//                    }
-//
-//                    break;
+
+                /*case SIMPLE_SCORING:
+
+                    if(heading > Math.PI/2){
+                        heading -= 2 * Math.PI;
+                    }
+                    double align_output = heading_pid.calculate(
+                            heading, boardHeading
+                    );
+                    pivot = -align_output;
+
+                    if (Gamepad1.right_stick_x > 0.1 || Gamepad1.right_stick_x < 0.1) {
+                        pivot = Gamepad1.right_stick_x * 0.8;
+                    }
+
+                    robot.setArm(simpleScoreArmAngle[simpleHeight]);
+                    //robot.arm.setVelocity(1000);
+
+                    if (Gamepad1.triangle && !lastGamepad1.triangle && robot.getArmAngle() > 130) {
+                        scoring_extend = !scoring_extend;
+                    }
+
+                    if (scoring_extend) {
+                        robot.setSlider(900);
+                    } else {
+                        robot.setSlider(0);
+                    }
+
+                    if (robot.getArmAngle() > 70) {
+                        robot.clawPScoring();
+                    }
+
+                    if (Gamepad1.left_trigger > 0) {
+                        robot.rightClawOpen();
+                    } else {
+                        robot.rightClawClose();
+                    }
+                    if (Gamepad1.right_trigger > 0) {
+                        robot.leftClawOpen();
+                    } else {
+                        robot.leftClawClose();
+                    }
+
+                    if (Gamepad1.right_bumper && !lastGamepad1.right_bumper) {
+                        state = states.RETURN_TO_INIT;
+                        Timer1.reset();
+                    }
+                    if(Gamepad1.left_bumper && !lastGamepad1.left_bumper){
+                        state = states.READY_SCORE;
+                        Timer1.reset();
+                    }
+
+                    break;*/
 
 
                 //Back to intake position
@@ -458,23 +482,23 @@ public class Teleop_Kinematics2 extends LinearOpMode {
 
             //Arm height placement
             if(Gamepad1.dpad_up && !lastGamepad1.dpad_up || Gamepad2.dpad_up && !lastGamepad2.dpad_up) {
-                simpleHeight += 1;
+                scoreHeight += 1;
             }
 
             if(Gamepad1.dpad_down && !lastGamepad1.dpad_down || Gamepad2.dpad_down && !lastGamepad2.dpad_down) {
-                simpleHeight -= 1;
+                scoreHeight -= 1;
             }
 
-            if (simpleHeight < 0) {
-                simpleHeight = 0;
+            if (scoreHeight < 0) {
+                scoreHeight = 0;
             }
 
-            if (simpleHeight > 5) {
-                simpleHeight = 5;
+            if (scoreHeight > 3) {
+                scoreHeight = 3;
             }
 
             //Rigging
-            if (riggingState == 0) {
+            /*if (riggingState == 0) {
                 robot.rRiggingUp.setPwmDisable();
                 robot.lRiggingUp.setPwmDisable();
             }
@@ -497,8 +521,6 @@ public class Teleop_Kinematics2 extends LinearOpMode {
                 } else {
                     robot.rRigging.setPower(0);
                 }
-
-                if (Gamepad1.circle) drivetrain.remote(0,0,0,0);
             }
 
             if (riggingState == 2) {
@@ -515,7 +537,7 @@ public class Teleop_Kinematics2 extends LinearOpMode {
                     robot.lRigging.setPower(0);
                     robot.rRigging.setPower(0);
                 }
-            }
+            }*/
 
             if (Gamepad1.dpad_left && !lastGamepad1.dpad_left) {
                 riggingState += 1;
@@ -571,13 +593,15 @@ public class Teleop_Kinematics2 extends LinearOpMode {
             telemetry.addData("state", state);
             telemetry.addData("RiggingState", riggingState);
             telemetry.addData("arm", robot.getArmAngle());
-            telemetry.addData("Arm height", simpleHeight);
             telemetry.addLine();
-            telemetry.addData("pivot", pivot);
-            telemetry.addData("heading", heading);
-            telemetry.addLine();
-            telemetry.addData("simpleHeight", simpleHeight);
-            telemetry.addData("array", scoreArmAngle[simpleHeight]);
+            telemetry.addData("simpleHeight", scoreHeight);
+            telemetry.addData("ldis",lDis);
+            telemetry.addData("rDis",rDis);
+            telemetry.addData("avgDis", avgDis);
+            telemetry.addData("array height", boardHeight[scoreHeight]);
+            telemetry.addData("extension", extension);
+            telemetry.addData("armAngle", armAngle);
+
             drivetrain.remote(direction_y, direction_x, -pivot, heading);
             telemetry.update();
         }

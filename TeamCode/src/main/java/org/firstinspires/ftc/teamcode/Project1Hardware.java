@@ -49,9 +49,6 @@ public class Project1Hardware {
         leftDis = hardwareMap.get(DistanceSensor.class, "lDis");
         rightDis = hardwareMap.get(DistanceSensor.class, "rDis");
 
-
-        ((DcMotorEx) arm).setPositionPIDFCoefficients(4);
-
         imu = hardwareMap.get(IMU.class, "imu");
 
         imu.initialize(
@@ -216,7 +213,7 @@ public class Project1Hardware {
         if(tmp > 1900){
             tmp = 1900;
         }
-        arm.setPositionPIDFCoefficients(4);
+        arm.setPositionPIDFCoefficients(5);
 
         arm.setTargetPosition(angleToEncoderValueArm(angle));
         arm.setMode(DcMotor.RunMode.RUN_TO_POSITION);
@@ -253,9 +250,8 @@ public class Project1Hardware {
         double length = revolutions * 35.65 * Math.PI;
         return length;
     }
-    public static double clawPIntakeAngle = 18;
     public void clawPIntake() {
-        setClawPAngle(90 - getArmAngle() * 0.5 - clawPIntakeAngle);
+        setClawPAngle(90 - getArmAngle() * 0.5 - 25);
     }
     public void clawPScoring() {
         setClawPAngle(180 - getArmAngle() + 8);
