@@ -16,7 +16,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 
 @Config
-@TeleOp
+@TeleOp (group = "Peasant Rabbits 2024")
 public class Teleop_v3_WRC extends LinearOpMode {
     public enum states {
         INIT,
@@ -34,7 +34,7 @@ public class Teleop_v3_WRC extends LinearOpMode {
     double CPR, revolutions, angle, angleNormalized;
     double lDis = 0, rDis = 0;
     double avgDis = 0;
-    public static double  kP = 2, kI = 0.1, kD = 0.08;
+    public static double  kP = 1.8, kI = 0.1, kD = 0.08;
 
     int position;
 
@@ -310,6 +310,10 @@ public class Teleop_v3_WRC extends LinearOpMode {
                                 heading, boardHeading
                         );
                         pivot = -align_output;
+
+                        if (Gamepad1.right_stick_x > 0.1 || Gamepad1.right_stick_x < 0.1) {
+                            pivot = Gamepad1.right_stick_x * 0.8;
+                        }
 
                     robot.setArm(simpleScoreArmAngle[simpleHeight]);
                     //robot.arm.setVelocity(1000);

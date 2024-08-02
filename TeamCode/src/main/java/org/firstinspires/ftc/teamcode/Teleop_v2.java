@@ -15,7 +15,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 
 import java.sql.Time;
 
-@TeleOp
+@TeleOp (group = "Peasant Rabbits 2024")
 public class  Teleop_v2 extends LinearOpMode {
     public enum states {
         INIT,

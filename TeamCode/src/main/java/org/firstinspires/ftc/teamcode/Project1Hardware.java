@@ -91,7 +91,7 @@ public class Project1Hardware {
         rRigging.setDirection(DcMotorSimple.Direction.FORWARD);
         leftClaw.setDirection(ServoImplEx.Direction.FORWARD);
         rightClaw.setDirection(ServoImplEx.Direction.REVERSE);
-        clawP.setDirection(ServoImplEx.Direction.REVERSE);
+        //clawP.setDirection(ServoImplEx.Direction.REVERSE);
         drone.setDirection(Servo.Direction.FORWARD);
         arm.setPower(0);
         arm.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
@@ -99,14 +99,10 @@ public class Project1Hardware {
         bothClawClose();
         setClawPAngle(180);
 
-        imu.initialize(
-                new IMU.Parameters(
-                        new RevHubOrientationOnRobot(
-                                RevHubOrientationOnRobot.LogoFacingDirection.LEFT,
-                                RevHubOrientationOnRobot.UsbFacingDirection.UP
-                        )
-                )
-        );
+        imu.initialize(new IMU.Parameters(new RevHubOrientationOnRobot(
+                RevHubOrientationOnRobot.LogoFacingDirection.LEFT,
+                RevHubOrientationOnRobot.UsbFacingDirection.UP
+        )));
     }
 
     // Regular methods.
@@ -251,7 +247,7 @@ public class Project1Hardware {
         return length;
     }
     public void clawPIntake() {
-        setClawPAngle(90 - getArmAngle() * 0.5 - 25);
+        setClawPAngle(90 - getArmAngle() * 0.5 - 7);
     }
     public void clawPScoring() {
         setClawPAngle(180 - getArmAngle() + 8);
