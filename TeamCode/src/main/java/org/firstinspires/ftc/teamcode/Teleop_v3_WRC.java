@@ -44,7 +44,7 @@ public class Teleop_v3_WRC extends LinearOpMode {
 
     int riggingState = 0;
 
-    double [] simpleScoreArmAngle = {160, 155, 150, 145, 140, 135};
+    double [] simpleScoreArmAngle = {135, 130, 125, 120, 115, 110, 105, 100};
     int simpleHeight = 0;
     double boardHeading = -Math.PI/2;
     boolean scoring_extend = false;
@@ -270,6 +270,7 @@ public class Teleop_v3_WRC extends LinearOpMode {
                     }
                     if(Gamepad1.left_bumper && !lastGamepad1.left_bumper){
                         state=states.GROUND_EXTEND;
+                        Timer1.reset();
                     }
                     break;
 
@@ -387,8 +388,8 @@ public class Teleop_v3_WRC extends LinearOpMode {
                 simpleHeight = 0;
             }
 
-            if (simpleHeight > 5) {
-                simpleHeight = 5;
+            if (simpleHeight > 7) {
+                simpleHeight = 7;
             }
 
             //Rigging

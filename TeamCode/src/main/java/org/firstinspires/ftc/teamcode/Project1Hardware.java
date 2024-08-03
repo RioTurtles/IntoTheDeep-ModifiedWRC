@@ -190,7 +190,7 @@ public class Project1Hardware {
         slider.setMode(DcMotorEx.RunMode.RUN_TO_POSITION);
     }
     public void setClawPAngle(double angle) {
-        clawP.setPosition(angle / 172);
+        clawP.setPosition(angle / 180);
     }
 
     public int angleToEncoderValueArm(double angle) {
@@ -247,10 +247,11 @@ public class Project1Hardware {
         return length;
     }
     public void clawPIntake() {
-        setClawPAngle(90 - getArmAngle() * 0.5 - 7);
+        setClawPAngle(90 - getArmAngle() * 0.5 - 8);
     }
     public void clawPScoring() {
-        setClawPAngle(180 - getArmAngle() + 8);
+        //setClawPAngle(180 - getArmAngle() + 8);
+        setClawPAngle(180 - getArmAngle() + 4);
         //setClawPAngle(180);
     }
 }
