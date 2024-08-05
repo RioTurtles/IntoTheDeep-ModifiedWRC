@@ -1,13 +1,11 @@
 package org.firstinspires.ftc.teamcode;
 
 import com.acmerobotics.dashboard.config.Config;
-import com.acmerobotics.roadrunner.control.PIDFController;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.Gamepad;
-import com.qualcomm.robotcore.hardware.PIDFCoefficients;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import com.arcrobotics.ftclib.controller.PIDController;
 
@@ -30,11 +28,13 @@ public class Teleop_v3_WRC extends LinearOpMode {
         SIMPLE_SCORING,
         RETURN_TO_INIT,
     }
+
     double direction_y, direction_x, pivot, heading;
     double CPR, revolutions, angle, angleNormalized;
     double lDis = 0, rDis = 0;
     double avgDis = 0;
-    public static double  kP = 1.8, kI = 0.1, kD = 0.08;
+    public static double kP = 1.8, kI = 0.1, kD = 0.08;
+    //public static double offset = 25;
 
     int position;
 
@@ -44,9 +44,9 @@ public class Teleop_v3_WRC extends LinearOpMode {
 
     int riggingState = 0;
 
-    double [] simpleScoreArmAngle = {135, 130, 125, 120, 115, 110, 105, 100};
+    double[] simpleScoreArmAngle = {123, 120, 115, 110, 105, 100};
     int simpleHeight = 0;
-    double boardHeading = -Math.PI/2;
+    double boardHeading = -Math.PI / 2;
     boolean scoring_extend = false;
     PIDController heading_pid = new PIDController(kP, kI, kD);
 
@@ -54,7 +54,7 @@ public class Teleop_v3_WRC extends LinearOpMode {
     public void runOpMode() throws InterruptedException {
         Project1Hardware robot = new Project1Hardware();
         MecanumDrive drivetrain = new MecanumDrive(robot);
-        robot.init(hardwareMap,telemetry);
+        robot.init(hardwareMap, telemetry);
         robot.reset();
 
         /*Gamepad gamepad = new Gamepad();
@@ -68,7 +68,7 @@ public class Teleop_v3_WRC extends LinearOpMode {
 
         robot.bothClawClose();
         robot.setArm(-12);
-        robot.setClawPAngle(170);
+        robot.setClawPAngle(180);
         robot.setSlider(0);
 
         waitForStart();
@@ -154,12 +154,12 @@ public class Teleop_v3_WRC extends LinearOpMode {
                     robot.setClawPAngle(180);
                     robot.bothClawClose();
 
-                    if(Gamepad1.right_bumper && !lastGamepad1.right_bumper){
+                    if (Gamepad1.right_bumper && !lastGamepad1.right_bumper) {
                         state = states.GROUND;
                         Timer1.reset();
                     }
                     //jump to scoring
-                    if(Gamepad1.left_trigger > 0.3 && Gamepad1.right_trigger > 0.3){
+                    if (Gamepad1.left_trigger > 0.3 && Gamepad1.right_trigger > 0.3) {
                         state = states.SIMPLE_SCORING;
                         Timer1.reset();
                     }
@@ -172,10 +172,10 @@ public class Teleop_v3_WRC extends LinearOpMode {
                     robot.arm.setPower(0);
                     robot.arm.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
 
-                    if (Timer1.milliseconds() > 100){
+                    if (Timer1.milliseconds() > 100) {
                         robot.bothClawOpen();
                     }
-                    if(Gamepad1.right_trigger > 0 && !(lastGamepad1.right_trigger > 0)) {
+                    if (Gamepad1.right_trigger > 0 && !(lastGamepad1.right_trigger > 0)) {
                         state = states.GROUND_EXTEND;
                     }
 
@@ -206,11 +206,11 @@ public class Teleop_v3_WRC extends LinearOpMode {
                     } else {
                         robot.leftClawClose();
                     }
-                    if(Gamepad1.right_bumper && !lastGamepad1.right_bumper){
+                    if (Gamepad1.right_bumper && !lastGamepad1.right_bumper) {
                         state = states.READY_SCORE;
                         Timer1.reset();
                     }
-                    if(Gamepad1.left_bumper && !lastGamepad1.left_bumper){
+                    if (Gamepad1.left_bumper && !lastGamepad1.left_bumper) {
                         state = states.GROUND;
                         Timer1.reset();
                     }
@@ -219,7 +219,7 @@ public class Teleop_v3_WRC extends LinearOpMode {
                 //Ready for intake, extended slider
                 case GROUND_EXTEND:
                     robot.bothClawOpen();
-                    robot.clawPIntake();
+                    robot.clawPIntakeExtend();
 
                     direction_x = direction_x * 0.5;
                     direction_y = direction_y * 0.5;
@@ -232,12 +232,12 @@ public class Teleop_v3_WRC extends LinearOpMode {
                         state = states.EXTEND_GRIP;
                         Timer1.reset();
                     }
-                    if(Gamepad1.left_bumper && !lastGamepad1.left_bumper){
-                        state=states.GROUND;
+                    if (Gamepad1.left_bumper && !lastGamepad1.left_bumper) {
+                        state = states.GROUND;
                         Timer1.reset();
                     }
 
-                    if(Gamepad1.right_trigger > 0 && !(lastGamepad1.right_trigger > 0)){
+                    if (Gamepad1.right_trigger > 0 && !(lastGamepad1.right_trigger > 0)) {
                         state = states.GROUND;
                         Timer1.reset();
                     }
@@ -248,7 +248,7 @@ public class Teleop_v3_WRC extends LinearOpMode {
                     robot.arm.setPower(0);
                     robot.arm.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
                     robot.setSlider(900);
-                    robot.clawPIntake();
+                    robot.clawPIntakeExtend();
 
                     if (Timer1.milliseconds() > 200) {
                         if (Gamepad1.right_trigger > 0) {
@@ -268,8 +268,8 @@ public class Teleop_v3_WRC extends LinearOpMode {
                         state = states.READY_SCORE;
                         Timer1.reset();
                     }
-                    if(Gamepad1.left_bumper && !lastGamepad1.left_bumper){
-                        state=states.GROUND_EXTEND;
+                    if (Gamepad1.left_bumper && !lastGamepad1.left_bumper) {
+                        state = states.GROUND_EXTEND;
                         Timer1.reset();
                     }
                     break;
@@ -290,7 +290,7 @@ public class Teleop_v3_WRC extends LinearOpMode {
                         state = states.SIMPLE_SCORING;
                         Timer1.reset();
                     }
-                    if(Gamepad1.left_bumper && !lastGamepad1.left_bumper){
+                    if (Gamepad1.left_bumper && !lastGamepad1.left_bumper) {
                         state = states.GROUND;
                         Timer1.reset();
                     }
@@ -301,20 +301,27 @@ public class Teleop_v3_WRC extends LinearOpMode {
                     Gamepad1.right_stick_x = 0;
                     drivetrain.remote2(direction_y, direction_x, (heading - alignTarget) * kP, heading);*/
 
-                //break;
+                // break;
 
                 case SIMPLE_SCORING:
-                        if(heading > Math.PI/2) {
-                            heading -= 2 * Math.PI;
-                        }
+                    if (heading > Math.PI / 2) heading -= 2 * Math.PI;
+
+                    if (Storage.allianceSide == 1) {  // Red
                         double align_output = heading_pid.calculate(
                                 heading, boardHeading
                         );
                         pivot = -align_output;
+                    } else if (Storage.allianceSide == -1) {  // Blue
 
-                        if (Gamepad1.right_stick_x > 0.1 || Gamepad1.right_stick_x < 0.1) {
-                            pivot = Gamepad1.right_stick_x * 0.8;
-                        }
+                        double align_output = heading_pid.calculate(
+                                heading, boardHeading
+                        );
+                        pivot = align_output;
+                    }
+
+                    if (Gamepad1.right_stick_x > 0.1 || Gamepad1.right_stick_x < 0.1) {
+                        pivot = Gamepad1.right_stick_x * 0.8;
+                    }
 
                     robot.setArm(simpleScoreArmAngle[simpleHeight]);
                     //robot.arm.setVelocity(1000);
@@ -348,7 +355,7 @@ public class Teleop_v3_WRC extends LinearOpMode {
                         state = states.RETURN_TO_INIT;
                         Timer1.reset();
                     }
-                    if(Gamepad1.left_bumper && !lastGamepad1.left_bumper){
+                    if (Gamepad1.left_bumper && !lastGamepad1.left_bumper) {
                         state = states.READY_SCORE;
                         robot.setArm(0);
                         Timer1.reset();
@@ -356,12 +363,12 @@ public class Teleop_v3_WRC extends LinearOpMode {
                     break;
 
 
-                //Back to intake position
+                // Back to intake position
                 case RETURN_TO_INIT:
                     scoring_extend = false;
 
                     robot.setArm(0);
-                    //robot.arm.setVelocity(1600);
+                    // robot.arm.setVelocity(1600);
                     robot.retractSlider();
 
                     if (robot.getArmAngle() < 130) {
@@ -376,11 +383,11 @@ public class Teleop_v3_WRC extends LinearOpMode {
             }
 
             //Arm height placement
-            if(Gamepad1.dpad_up && !lastGamepad1.dpad_up || Gamepad2.dpad_up && !lastGamepad2.dpad_up) {
+            if (Gamepad1.dpad_up && !lastGamepad1.dpad_up || Gamepad2.dpad_up && !lastGamepad2.dpad_up) {
                 simpleHeight += 1;
             }
 
-            if(Gamepad1.dpad_down && !lastGamepad1.dpad_down || Gamepad2.dpad_down && !lastGamepad2.dpad_down) {
+            if (Gamepad1.dpad_down && !lastGamepad1.dpad_down || Gamepad2.dpad_down && !lastGamepad2.dpad_down) {
                 simpleHeight -= 1;
             }
 
@@ -388,8 +395,8 @@ public class Teleop_v3_WRC extends LinearOpMode {
                 simpleHeight = 0;
             }
 
-            if (simpleHeight > 7) {
-                simpleHeight = 7;
+            if (simpleHeight > 5) {
+                simpleHeight = 5;
             }
 
             //Rigging
@@ -467,30 +474,46 @@ public class Teleop_v3_WRC extends LinearOpMode {
                 //boardHeading = pivot;
             }*/
 
-            //Auto align
+            // Auto align
             if (Gamepad1.circle) {
-                if(heading > Math.PI/2){
-                    heading -= 2 * Math.PI;
+                if (heading > Math.PI / 2) heading -= 2 * Math.PI;
+
+                if (Storage.allianceSide == 1) {  // Red
+                    double align_output = heading_pid.calculate(
+                            heading, boardHeading
+                    );
+                    pivot = -align_output;
+                } else if (Storage.allianceSide == -1) {  // Blue
+
+                    double align_output = heading_pid.calculate(
+                            heading, boardHeading
+                    );
+                    pivot = align_output;
                 }
-                double align_output = heading_pid.calculate(
-                        heading, boardHeading
-                );
-                pivot = -align_output;
             }
 
-            /*telemetry.addData("Encoder Angle (Degrees)", angle);
-            telemetry.addData("Encoder Angle - Normalized (Degrees)", angleNormalized);*/
+//            telemetry.addData("Encoder Angle (Degrees)", angle);
+//            telemetry.addData("Encoder Angle - Normalized (Degrees)", angleNormalized);
 
             telemetry.addData("state", state);
             telemetry.addData("RiggingState", riggingState);
+            telemetry.addLine();
             telemetry.addData("arm", robot.getArmAngle());
             telemetry.addData("Arm height", simpleHeight);
-            telemetry.addData("simpleHeight", simpleHeight);
-            telemetry.addLine();
-            telemetry.addData("avgDis", avgDis);
+            telemetry.addData("heading", Math.toDegrees(heading));
 
             drivetrain.remote(direction_y, direction_x, -pivot, heading);
             telemetry.update();
         }
+    }
+
+
+    public static double invertRotation(double heading) {
+        double rawNew = (heading + Math.toRadians(180)) % Math.toRadians(360);
+
+        if (rawNew > Math.toRadians(180)) {
+            rawNew = -(Math.toRadians(360) - rawNew);
+        }
+        return rawNew;
     }
 }

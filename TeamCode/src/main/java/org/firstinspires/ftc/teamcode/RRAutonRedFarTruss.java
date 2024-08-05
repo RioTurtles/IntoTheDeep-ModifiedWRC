@@ -39,6 +39,7 @@ public class RRAutonRedFarTruss extends LinearOpMode {
 
     @Override
     public void runOpMode() throws InterruptedException {
+        Storage.allianceSide = 1;
         Project1Hardware robot = new Project1Hardware();
         robot.init(hardwareMap, telemetry);
         robot.reset();
