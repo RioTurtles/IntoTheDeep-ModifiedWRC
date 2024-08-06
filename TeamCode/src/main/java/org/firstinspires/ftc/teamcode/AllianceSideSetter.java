@@ -15,6 +15,7 @@ public class AllianceSideSetter extends LinearOpMode {
             else if (gamepad1.right_bumper) Storage.allianceSide = 1;
 
             telemetry.addLine("Blue = left bumper\n");
+            telemetry.addLine("Red = right  bumper\n");
             
             if (Storage.allianceSide == 1) telemetry.addData("Side", "Red");
             else if (Storage.allianceSide == -1) telemetry.addData("Side", "Blue");

@@ -15,7 +15,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 
 @Config
 @TeleOp (group = "Peasant Rabbits 2024")
-public class Teleop_v3_WRC extends LinearOpMode {
+public class Teleop_v3_WRC_Red extends LinearOpMode {
     public enum states {
         INIT,
         GROUND,
@@ -44,7 +44,7 @@ public class Teleop_v3_WRC extends LinearOpMode {
 
     int riggingState = 0;
 
-    double[] simpleScoreArmAngle = {123, 120, 115, 110, 105, 100};
+    double[] simpleScoreArmAngle = {120, 115, 110, 105, 100, 95};
     int simpleHeight = 0;
     double boardHeading = -Math.PI / 2;
     boolean scoring_extend = false;
@@ -304,20 +304,15 @@ public class Teleop_v3_WRC extends LinearOpMode {
                 // break;
 
                 case SIMPLE_SCORING:
-                    if (heading > Math.PI / 2) heading -= 2 * Math.PI;
 
-                    if (Storage.allianceSide == 1) {  // Red
-                        double align_output = heading_pid.calculate(
-                                heading, boardHeading
-                        );
-                        pivot = -align_output;
-                    } else if (Storage.allianceSide == -1) {  // Blue
-
-                        double align_output = heading_pid.calculate(
-                                heading, boardHeading
-                        );
-                        pivot = align_output;
+                    if (heading > Math.PI/2) {
+                        heading -= 2 * Math.PI;
                     }
+                    double align_output = heading_pid.calculate (
+                            heading, boardHeading
+                    );
+                    pivot = -align_output;
+
 
                     if (Gamepad1.right_stick_x > 0.1 || Gamepad1.right_stick_x < 0.1) {
                         pivot = Gamepad1.right_stick_x * 0.8;
@@ -326,7 +321,7 @@ public class Teleop_v3_WRC extends LinearOpMode {
                     robot.setArm(simpleScoreArmAngle[simpleHeight]);
                     //robot.arm.setVelocity(1000);
 
-                    if (Gamepad1.triangle && !lastGamepad1.triangle && robot.getArmAngle() > 130) {
+                    if (Gamepad1.triangle && !lastGamepad1.triangle && robot.getArmAngle() > 100) {
                         scoring_extend = !scoring_extend;
                     }
 
@@ -476,21 +471,15 @@ public class Teleop_v3_WRC extends LinearOpMode {
 
             // Auto align
             if (Gamepad1.circle) {
-                if (heading > Math.PI / 2) heading -= 2 * Math.PI;
-
-                if (Storage.allianceSide == 1) {  // Red
-                    double align_output = heading_pid.calculate(
-                            heading, boardHeading
-                    );
-                    pivot = -align_output;
-                } else if (Storage.allianceSide == -1) {  // Blue
-
-                    double align_output = heading_pid.calculate(
-                            heading, boardHeading
-                    );
-                    pivot = align_output;
+                if(heading > Math.PI/2){
+                    heading -= 2 * Math.PI;
                 }
+                double align_output = heading_pid.calculate(
+                        heading, boardHeading
+                );
+                pivot = -align_output;
             }
+
 
 //            telemetry.addData("Encoder Angle (Degrees)", angle);
 //            telemetry.addData("Encoder Angle - Normalized (Degrees)", angleNormalized);
@@ -505,15 +494,5 @@ public class Teleop_v3_WRC extends LinearOpMode {
             drivetrain.remote(direction_y, direction_x, -pivot, heading);
             telemetry.update();
         }
-    }
-
-
-    public static double invertRotation(double heading) {
-        double rawNew = (heading + Math.toRadians(180)) % Math.toRadians(360);
-
-        if (rawNew > Math.toRadians(180)) {
-            rawNew = -(Math.toRadians(360) - rawNew);
-        }
-        return rawNew;
     }
 }
