@@ -218,9 +218,9 @@ public class RRAutonRedCloseStack extends LinearOpMode {
 
                 if (!pathGenerating) {
                     TrajectoryBuilder builder = drive.trajectoryBuilder(nowPose, true);
-                    if (randomizationResult == 3) builder = builder.forward(2);
+                    if (randomizationResult == 3) builder.forward(2);
                     stackGrab = builder
-                            .splineToConstantHeading(new Vector2d(33.93, -9.22), Math.toRadians(180.00))
+                            .splineToConstantHeading(new Vector2d(32.93, -9.22), Math.toRadians(180.00))
                             .splineToConstantHeading(new Vector2d(-49.99, -9.22), Math.toRadians(180.00))
                             .addSpatialMarker(new Vector2d(-52.99, -9.22), setArmStackPosition)
                             .splineToConstantHeading(new Vector2d(-58.71, -9.22), Math.toRadians(180.00), param1, param2)
@@ -306,6 +306,7 @@ public class RRAutonRedCloseStack extends LinearOpMode {
             if (objective == Objective.END) {
                 robot.arm.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
                 robot.arm.setPower(0);
+                Storage.robotPose = drive.getPoseEstimate();
             }
 
             drive.update();

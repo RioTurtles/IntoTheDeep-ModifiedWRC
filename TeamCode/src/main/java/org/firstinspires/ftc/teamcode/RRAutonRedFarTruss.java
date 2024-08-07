@@ -141,7 +141,7 @@ public class RRAutonRedFarTruss extends LinearOpMode {
                 switch (randomizationResult) {
                     case 1: robot.setSlider(100); break;
                     default: case 2: robot.setSlider(400); break;
-                    case 3: robot.setSlider(565); break;
+                    case 3: robot.setSlider(550); break;
                 }
 
                 if (robot.sliderInPosition(5) || timer1.milliseconds() > 3000) {
@@ -156,7 +156,7 @@ public class RRAutonRedFarTruss extends LinearOpMode {
                     robot.arm.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
                     objective = Objective.PATH_TO_YELLOW;
                 } else if (timer1.milliseconds() > 1360 || scoredPurple) {
-                    robot.clawPScoring();
+                    robot.setClawPAngle(160);
                     robot.bothClawClose();
                     robot.retractSlider();
 
@@ -169,10 +169,7 @@ public class RRAutonRedFarTruss extends LinearOpMode {
                             )
                             .splineToConstantHeading(new Vector2d(13.88, -60.08), Math.toRadians(0.00))
                             .splineToConstantHeading(yellowVector, Math.toRadians(0.00))
-                            .addSpatialMarker(new Vector2d(13.88, -60.08), () -> {
-                                robot.setClawPAngle(180);
-                                robot.setArm(146.5);
-                            })
+                            .addSpatialMarker(new Vector2d(13.88, -60.08), () -> robot.setArm(141.5))
                             .build();
                 } else if (timer1.milliseconds() > 0) {
                     robot.rightClawOpen();
@@ -184,6 +181,7 @@ public class RRAutonRedFarTruss extends LinearOpMode {
             if (objective == Objective.PATH_TO_YELLOW) {
                 if (!yReady) {
                     drive.followTrajectory(yellow);
+                    robot.clawPScoring();
                     yReady = true;
                 }
 
@@ -224,6 +222,7 @@ public class RRAutonRedFarTruss extends LinearOpMode {
             if (objective == Objective.END) {
                 robot.arm.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
                 robot.arm.setPower(0);
+                Storage.robotPose = drive.getPoseEstimate();
             }
 
             drive.update();

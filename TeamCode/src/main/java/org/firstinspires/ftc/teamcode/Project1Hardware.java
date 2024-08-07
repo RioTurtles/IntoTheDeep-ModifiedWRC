@@ -19,7 +19,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
  * This class represents the robot object.
  */
 public class Project1Hardware {
-    DcMotor motorFL, motorFR;
+    protected DcMotor motorFL, motorFR;
     DcMotor motorBL, motorBR;
     IMU imu;
     Telemetry telemetry;

@@ -144,7 +144,7 @@ public class RRAutonRedClose extends LinearOpMode {
             if (objective == Objective.SCORE_PURPLE) {
                 robot.clawPIntake();
                 switch (randomizationResult) {
-                    case 1: robot.setSlider(900); break;
+                    case 1: robot.setSlider(875); break;
                     default: case 2: robot.setSlider(400); break;
                     case 3: robot.setSlider(0); break;
                 }
@@ -161,17 +161,18 @@ public class RRAutonRedClose extends LinearOpMode {
                     drive.followTrajectorySequence(yellow);
                 } else if (timer1.milliseconds() > 0) {
                     robot.retractSlider();
-                    robot.setArm(150);
+                    robot.setArm(143);
                 }
 
-                if (robot.getArmAngle() > 135) robot.setSlider(430);
+                if (robot.getArmAngle() > 125) robot.setSlider(460);
 
-                if (robot.slider.getCurrentPosition() > 420 && yReady) {
+                if (robot.slider.getCurrentPosition() > 455 && yReady) {
+                    robot.clawPScoring();
                     timer1.reset();
                     objective = Objective.SCORE_YELLOW;
                 }
 
-                robot.setClawPAngle(180);
+                robot.setClawPAngle(160);
             }
 
             if (objective == Objective.SCORE_YELLOW) {
@@ -208,6 +209,7 @@ public class RRAutonRedClose extends LinearOpMode {
             if (objective == Objective.END) {
                 robot.arm.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
                 robot.arm.setPower(0);
+                Storage.robotPose = drive.getPoseEstimate();
             }
 
             drive.update();

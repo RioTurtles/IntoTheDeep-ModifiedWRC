@@ -83,10 +83,10 @@ public class RRAutonRedFarStage extends LinearOpMode {
                 .splineToSplineHeading(new Pose2d(-29.84, -8.68, Math.toRadians(62.47)), Math.toRadians(65.00))
                 .build();
         TrajectorySequence purpleR = drive.trajectorySequenceBuilder(startPose)
-                .splineToSplineHeading(new Pose2d(-38.39, -15.49, Math.toRadians(125.86)), Math.toRadians(80.00))
+                .splineToSplineHeading(new Pose2d(-38.39, -15.49, Math.toRadians(127.86)), Math.toRadians(80.00))
                 .build();
 
-        MarkerCallback transitionCallback = () -> {robot.setClawPAngle(180); robot.setArm(147.5);};
+        MarkerCallback transitionCallback = () -> robot.setArm(142.5);
         TrajectoryVelocityConstraint param1 = SampleMecanumDrive.getVelocityConstraint(35, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH);
         TrajectoryAccelerationConstraint param2 = SampleMecanumDrive.getAccelerationConstraint(35);
 
@@ -162,8 +162,8 @@ public class RRAutonRedFarStage extends LinearOpMode {
                 robot.clawPIntake();
                 switch (randomizationResult) {
                     case 1: robot.setSlider(650); break;
-                    default: case 2: robot.setSlider(350); break;
-                    case 3: robot.setSlider(550); break;
+                    default: case 2: robot.setSlider(330); break;
+                    case 3: robot.setSlider(530); break;
                 }
 
                 if (robot.sliderInPosition(5) || timer1.milliseconds() > 2060) {
@@ -179,7 +179,7 @@ public class RRAutonRedFarStage extends LinearOpMode {
                     robot.arm.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
                     objective = Objective.PATH_TO_YELLOW;
                 } else if (timer1.milliseconds() > 2360 || scoredPurple) {
-                    robot.clawPScoring();
+                    robot.setClawPAngle(160);
                     robot.retractSlider();
                 } else if (timer1.milliseconds() > 0) {
                     robot.rightClawOpen();
@@ -198,6 +198,7 @@ public class RRAutonRedFarStage extends LinearOpMode {
                     robot.setSlider(430);
 
                     if (robot.slider.getCurrentPosition() > 427) {
+                        robot.clawPScoring();
                         timer1.reset();
                         objective = Objective.SCORE_YELLOW;
                     }
@@ -231,6 +232,7 @@ public class RRAutonRedFarStage extends LinearOpMode {
             if (objective == Objective.END) {
                 robot.arm.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
                 robot.arm.setPower(0);
+                Storage.robotPose = drive.getPoseEstimate();
             }
 
             drive.update();
