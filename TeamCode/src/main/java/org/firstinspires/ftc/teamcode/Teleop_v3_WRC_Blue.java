@@ -23,11 +23,10 @@ public class Teleop_v3_WRC_Blue extends LinearOpMode {
         GROUND_GRIP,
         EXTEND_GRIP,
         READY_SCORE,
-        AUTO_ALIGN,
         SCORING,
         SIMPLE_SCORING,
         RETURN_TO_INIT,
-        PICK
+        DRAW
     }
 
     double direction_y, direction_x, pivot, heading;
@@ -47,8 +46,10 @@ public class Teleop_v3_WRC_Blue extends LinearOpMode {
 
     int[] mosaicScoreSliderLength = {0, 200, 300, 400, 500, 600, 700, 800, 900};
     double[] cycleScoreArmAngle = {145, 140, 135, 130, 125, 120, 115, 110};
+    double[] drawArmAngle = {160, 155, 150, 145, 140, 135, 130, 125, 120};
     int mosaicScoreHeight = 0;
     int  cycleScoreHeight = 0;
+    int drawScoreHeight = 0;
     boolean mosaicMode = true, cycleMode = false;
     double boardHeading = -Math.PI / 2;
     boolean scoring_extend = false;
@@ -111,7 +112,7 @@ public class Teleop_v3_WRC_Blue extends LinearOpMode {
             if (Gamepad2.square) robot.droneLaunch();
 
             if (Gamepad2.circle && !lastGamepad2.circle) {
-                state = states.PICK;
+                state = states.DRAW;
                 timer1.reset();
             }
 
@@ -224,7 +225,8 @@ public class Teleop_v3_WRC_Blue extends LinearOpMode {
                 //Ready for intake, extended slider
                 case GROUND_EXTEND:
                     robot.bothClawOpen();
-                    robot.clawPIntakeExtend();
+
+                    if (timer1.milliseconds() > 400) robot.clawPIntakeExtend();
 
                     direction_x = direction_x * 0.5;
                     direction_y = direction_y * 0.5;
@@ -413,8 +415,11 @@ public class Teleop_v3_WRC_Blue extends LinearOpMode {
                     }
                     break;
 
-                case PICK:
-                    robot.setArm(cycleScoreArmAngle[cycleScoreHeight]);
+                case DRAW:
+                    robot.setArm(drawArmAngle[drawScoreHeight]);
+                    if (Gamepad1.right_trigger > 0 && !(lastGamepad1.right_trigger > 0)) drawScoreHeight += 1;
+                    if (Gamepad1.left_trigger > 0 && !(lastGamepad1.left_trigger > 0)) drawScoreHeight -= 1;
+                    ;
                     if (robot.getArmAngle() > 90) robot.setClawPAngle(80);
 
                     if (Gamepad1.triangle && !lastGamepad1.triangle && robot.getArmAngle() > 100) {
@@ -439,20 +444,12 @@ public class Teleop_v3_WRC_Blue extends LinearOpMode {
             //Arm height placement
             if (mosaicMode) {
                 // mosaic
-                if (Gamepad2.right_bumper && !lastGamepad2.right_bumper) {
+                if (Gamepad2.left_bumper && !lastGamepad2.left_bumper) {
                     mosaicScoreHeight += 1;
                 }
 
-                if (Gamepad2.left_bumper && !lastGamepad2.left_bumper) {
+                if (Gamepad2.right_bumper && !lastGamepad2.right_bumper) {
                     mosaicScoreHeight -= 1;
-                }
-
-                if (mosaicScoreHeight < 0) {
-                    mosaicScoreHeight = 0;
-                }
-
-                if (mosaicScoreHeight > 8) {
-                    mosaicScoreHeight = 8;
                 }
 
                 if (Gamepad2.cross && !lastGamepad2.cross) {
@@ -461,26 +458,42 @@ public class Teleop_v3_WRC_Blue extends LinearOpMode {
                 }
             } else if (cycleMode) {
                 // cycle
-                if (Gamepad2.left_trigger > 0 && !(lastGamepad2.left_trigger > 0)) {
+                if (Gamepad2.right_bumper && !lastGamepad2.right_bumper) {
                     cycleScoreHeight += 1;
                 }
 
-                if (Gamepad2.right_trigger > 0 && !(lastGamepad2.right_trigger > 0)) {
+                if (Gamepad2.left_bumper && !lastGamepad2.left_bumper) {
                     cycleScoreHeight -= 1;
-                }
-
-                if (cycleScoreHeight < 0) {
-                    cycleScoreHeight = 0;
-                }
-
-                if (cycleScoreHeight > 7) {
-                    cycleScoreHeight = 7;
                 }
 
                 if (Gamepad2.triangle && !lastGamepad2.triangle) {
                     mosaicMode = true;
                     cycleMode = false;
                 }
+            }
+
+            if (mosaicScoreHeight < 0) {
+                mosaicScoreHeight = 0;
+            }
+
+            if (mosaicScoreHeight > 8) {
+                mosaicScoreHeight = 8;
+            }
+
+            if (cycleScoreHeight < 0) {
+                cycleScoreHeight = 0;
+            }
+
+            if (cycleScoreHeight > 7) {
+                cycleScoreHeight = 7;
+            }
+
+            if (drawScoreHeight < 0) {
+                drawScoreHeight = 0;
+            }
+
+            if (drawScoreHeight > 8) {
+                drawScoreHeight = 8;
             }
 
             //Rigging

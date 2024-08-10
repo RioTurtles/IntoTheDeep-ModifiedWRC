@@ -15,7 +15,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 
 @Config
 @TeleOp (group = "Peasant Rabbits 2024")
-public class Teleop_v3_WRC_Red extends LinearOpMode {
+public class Teleop_Test extends LinearOpMode {
     public enum states {
         INIT,
         GROUND,
@@ -23,10 +23,11 @@ public class Teleop_v3_WRC_Red extends LinearOpMode {
         GROUND_GRIP,
         EXTEND_GRIP,
         READY_SCORE,
+        AUTO_ALIGN,
         SCORING,
         SIMPLE_SCORING,
         RETURN_TO_INIT,
-        DRAW
+        PICK
     }
 
     double direction_y, direction_x, pivot, heading;
@@ -46,10 +47,10 @@ public class Teleop_v3_WRC_Red extends LinearOpMode {
 
     int[] mosaicScoreSliderLength = {0, 200, 300, 400, 500, 600, 700, 800, 900};
     double[] cycleScoreArmAngle = {145, 140, 135, 130, 125, 120, 115, 110};
-    double[] drawArmAngle = {160, 155, 150, 145, 140, 135, 130, 125, 120};
+    double[] pickArmAngle = {160, 155, 145, 140, 135, 130, 125, 120, 115, 110};
     int mosaicScoreHeight = 0;
     int  cycleScoreHeight = 0;
-    int drawScoreHeight = 0;
+    int pickScoreHeight = 0;
     boolean mosaicMode = true, cycleMode = false;
     double boardHeading = -Math.PI / 2;
     boolean scoring_extend = false;
@@ -73,7 +74,7 @@ public class Teleop_v3_WRC_Red extends LinearOpMode {
 
         robot.bothClawClose();
         robot.setArm(-12);
-        robot.setClawPAngle(180);
+        robot.setClawPAngle(0);
         robot.setSlider(0);
 
         waitForStart();
@@ -112,7 +113,7 @@ public class Teleop_v3_WRC_Red extends LinearOpMode {
             if (Gamepad2.square) robot.droneLaunch();
 
             if (Gamepad2.circle && !lastGamepad2.circle) {
-                state = states.DRAW;
+                state = states.PICK;
                 timer1.reset();
             }
 
@@ -401,7 +402,7 @@ public class Teleop_v3_WRC_Red extends LinearOpMode {
                         robot.setArm(0);
                     }
                     // robot.arm.setVelocity(1600);
-                    
+
                     if (robot.getArmAngle() > 70 && robot.getArmAngle() < 100) {
                         robot.bothClawClose();
                     }
@@ -416,10 +417,10 @@ public class Teleop_v3_WRC_Red extends LinearOpMode {
                     }
                     break;
 
-                case DRAW:
-                    robot.setArm(drawArmAngle[drawScoreHeight]);
-                    if (Gamepad1.right_trigger > 0 && !(lastGamepad1.right_trigger > 0)) drawScoreHeight += 1;
-                    if (Gamepad1.left_trigger > 0 && !(lastGamepad1.left_trigger > 0)) drawScoreHeight -= 1;
+                case PICK:
+                    robot.setArm(pickArmAngle[pickScoreHeight]);
+                    if (Gamepad1.right_trigger > 0 && !(lastGamepad1.right_trigger > 0)) pickScoreHeight += 1;
+                    if (Gamepad1.left_trigger > 0 && !(lastGamepad1.left_trigger > 0)) pickScoreHeight -= 1;
                     ;
                     if (robot.getArmAngle() > 90) robot.setClawPAngle(80);
 
@@ -489,12 +490,12 @@ public class Teleop_v3_WRC_Red extends LinearOpMode {
                 cycleScoreHeight = 7;
             }
 
-            if (drawScoreHeight < 0) {
-                drawScoreHeight = 0;
+            if (pickScoreHeight < 0) {
+                pickScoreHeight = 0;
             }
 
-            if (drawScoreHeight > 8) {
-                drawScoreHeight = 8;
+            if (pickScoreHeight > 8) {
+                pickScoreHeight = 8;
             }
 
             //Rigging
