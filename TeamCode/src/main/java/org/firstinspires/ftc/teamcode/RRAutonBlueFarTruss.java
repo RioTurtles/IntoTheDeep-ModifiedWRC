@@ -3,12 +3,8 @@ package org.firstinspires.ftc.teamcode;
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.roadrunner.geometry.Pose2d;
 import com.acmerobotics.roadrunner.geometry.Vector2d;
-import com.acmerobotics.roadrunner.trajectory.MarkerCallback;
 import com.acmerobotics.roadrunner.trajectory.Trajectory;
-import com.acmerobotics.roadrunner.trajectory.constraints.TrajectoryAccelerationConstraint;
-import com.acmerobotics.roadrunner.trajectory.constraints.TrajectoryVelocityConstraint;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
-import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.util.ElapsedTime;
@@ -28,9 +24,9 @@ import org.openftc.easyopencv.OpenCvCameraRotation;
 import org.openftc.easyopencv.OpenCvPipeline;
 import org.openftc.easyopencv.OpenCvWebcam;
 
-@Disabled
-@Autonomous(name="2+0 Blue Far, Stage Door")
-public class RRAutonBlueFarStage extends LinearOpMode {
+
+@Autonomous(name="2+0 Blue Far, Truss")
+public class RRAutonBlueFarTruss extends LinearOpMode {
     Objective objective = Objective.INITIALISE;
     OpenCvWebcam webcam;
     int randomizationResult = 2;
@@ -40,8 +36,7 @@ public class RRAutonBlueFarStage extends LinearOpMode {
 
     TrajectorySequence purple, park;
     Trajectory yellow;
-    Trajectory yellowLL, yellowML, yellowRL;
-    Trajectory yellowLR, yellowMR, yellowRR;
+    Vector2d yellowVector;
 
     @Override
     public void runOpMode() throws InterruptedException {
@@ -79,66 +74,48 @@ public class RRAutonBlueFarStage extends LinearOpMode {
         drive.setPoseEstimate(startPose);
 
         TrajectorySequence purpleL = drive.trajectorySequenceBuilder(startPose)
-                .splineToSplineHeading(new Pose2d(-38.39, 15.49, Math.toRadians(234.14)), Math.toRadians(280.00))
+                .lineToLinearHeading(new Pose2d(-44.61, 44.99, Math.toRadians(220.00)))
+                .addTemporalMarker(() -> {
+                    timer1.reset();
+                    objective = Objective.SCORE_PURPLE;
+                })
                 .build();
         TrajectorySequence purpleM = drive.trajectorySequenceBuilder(startPose)
-                .splineToSplineHeading(new Pose2d(-29.84, 8.68, Math.toRadians(297.53)), Math.toRadians(295.00))
+                .lineToLinearHeading(new Pose2d(-44.61, 44.99, Math.toRadians(260.00)))
+                .addTemporalMarker(() -> {
+                    timer1.reset();
+                    objective = Objective.SCORE_PURPLE;
+                })
                 .build();
         TrajectorySequence purpleR = drive.trajectorySequenceBuilder(startPose)
-                .splineToSplineHeading(new Pose2d(-30.22, 10.33, Math.toRadians(305.00)), Math.toRadians(295.00))
+                .lineToLinearHeading(new Pose2d(-44.61, 44.99, Math.toRadians(295.00)))
+                .addTemporalMarker(() -> {
+                    timer1.reset();
+                    objective = Objective.SCORE_PURPLE;
+                })
                 .build();
 
-        MarkerCallback transitionCallback = () -> {robot.setClawPAngle(180); robot.setArm(147.5);};
-        TrajectoryVelocityConstraint param1 = SampleMecanumDrive.getVelocityConstraint(35, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH);
-        TrajectoryAccelerationConstraint param2 = SampleMecanumDrive.getAccelerationConstraint(35);
+        Vector2d yellowLL = new Vector2d(35.20, 39.46);
+        Vector2d yellowML = new Vector2d(35.20, 32.01);
+        Vector2d yellowRL = new Vector2d(35.20, 24.01);
 
-        yellowLL = drive.trajectoryBuilder(purpleL.end())
-                .splineToSplineHeading(new Pose2d(-20.91, 14.44, Math.toRadians(0.00)), Math.toRadians(0.00))
-                .splineTo(new Vector2d(30.48, 14.44), Math.toRadians(0.00))
-                .addSpatialMarker(new Vector2d(30.48, 14.44), transitionCallback)
-                .splineToConstantHeading(new Vector2d(35.20, 39.01), Math.toRadians(-60.00), param1, param2)
-                .build();
-        yellowML = drive.trajectoryBuilder(purpleM.end())
-                .lineToSplineHeading(new Pose2d(30.48, 14.44, Math.toRadians(0.00)))
-                .addSpatialMarker(new Vector2d(30.48, 14.44), transitionCallback)
-                .splineToConstantHeading(new Vector2d(35.20, 33.51), Math.toRadians(-50.00), param1, param2)
-                .build();
-        yellowRL = drive.trajectoryBuilder(purpleR.end())
-                .lineToSplineHeading(new Pose2d(30.48, 14.44, Math.toRadians(0.00)))
-                .addSpatialMarker(new Vector2d(30.48, 14.44), transitionCallback)
-                .splineToConstantHeading(new Vector2d(35.20, 27.61), Math.toRadians(-45.00), param1, param2)
-                .build();
-
-        yellowLR = drive.trajectoryBuilder(purpleL.end())
-                .splineToSplineHeading(new Pose2d(-20.91, 14.44, Math.toRadians(0.00)), Math.toRadians(0.00))
-                .splineTo(new Vector2d(30.48, 14.44), Math.toRadians(0.00))
-                .addSpatialMarker(new Vector2d(30.48, 14.44), transitionCallback)
-                .splineToConstantHeading(new Vector2d(35.20, 41.61), Math.toRadians(-60.00), param1, param2)
-                .build();
-        yellowMR = drive.trajectoryBuilder(purpleM.end())
-                .lineToSplineHeading(new Pose2d(30.48, 14.44, Math.toRadians(0.00)))
-                .addSpatialMarker(new Vector2d(30.48, 14.44), transitionCallback)
-                .splineToConstantHeading(new Vector2d(35.20, 36.51), Math.toRadians(-50.00), param1, param2)
-                .build();
-        yellowRR = drive.trajectoryBuilder(purpleR.end())
-                .lineToSplineHeading(new Pose2d(30.48, 12.84, Math.toRadians(0.00)))
-                .addSpatialMarker(new Vector2d(30.48, 14.44), transitionCallback)
-                .splineToConstantHeading(new Vector2d(35.20, 30.31), Math.toRadians(-45.00), param1, param2)
-                .build();
+        Vector2d yellowLR = new Vector2d(35.20, 41.36);
+        Vector2d yellowMR = new Vector2d(35.20, 34.21);
+        Vector2d yellowRR = new Vector2d(35.20, 26.01);
 
         waitForStart();
         switch (randomizationResult) {
             case 1:
-                if (scoreRight) yellow = yellowLR; else yellow = yellowLL;
+                if (scoreRight) yellowVector = yellowLR; else yellowVector = yellowLL;
                 purple = purpleL;
                 break;
             default:
             case 2:
-                if (scoreRight) yellow = yellowMR; else yellow = yellowML;
+                if (scoreRight) yellowVector = yellowMR; else yellowVector = yellowML;
                 purple = purpleM;
                 break;
             case 3:
-                if (scoreRight) yellow = yellowRR; else yellow = yellowRL;
+                if (scoreRight) yellowVector = yellowRR; else yellowVector = yellowRL;
                 purple = purpleR;
                 break;
         }
@@ -164,25 +141,37 @@ public class RRAutonBlueFarStage extends LinearOpMode {
                 robot.clawPIntake();
                 switch (randomizationResult) {
                     case 1: robot.setSlider(550); break;
-                    default: case 2: robot.setSlider(350); break;
-                    case 3: robot.setSlider(650); break;
+                    default: case 2: robot.setSlider(400); break;
+                    case 3: robot.setSlider(100); break;
                 }
 
-                if (robot.sliderInPosition(5) || timer1.milliseconds() > 2060) {
+                if (robot.sliderInPosition(5) || timer1.milliseconds() > 3000) {
                     objective = Objective.SCORE_PURPLE;
                     timer1.reset();
                 }
             }
 
             if (objective == Objective.SCORE_PURPLE) {
-                if (timer1.milliseconds() > 2760 || scoredPurple && timer2.milliseconds() > 300) {
-                    robot.bothClawClose();
+                if (timer1.milliseconds() > 1760 || scoredPurple && timer2.milliseconds() > 300) {
                     robot.arm.setPower(0);
                     robot.arm.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
                     objective = Objective.PATH_TO_YELLOW;
-                } else if (timer1.milliseconds() > 2360 || scoredPurple) {
-                    robot.clawPScoring();
+                } else if (timer1.milliseconds() > 1360 || scoredPurple) {
+                    robot.setClawPAngle(160);
+                    robot.bothClawClose();
                     robot.retractSlider();
+
+                    yellow = drive.trajectoryBuilder(nowPose)
+                            .splineToSplineHeading(
+                                    new Pose2d(-32.51, 60.08, Math.toRadians(0.00)),
+                                    Math.toRadians(0.00),
+                                    SampleMecanumDrive.getVelocityConstraint(30, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
+                                    SampleMecanumDrive.getAccelerationConstraint(17.5)
+                            )
+                            .splineToConstantHeading(new Vector2d(13.88, 60.08), Math.toRadians(0.00))
+                            .splineToConstantHeading(yellowVector, Math.toRadians(0.00))
+                            .addSpatialMarker(new Vector2d(13.88, 60.08), () -> robot.setArm(141.5))
+                            .build();
                 } else if (timer1.milliseconds() > 0) {
                     robot.rightClawOpen();
                     scoredPurple = true;
@@ -193,13 +182,14 @@ public class RRAutonBlueFarStage extends LinearOpMode {
             if (objective == Objective.PATH_TO_YELLOW) {
                 if (!yReady) {
                     drive.followTrajectory(yellow);
+                    robot.clawPScoring();
                     yReady = true;
                 }
 
                 if ((robot.getArmAngle() > 135) && yReady) {
-                    robot.setSlider(430);
+                    robot.setSlider(470);
 
-                    if (robot.slider.getCurrentPosition() > 427) {
+                    if (robot.slider.getCurrentPosition() > 467) {
                         timer1.reset();
                         objective = Objective.SCORE_YELLOW;
                     }
@@ -233,6 +223,7 @@ public class RRAutonBlueFarStage extends LinearOpMode {
             if (objective == Objective.END) {
                 robot.arm.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
                 robot.arm.setPower(0);
+                Storage.robotPose = drive.getPoseEstimate();
             }
 
             drive.update();
