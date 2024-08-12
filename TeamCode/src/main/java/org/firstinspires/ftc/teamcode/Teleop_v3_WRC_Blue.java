@@ -23,10 +23,10 @@ public class Teleop_v3_WRC_Blue extends LinearOpMode {
         GROUND_GRIP,
         EXTEND_GRIP,
         READY_SCORE,
-        AUTO_ALIGN,
         SCORING,
         SIMPLE_SCORING,
         RETURN_TO_INIT,
+        DRAW
     }
 
     double direction_y, direction_x, pivot, heading;
@@ -38,14 +38,19 @@ public class Teleop_v3_WRC_Blue extends LinearOpMode {
 
     int position;
 
-    ElapsedTime Timer1 = new ElapsedTime();
+    ElapsedTime timer1 = new ElapsedTime();
     // int state = 0;
     states state = states.INIT;
 
     int riggingState = 0;
 
-    double[] simpleScoreArmAngle = {120, 115, 110, 105, 100, 95};
-    int simpleHeight = 0;
+    int[] mosaicScoreSliderLength = {0, 200, 300, 400, 500, 600, 700, 800, 900};
+    double[] cycleScoreArmAngle = {145, 140, 135, 130, 125, 120, 115, 110};
+    double[] drawArmAngle = {160, 155, 150, 145, 140, 135, 130, 125, 120};
+    int mosaicScoreHeight = 0;
+    int  cycleScoreHeight = 0;
+    int drawScoreHeight = 0;
+    boolean mosaicMode = true, cycleMode = false;
     double boardHeading = -Math.PI / 2;
     boolean scoring_extend = false;
     PIDController heading_pid = new PIDController(kP, kI, kD);
@@ -102,12 +107,13 @@ public class Teleop_v3_WRC_Blue extends LinearOpMode {
             angleNormalized = angle % 360;
             heading_pid.setPID(kP, kI, kD);
 
-            if (Gamepad1.options) {
-                robot.imu.resetYaw();
-            }
+            if (Gamepad1.options) robot.imu.resetYaw();
 
-            if (Gamepad1.square || Gamepad2.square) {
-                robot.droneLaunch();
+            if (Gamepad2.square) robot.droneLaunch();
+
+            if (Gamepad2.circle && !lastGamepad2.circle) {
+                state = states.DRAW;
+                timer1.reset();
             }
 
             /*if (state == 99){
@@ -156,12 +162,12 @@ public class Teleop_v3_WRC_Blue extends LinearOpMode {
 
                     if (Gamepad1.right_bumper && !lastGamepad1.right_bumper) {
                         state = states.GROUND;
-                        Timer1.reset();
+                        timer1.reset();
                     }
                     //jump to scoring
                     if (Gamepad1.left_trigger > 0.3 && Gamepad1.right_trigger > 0.3) {
                         state = states.SIMPLE_SCORING;
-                        Timer1.reset();
+                        timer1.reset();
                     }
                     break;
 
@@ -172,7 +178,7 @@ public class Teleop_v3_WRC_Blue extends LinearOpMode {
                     robot.arm.setPower(0);
                     robot.arm.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
 
-                    if (Timer1.milliseconds() > 100) {
+                    if (timer1.milliseconds() > 100) {
                         robot.bothClawOpen();
                     }
                     if (Gamepad1.right_trigger > 0 && !(lastGamepad1.right_trigger > 0)) {
@@ -181,12 +187,12 @@ public class Teleop_v3_WRC_Blue extends LinearOpMode {
 
                     if (Gamepad1.right_bumper && !lastGamepad1.right_bumper) {
                         state = states.GROUND_GRIP;
-                        Timer1.reset();
+                        timer1.reset();
                     }
 
                     if (Gamepad1.left_bumper && !lastGamepad1.left_bumper) {
                         state = states.INIT;
-                        Timer1.reset();
+                        timer1.reset();
                     }
                     break;
 
@@ -208,18 +214,19 @@ public class Teleop_v3_WRC_Blue extends LinearOpMode {
                     }
                     if (Gamepad1.right_bumper && !lastGamepad1.right_bumper) {
                         state = states.READY_SCORE;
-                        Timer1.reset();
+                        timer1.reset();
                     }
                     if (Gamepad1.left_bumper && !lastGamepad1.left_bumper) {
                         state = states.GROUND;
-                        Timer1.reset();
+                        timer1.reset();
                     }
                     break;
 
                 //Ready for intake, extended slider
                 case GROUND_EXTEND:
                     robot.bothClawOpen();
-                    robot.clawPIntakeExtend();
+
+                    if (timer1.milliseconds() > 400) robot.clawPIntakeExtend();
 
                     direction_x = direction_x * 0.5;
                     direction_y = direction_y * 0.5;
@@ -230,16 +237,16 @@ public class Teleop_v3_WRC_Blue extends LinearOpMode {
 
                     if (Gamepad1.right_bumper && !lastGamepad1.right_bumper) {
                         state = states.EXTEND_GRIP;
-                        Timer1.reset();
+                        timer1.reset();
                     }
                     if (Gamepad1.left_bumper && !lastGamepad1.left_bumper) {
                         state = states.GROUND;
-                        Timer1.reset();
+                        timer1.reset();
                     }
 
                     if (Gamepad1.right_trigger > 0 && !(lastGamepad1.right_trigger > 0)) {
                         state = states.GROUND;
-                        Timer1.reset();
+                        timer1.reset();
                     }
                     break;
 
@@ -250,7 +257,7 @@ public class Teleop_v3_WRC_Blue extends LinearOpMode {
                     robot.setSlider(900);
                     robot.clawPIntakeExtend();
 
-                    if (Timer1.milliseconds() > 200) {
+                    if (timer1.milliseconds() > 200) {
                         if (Gamepad1.right_trigger > 0) {
                             robot.rightClawOpen();
                         } else {
@@ -266,33 +273,35 @@ public class Teleop_v3_WRC_Blue extends LinearOpMode {
 
                     if (Gamepad1.right_bumper && !lastGamepad1.right_bumper) {
                         state = states.READY_SCORE;
-                        Timer1.reset();
+                        timer1.reset();
                     }
                     if (Gamepad1.left_bumper && !lastGamepad1.left_bumper) {
                         state = states.GROUND_EXTEND;
-                        Timer1.reset();
+                        timer1.reset();
                     }
                     break;
 
                 //Retract slider and pixels possessed
                 case READY_SCORE:
-                    if (Timer1.milliseconds() > 1000) {
+                    if (timer1.milliseconds() > 300) {
                         robot.arm.setPower(0);
                         robot.arm.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
                     }
                     scoring_extend = false;
 
                     robot.bothClawClose();
-                    robot.setClawPAngle(180);
+                    if (timer1.milliseconds() > 400) {
+                        robot.setClawPAngle(180);
+                    }
                     robot.retractSlider();
 
                     if (Gamepad1.right_bumper && !lastGamepad1.right_bumper) {
                         state = states.SIMPLE_SCORING;
-                        Timer1.reset();
+                        timer1.reset();
                     }
                     if (Gamepad1.left_bumper && !lastGamepad1.left_bumper) {
                         state = states.GROUND;
-                        Timer1.reset();
+                        timer1.reset();
                     }
                     break;
 
@@ -304,6 +313,7 @@ public class Teleop_v3_WRC_Blue extends LinearOpMode {
                 // break;
 
                 case SIMPLE_SCORING:
+
                     if (heading < -Math.PI / 2) heading += 2 * Math.PI;
 
                     double align_output = heading_pid.calculate(
@@ -311,21 +321,40 @@ public class Teleop_v3_WRC_Blue extends LinearOpMode {
                     );
                     pivot = -align_output;
 
+
                     if (Gamepad1.right_stick_x > 0.1 || Gamepad1.right_stick_x < 0.1) {
                         pivot = Gamepad1.right_stick_x * 0.8;
                     }
 
-                    robot.setArm(simpleScoreArmAngle[simpleHeight]);
-                    //robot.arm.setVelocity(1000);
+                    if (mosaicMode) {
+                        //mosaic
+                        //robot.arm.setVelocity(1000);
 
-                    if (Gamepad1.triangle && !lastGamepad1.triangle && robot.getArmAngle() > 100) {
-                        scoring_extend = !scoring_extend;
-                    }
+                        if (Gamepad1.triangle && !lastGamepad1.triangle && robot.getArmAngle() > 100) {
+                            scoring_extend = !scoring_extend;
+                        }
 
-                    if (scoring_extend) {
-                        robot.setSlider(900);
-                    } else {
-                        robot.setSlider(0);
+                        if (scoring_extend) {
+                            robot.setSlider(mosaicScoreSliderLength[mosaicScoreHeight]);
+                        } else {
+                            robot.setSlider(0);
+                        }
+
+                        if (mosaicScoreHeight == 0) robot.setArm(140);
+                        else robot.setArm(120);
+                    } else if (cycleMode) {
+                        //cycle
+                        robot.setArm(cycleScoreArmAngle[cycleScoreHeight]);
+
+                        if (Gamepad1.triangle && !lastGamepad1.triangle && robot.getArmAngle() > 100) {
+                            scoring_extend = !scoring_extend;
+                        }
+
+                        if (scoring_extend) {
+                            robot.setSlider(900);
+                        } else {
+                            robot.setSlider(0);
+                        }
                     }
 
                     if (robot.getArmAngle() > 70) {
@@ -345,12 +374,12 @@ public class Teleop_v3_WRC_Blue extends LinearOpMode {
 
                     if (Gamepad1.right_bumper && !lastGamepad1.right_bumper) {
                         state = states.RETURN_TO_INIT;
-                        Timer1.reset();
+                        timer1.reset();
                     }
                     if (Gamepad1.left_bumper && !lastGamepad1.left_bumper) {
                         state = states.READY_SCORE;
                         robot.setArm(0);
-                        Timer1.reset();
+                        timer1.reset();
                     }
                     break;
 
@@ -359,9 +388,22 @@ public class Teleop_v3_WRC_Blue extends LinearOpMode {
                 case RETURN_TO_INIT:
                     scoring_extend = false;
 
-                    robot.setArm(0);
-                    // robot.arm.setVelocity(1600);
+                    boolean delayNeeded = false;
+                    int diff = robot.slider.getTargetPosition() - 600;
+                    if (diff > 0) delayNeeded = true;
+
                     robot.retractSlider();
+
+                    if (delayNeeded) {
+                        if (timer1.milliseconds() > diff * 6) robot.setArm(0);
+                    } else {
+                        robot.setArm(0);
+                    }
+                    // robot.arm.setVelocity(1600);
+
+                    if (robot.getArmAngle() > 70 && robot.getArmAngle() < 100) {
+                        robot.bothClawClose();
+                    }
 
                     if (robot.getArmAngle() < 130) {
                         robot.setClawPAngle(180);
@@ -369,30 +411,93 @@ public class Teleop_v3_WRC_Blue extends LinearOpMode {
 
                     if (robot.getArmAngle() < 0) {
                         state = states.INIT;
-                        Timer1.reset();
+                        timer1.reset();
                     }
                     break;
+
+                case DRAW:
+                    robot.setArm(drawArmAngle[drawScoreHeight]);
+                    if (Gamepad1.right_trigger > 0 && !(lastGamepad1.right_trigger > 0)) drawScoreHeight += 1;
+                    if (Gamepad1.left_trigger > 0 && !(lastGamepad1.left_trigger > 0)) drawScoreHeight -= 1;
+                    ;
+                    if (robot.getArmAngle() > 90) robot.setClawPAngle(80);
+
+                    if (Gamepad1.triangle && !lastGamepad1.triangle && robot.getArmAngle() > 100) {
+                        scoring_extend = !scoring_extend;
+                    }
+
+                    if (scoring_extend) {
+                        robot.setSlider(mosaicScoreSliderLength[mosaicScoreHeight]);
+                    } else {
+                        robot.setSlider(0);
+                    }
+
+                    if (Gamepad1.right_bumper && !lastGamepad1.right_bumper) {
+                        state = states.RETURN_TO_INIT;
+                        timer1.reset();
+                    }
+                    if (Gamepad1.left_bumper && !lastGamepad1.left_bumper) {
+                        state = states.INIT;
+                    }
             }
 
             //Arm height placement
-            if (Gamepad1.dpad_up && !lastGamepad1.dpad_up || Gamepad2.dpad_up && !lastGamepad2.dpad_up) {
-                simpleHeight += 1;
+            if (mosaicMode) {
+                // mosaic
+                if (Gamepad2.left_bumper && !lastGamepad2.left_bumper) {
+                    mosaicScoreHeight += 1;
+                }
+
+                if (Gamepad2.right_bumper && !lastGamepad2.right_bumper) {
+                    mosaicScoreHeight -= 1;
+                }
+
+                if (Gamepad2.cross && !lastGamepad2.cross) {
+                    mosaicMode = false;
+                    cycleMode = true;
+                }
+            } else if (cycleMode) {
+                // cycle
+                if (Gamepad2.right_bumper && !lastGamepad2.right_bumper) {
+                    cycleScoreHeight += 1;
+                }
+
+                if (Gamepad2.left_bumper && !lastGamepad2.left_bumper) {
+                    cycleScoreHeight -= 1;
+                }
+
+                if (Gamepad2.triangle && !lastGamepad2.triangle) {
+                    mosaicMode = true;
+                    cycleMode = false;
+                }
             }
 
-            if (Gamepad1.dpad_down && !lastGamepad1.dpad_down || Gamepad2.dpad_down && !lastGamepad2.dpad_down) {
-                simpleHeight -= 1;
+            if (mosaicScoreHeight < 0) {
+                mosaicScoreHeight = 0;
             }
 
-            if (simpleHeight < 0) {
-                simpleHeight = 0;
+            if (mosaicScoreHeight > 8) {
+                mosaicScoreHeight = 8;
             }
 
-            if (simpleHeight > 5) {
-                simpleHeight = 5;
+            if (cycleScoreHeight < 0) {
+                cycleScoreHeight = 0;
+            }
+
+            if (cycleScoreHeight > 7) {
+                cycleScoreHeight = 7;
+            }
+
+            if (drawScoreHeight < 0) {
+                drawScoreHeight = 0;
+            }
+
+            if (drawScoreHeight > 8) {
+                drawScoreHeight = 8;
             }
 
             //Rigging
-            /*if (riggingState == 0) {
+            if (riggingState == 0) {
                 robot.rRiggingUp.setPwmDisable();
                 robot.lRiggingUp.setPwmDisable();
             }
@@ -431,7 +536,7 @@ public class Teleop_v3_WRC_Blue extends LinearOpMode {
                     robot.lRigging.setPower(0);
                     robot.rRigging.setPower(0);
                 }
-            }*/
+            }
 
             if (Gamepad1.dpad_left && !lastGamepad1.dpad_left) {
                 riggingState += 1;
@@ -453,7 +558,17 @@ public class Teleop_v3_WRC_Blue extends LinearOpMode {
                 riggingState = 0;
             }
 
-           /* if (Gamepad1.cross) {
+            // Auto align
+            if (Gamepad1.circle) {
+                if (heading < -Math.PI / 2) heading += 2 * Math.PI;
+
+                double align_output = heading_pid.calculate(
+                        heading, -boardHeading
+                );
+                pivot = -align_output;
+            }
+
+            /* if (Gamepad1.cross) {
                 pivot = heading - boardHeading;
 
                 if (pivot > Math.PI) {
@@ -466,16 +581,6 @@ public class Teleop_v3_WRC_Blue extends LinearOpMode {
                 //boardHeading = pivot;
             }*/
 
-            // Auto align
-            if (Gamepad1.circle) {
-                if (heading < -Math.PI / 2) heading += 2 * Math.PI;
-
-                double align_output = heading_pid.calculate(
-                        heading, -boardHeading
-                );
-                pivot = -align_output;
-            }
-
 
 //            telemetry.addData("Encoder Angle (Degrees)", angle);
 //            telemetry.addData("Encoder Angle - Normalized (Degrees)", angleNormalized);
@@ -484,11 +589,17 @@ public class Teleop_v3_WRC_Blue extends LinearOpMode {
             telemetry.addData("RiggingState", riggingState);
             telemetry.addLine();
             telemetry.addData("arm", robot.getArmAngle());
-            telemetry.addData("Arm height", simpleHeight);
-            telemetry.addData("heading", Math.toDegrees(heading));
+            telemetry.addData("slider", robot.slider.getCurrentPosition());
+            telemetry.addLine();
 
-            drivetrain.remote(direction_y, direction_x, -pivot, heading);
+            if (mosaicMode) telemetry.addData("Mode", "Mosaic");
+            else telemetry.addData("Mode", "Cycle");
+
+            telemetry.addData("Arm height", mosaicScoreSliderLength[mosaicScoreHeight]);
+            telemetry.addData("Slider extension", cycleScoreArmAngle[cycleScoreHeight]);
+
             telemetry.update();
+            drivetrain.remote(direction_y, direction_x, -pivot, heading);
         }
     }
 }
