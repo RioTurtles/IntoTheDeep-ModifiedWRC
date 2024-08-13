@@ -88,7 +88,10 @@ public class Project1Hardware {
         slider.setDirection(DcMotorEx.Direction.FORWARD);
         arm.setDirection(DcMotorEx.Direction.FORWARD);
         lRigging.setDirection(DcMotorEx.Direction.REVERSE);
-        rRigging.setDirection(DcMotorSimple.Direction.FORWARD);
+        rRigging.setDirection(DcMotorEx.Direction.FORWARD);
+
+        lRiggingUp.setDirection(ServoImplEx.Direction.FORWARD);
+        rRiggingUp.setDirection(ServoImplEx.Direction.REVERSE);
         leftClaw.setDirection(ServoImplEx.Direction.FORWARD);
         rightClaw.setDirection(ServoImplEx.Direction.REVERSE);
         //clawP.setDirection(ServoImplEx.Direction.REVERSE);
@@ -130,13 +133,14 @@ public class Project1Hardware {
     }
     //Movements
     public void extendRiggingServo() {
-        lRiggingUp.setPosition(0.5);
+        // lRiggingUp.setPosition(0.5);
+        lRiggingUp.setPosition(1);
         rRiggingUp.setPosition(1);
     }
-    public void retractRiggingServo() {
+    /* public void retractRiggingServo() {
         lRiggingUp.setPosition(0);
         rRiggingUp.setPosition(0);
-    }
+    }*/
     public void retractRiggingMotor() {
         lRigging.setPower(-1);
         rRigging.setPower(-1);

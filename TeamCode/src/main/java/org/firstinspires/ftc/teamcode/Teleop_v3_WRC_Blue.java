@@ -1,6 +1,8 @@
 package org.firstinspires.ftc.teamcode;
 
+import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.config.Config;
+import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
@@ -59,6 +61,7 @@ public class Teleop_v3_WRC_Blue extends LinearOpMode {
     public void runOpMode() throws InterruptedException {
         Project1Hardware robot = new Project1Hardware();
         MecanumDrive drivetrain = new MecanumDrive(robot);
+        MultipleTelemetry telemetry1 = new MultipleTelemetry(telemetry, FtcDashboard.getInstance().getTelemetry());
         robot.init(hardwareMap, telemetry);
         robot.reset();
 
@@ -538,6 +541,10 @@ public class Teleop_v3_WRC_Blue extends LinearOpMode {
                 }
             }
 
+            if (riggingState > 0) {
+                pivot = Gamepad1.right_stick_x * 0.8;
+            }
+
             if (Gamepad1.dpad_left && !lastGamepad1.dpad_left) {
                 riggingState += 1;
             }
@@ -546,9 +553,9 @@ public class Teleop_v3_WRC_Blue extends LinearOpMode {
                 riggingState -= 1;
             }
 
-            if (Gamepad1.dpad_left && Gamepad1.dpad_right) {
+            /*if (Gamepad1.dpad_left && Gamepad1.dpad_right) {
                 robot.retractRiggingServo();
-            }
+            }*/
 
             if (riggingState > 3) {
                 riggingState = 3;

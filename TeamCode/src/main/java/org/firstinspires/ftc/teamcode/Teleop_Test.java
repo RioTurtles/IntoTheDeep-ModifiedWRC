@@ -548,10 +548,6 @@ public class Teleop_Test extends LinearOpMode {
                 riggingState -= 1;
             }
 
-            if (Gamepad1.dpad_left && Gamepad1.dpad_right) {
-                robot.retractRiggingServo();
-            }
-
             if (riggingState > 3) {
                 riggingState = 3;
             }
