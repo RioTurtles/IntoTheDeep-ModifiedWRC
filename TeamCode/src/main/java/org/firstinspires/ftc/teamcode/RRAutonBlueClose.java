@@ -91,16 +91,16 @@ public class RRAutonBlueClose extends LinearOpMode {
                 .addTemporalMarker(() -> yReady = true)
                 .build();
         yellowRL = drive.trajectorySequenceBuilder(purpleR.end())
-                .lineToConstantHeading(new Vector2d(35.20, 26.01))
+                .lineToConstantHeading(new Vector2d(35.20, 26.81))
                 .addTemporalMarker(() -> yReady = true)
                 .build();
 
         yellowLR = drive.trajectorySequenceBuilder(purpleL.end())
-                .lineToConstantHeading(new Vector2d(35.20, 39.51))
+                .lineToConstantHeading(new Vector2d(35.20, 37.51))
                 .addTemporalMarker(() -> yReady = true)
                 .build();
         yellowMR = drive.trajectorySequenceBuilder(purpleM.end())
-                .lineToConstantHeading(new Vector2d(35.20, 33.91))
+                .lineToConstantHeading(new Vector2d(35.20, 30.81))
                 .addTemporalMarker(() -> yReady = true)
                 .build();
         yellowRR = drive.trajectorySequenceBuilder(purpleR.end())
@@ -191,12 +191,12 @@ public class RRAutonBlueClose extends LinearOpMode {
 
                 if (parkLeft) {
                     park = drive.trajectorySequenceBuilder(nowPose)
-                            .lineToLinearHeading(new Pose2d(50.97, 62.18, Math.toRadians(-90.00)))
+                            .lineToLinearHeading(new Pose2d(48.97, 62.18, Math.toRadians(-90.00)))
                             .addTemporalMarker(() -> objective = Objective.END)
                             .build();
                 } else {
                     park = drive.trajectorySequenceBuilder(nowPose)
-                            .lineToLinearHeading(new Pose2d(50.97, 11.06, Math.toRadians(-90.00)))
+                            .lineToLinearHeading(new Pose2d(48.97, 11.06, Math.toRadians(-90.00)))
                             .addTemporalMarker(() -> objective = Objective.END)
                             .build();
                 }
