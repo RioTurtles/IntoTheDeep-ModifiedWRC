@@ -258,7 +258,10 @@ public class Project1Hardware {
     }
     public void clawPScoring() {
         // setClawPAngle(180 - getArmAngle() + 8);
-         setClawPAngle(180 - getArmAngle() + 90 + 22);
+         setClawPAngle(180 - getArmAngle() + 90 + 35);
         // setClawPAngle(180);
+    }
+    public void clawPScoring2() {
+        setClawPAngle(180 - getArmAngle() + 90 + 22);
     }
 }

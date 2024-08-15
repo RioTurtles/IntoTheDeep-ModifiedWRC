@@ -120,7 +120,7 @@ public class Teleop_v3_WRC_Red extends LinearOpMode {
             }
 
             /*if (state == 99){
-                robot.setclawPAngle(90 - robot.getArmAngle() -6);
+                robot.setClawPAngle(90 - robot.getArmAngle() -6);
                 if ( robot.getDis() > 0) {
                     if (Gamepad1.dpad_up) {  //Max
                         //robot.setArm(37);
@@ -138,9 +138,9 @@ public class Teleop_v3_WRC_Red extends LinearOpMode {
                         //robot.setArm(6);
                         boardHeight = 18;
                     }
-                    //robot.setArm(Math.atan(boardHeight / (robot.getDis() + boardHeight / Math.tan(60))));
+                    robot.setArm(Math.atan(boardHeight / (robot.getDis() + boardHeight / Math.tan(60))));
                     robot.setSliderLength(Math.sqrt(Math.pow(boardHeight, 2) + Math.pow((robot.getDis() + boardHeight / Math.tan(60)), 2)) - );
-                    //robot.setSliderLength();r
+                    robot.setSliderLength();
                 }*/
 
             //boardHeight=10;
@@ -344,7 +344,7 @@ public class Teleop_v3_WRC_Red extends LinearOpMode {
                             robot.setSlider(0);
                         }
 
-                        if (mosaicScoreHeight == 0) robot.setArm(140);
+                        if (mosaicScoreHeight == 0) robot.setArm(127);
                         else robot.setArm(120);
                     } else if (cycleMode) {
                         //cycle
@@ -423,7 +423,7 @@ public class Teleop_v3_WRC_Red extends LinearOpMode {
                     robot.setArm(drawArmAngle[drawScoreHeight]);
                     if (Gamepad1.right_trigger > 0 && !(lastGamepad1.right_trigger > 0)) drawScoreHeight += 1;
                     if (Gamepad1.left_trigger > 0 && !(lastGamepad1.left_trigger > 0)) drawScoreHeight -= 1;
-                    ;
+
                     if (robot.getArmAngle() > 90) robot.setClawPAngle(80);
 
                     if (Gamepad1.triangle && !lastGamepad1.triangle && robot.getArmAngle() > 100) {
@@ -479,7 +479,6 @@ public class Teleop_v3_WRC_Red extends LinearOpMode {
             if (mosaicScoreHeight < 0) {
                 mosaicScoreHeight = 0;
             }
-
             if (mosaicScoreHeight > 8) {
                 mosaicScoreHeight = 8;
             }
@@ -487,7 +486,6 @@ public class Teleop_v3_WRC_Red extends LinearOpMode {
             if (cycleScoreHeight < 0) {
                 cycleScoreHeight = 0;
             }
-
             if (cycleScoreHeight > 7) {
                 cycleScoreHeight = 7;
             }
@@ -495,7 +493,6 @@ public class Teleop_v3_WRC_Red extends LinearOpMode {
             if (drawScoreHeight < 0) {
                 drawScoreHeight = 0;
             }
-
             if (drawScoreHeight > 8) {
                 drawScoreHeight = 8;
             }
@@ -507,6 +504,7 @@ public class Teleop_v3_WRC_Red extends LinearOpMode {
             }
 
             if (riggingState == 1) {
+                // TODO: Rigging servo set 0!!
                 robot.extendRiggingServo();
 
                 if (Gamepad1.dpad_up) {
