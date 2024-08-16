@@ -119,6 +119,8 @@ public class Teleop_v3_WRC_Red extends LinearOpMode {
                 timer1.reset();
             }
 
+            if (Gamepad2.dpad_up) robot.retractAndResetSlider(() -> sleep(500));
+
             /*if (state == 99){
                 robot.setClawPAngle(90 - robot.getArmAngle() -6);
                 if ( robot.getDis() > 0) {
@@ -504,7 +506,6 @@ public class Teleop_v3_WRC_Red extends LinearOpMode {
             }
 
             if (riggingState == 1) {
-                // TODO: Rigging servo set 0!!
                 robot.extendRiggingServo();
 
                 if (Gamepad1.dpad_up) {

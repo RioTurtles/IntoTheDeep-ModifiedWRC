@@ -49,7 +49,7 @@ public class RRAutonBlueFarStage extends LinearOpMode {
         Project1Hardware robot = new Project1Hardware();
         robot.init(hardwareMap, telemetry);
         robot.reset();
-        robot.retractSlider();
+        robot.retractAndResetSlider(() -> sleep(500));
         robot.bothClawClose();
 
         ElapsedTime timer1 = new ElapsedTime();
@@ -127,6 +127,7 @@ public class RRAutonBlueFarStage extends LinearOpMode {
                 .build();
 
         waitForStart();
+        robot.retractSlider();
         switch (randomizationResult) {
             case 1:
                 if (scoreRight) yellow = yellowLR; else yellow = yellowLL;
@@ -260,36 +261,40 @@ public class RRAutonBlueFarStage extends LinearOpMode {
             Imgproc.cvtColor(input, YCbCr, Imgproc.COLOR_RGB2YCrCb);
             telemetry.addLine("Pipeline running.");
 
-            Rect leftRect = new Rect(0, 100, 100, 79);
-            Rect middleRect = new Rect(280, 100, 100, 79);
-            Rect rightRect = new Rect(539, 150, 100, 79);
+            /*Rect middleRect = new Rect(0, 100, 100, 79);
+            Rect rightRect = new Rect(280, 100, 100, 79);
+            Rect middleRect = new Rect(539, 150, 100, 79);*/
+
+            Rect middleRect = new Rect(200, 130, 85, 64);
+            Rect rightRect = new Rect(510, 140, 90, 70);
+            //Rect middleRect = new Rect(539, 150, 100, 79);
 
             input.copyTo(output);
-            Imgproc.rectangle(output, leftRect, rectColour, 2);
             Imgproc.rectangle(output, middleRect, rectColour, 2);
             Imgproc.rectangle(output, rightRect, rectColour, 2);
+            //Imgproc.rectangle(output, middleRect, rectColour, 2);
 
-            leftCrop = YCbCr.submat(leftRect);
-            middleCrop = YCbCr.submat(middleRect);
             rightCrop = YCbCr.submat(rightRect);
+            middleCrop = YCbCr.submat(middleRect);
+            //rightCrop = YCbCr.submat(middleRect);
 
-            Core.extractChannel(leftCrop, leftCrop,1);  // Channel 2 = red
+            Core.extractChannel(rightCrop, rightCrop,1);  // Channel 2 = red
             Core.extractChannel(middleCrop, middleCrop, 1);
-            Core.extractChannel(rightCrop, rightCrop, 0);
+            //Core.extractChannel(rightCrop, rightCrop, 0);
 
-            Scalar leftAverage = Core.mean(leftCrop);
-            Scalar middleAverage = Core.mean(middleCrop);
             Scalar rightAverage = Core.mean(rightCrop);
+            Scalar middleAverage = Core.mean(middleCrop);
+            //Scalar rightAverage = Core.mean(rightCrop);
 
 //            leftAverageFinal = Math.abs(leftAverage.val[0] - 105);
 //            middleAverageFinal = Math.abs(middleAverage.val[0] - 105);
 //            rightAverageFinal = Math.abs(rightAverage.val[0] - 105);
 
-            avgLFinal = Math.abs(leftAverage.val[0] - leftTarget);
-            avgMFinal = Math.abs(middleAverage.val[0] - middleTarget);
             avgRFinal = Math.abs(rightAverage.val[0] - rightTarget);
+            avgMFinal = Math.abs(middleAverage.val[0] - middleTarget);
+            //avgRFinal = Math.abs(rightAverage.val[0] - rightTarget);
 
-            if ((avgLFinal < avgMFinal) && (avgLFinal < avgRFinal)) {
+            /*if ((avgLFinal < avgMFinal) && (avgLFinal < avgRFinal)) {
                 telemetry.addLine("LEFT");
                 randomizationResult = 1;
             } else if ((avgMFinal < avgLFinal) && (avgMFinal < avgRFinal)) {
@@ -298,6 +303,17 @@ public class RRAutonBlueFarStage extends LinearOpMode {
             } else {
                 telemetry.addLine("RIGHT");
                 randomizationResult = 3;
+            }*/
+
+            if (avgRFinal > 5 && avgMFinal > 5) {
+                telemetry.addLine("LEFT");
+                randomizationResult = 1;
+            } else if (avgRFinal < avgMFinal) {
+                telemetry.addLine("RIGHT");
+                randomizationResult = 3;
+            } else if (avgMFinal < avgRFinal) {
+                telemetry.addLine("MIDDLE");
+                randomizationResult = 2;
             }
 
             if (scoreRight) telemetry.addData("Score on", "Right");
@@ -306,17 +322,17 @@ public class RRAutonBlueFarStage extends LinearOpMode {
             else telemetry.addData("Park", "Left");
             telemetry.addLine();
 
-            if (gamepad1.dpad_left) leftTarget = leftAverage.val[0];
-            if (gamepad1.dpad_up) middleTarget = middleAverage.val[0];
             if (gamepad1.dpad_right) rightTarget = rightAverage.val[0];
+            if (gamepad1.dpad_up) middleTarget = middleAverage.val[0];
+            //if (gamepad1.dpad_right) rightTarget = rightAverage.val[0];
 
             if (gamepad1.square) parkRight = false;
             else if (gamepad1.circle) parkRight = true;
             if (gamepad1.left_bumper) scoreRight = false;
             else if (gamepad1.right_bumper) scoreRight = true;
 
-            telemetry.addData("leftAvg", leftAverage.val[0]);
             telemetry.addData("rightAvg", rightAverage.val[0]);
+            //telemetry.addData("leftAvg", leftAverage.val[0]);
             telemetry.addData("middleAvg", middleAverage.val[0]);
             telemetry.addLine();
             telemetry.addData("left", avgLFinal);

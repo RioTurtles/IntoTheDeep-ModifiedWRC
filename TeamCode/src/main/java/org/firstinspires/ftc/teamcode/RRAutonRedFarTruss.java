@@ -44,7 +44,6 @@ public class RRAutonRedFarTruss extends LinearOpMode {
         robot.init(hardwareMap, telemetry);
         robot.reset();
         robot.retractAndResetSlider(() -> sleep(500));
-        robot.retractSlider();
         robot.bothClawClose();
 
         ElapsedTime timer1 = new ElapsedTime();
@@ -95,15 +94,16 @@ public class RRAutonRedFarTruss extends LinearOpMode {
                 })
                 .build();
 
-        Vector2d yellowLL = new Vector2d(35.20, -21.11);
-        Vector2d yellowML = new Vector2d(35.20, -30.41);
-        Vector2d yellowRL = new Vector2d(35.20, -36.66);
+        Vector2d yellowLL = new Vector2d(35.20, -23.99);
+        Vector2d yellowML = new Vector2d(35.20, -31.51);
+        Vector2d yellowRL = new Vector2d(35.20, -38.66);
 
-        Vector2d yellowLR = new Vector2d(35.20, -24.81);
-        Vector2d yellowMR = new Vector2d(35.20, -31.61);
-        Vector2d yellowRR = new Vector2d(35.20, -38.36);
+        Vector2d yellowLR = new Vector2d(35.20, -25.81);
+        Vector2d yellowMR = new Vector2d(35.20, -33.41);
+        Vector2d yellowRR = new Vector2d(35.20, -40.36);
 
         waitForStart();
+        robot.retractSlider();
         switch (randomizationResult) {
             case 1:
                 if (scoreRight) yellowVector = yellowLR; else yellowVector = yellowLL;
@@ -152,11 +152,11 @@ public class RRAutonRedFarTruss extends LinearOpMode {
             }
 
             if (objective == Objective.SCORE_PURPLE) {
-                if (timer1.milliseconds() > 1760 || scoredPurple && timer2.milliseconds() > 300) {
+                if (timer1.milliseconds() > 1760 || (scoredPurple && timer2.milliseconds() > 100)) {
                     robot.arm.setPower(0);
                     robot.arm.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
                     objective = Objective.PATH_TO_YELLOW;
-                } else if (timer1.milliseconds() > 1360 || scoredPurple) {
+                } else if (timer1.milliseconds() > 1360 || (scoredPurple && timer2.milliseconds() > 100)) {
                     robot.setClawPAngle(160);
                     robot.bothClawClose();
                     robot.retractSlider();
@@ -171,6 +171,7 @@ public class RRAutonRedFarTruss extends LinearOpMode {
                             .splineToConstantHeading(new Vector2d(13.88, -60.08), Math.toRadians(0.00))
                             .splineToConstantHeading(yellowVector, Math.toRadians(0.00))
                             .addSpatialMarker(new Vector2d(13.88, -60.08), () -> robot.setArm(141))
+                            // .addSpatialMarker(new Vector2d(13.88, -60.08), () -> robot.setArm(141))
                             .build();
                 } else {
                     robot.rightClawOpen();
@@ -188,9 +189,9 @@ public class RRAutonRedFarTruss extends LinearOpMode {
                 }
 
                 if ((robot.getArmAngle() > 135) && yReady) {
-                    robot.setSlider(700);
+                    robot.setSlider(600);
 
-                    if (robot.slider.getCurrentPosition() > 695 || timer1.milliseconds() > 4000) {
+                    if (robot.slider.getCurrentPosition() > 590 || timer1.milliseconds() > 4000) {
                         timer1.reset();
                         objective = Objective.SCORE_YELLOW;
                     }
@@ -252,26 +253,30 @@ public class RRAutonRedFarTruss extends LinearOpMode {
             Imgproc.cvtColor(input, YCbCr, Imgproc.COLOR_RGB2YCrCb);
             telemetry.addLine("Pipeline running.");
 
-            Rect leftRect = new Rect(0, 100, 100, 79);
+            /*Rect leftRect = new Rect(0, 100, 100, 79);
             Rect middleRect = new Rect(280, 100, 100, 79);
-            Rect rightRect = new Rect(539, 150, 100, 79);
+            Rect rightRect = new Rect(539, 150, 100, 79);*/
+
+            Rect leftRect = new Rect(70, 130, 85, 64);
+            Rect middleRect = new Rect(375, 140, 90, 70);
+            //Rect rightRect = new Rect(539, 150, 100, 79);
 
             input.copyTo(output);
             Imgproc.rectangle(output, leftRect, rectColour, 2);
             Imgproc.rectangle(output, middleRect, rectColour, 2);
-            Imgproc.rectangle(output, rightRect, rectColour, 2);
+            //Imgproc.rectangle(output, rightRect, rectColour, 2);
 
             leftCrop = YCbCr.submat(leftRect);
             middleCrop = YCbCr.submat(middleRect);
-            rightCrop = YCbCr.submat(rightRect);
+            //rightCrop = YCbCr.submat(rightRect);
 
-            Core.extractChannel(leftCrop, leftCrop,1);  // Channel 2 = red
-            Core.extractChannel(middleCrop, middleCrop, 1);
-            Core.extractChannel(rightCrop, rightCrop, 0);
+            Core.extractChannel(leftCrop, leftCrop,2);  // Channel 2 = red
+            Core.extractChannel(middleCrop, middleCrop, 2);
+            //Core.extractChannel(rightCrop, rightCrop, 0);
 
             Scalar leftAverage = Core.mean(leftCrop);
             Scalar middleAverage = Core.mean(middleCrop);
-            Scalar rightAverage = Core.mean(rightCrop);
+            //Scalar rightAverage = Core.mean(rightCrop);
 
 //            leftAverageFinal = Math.abs(leftAverage.val[0] - 105);
 //            middleAverageFinal = Math.abs(middleAverage.val[0] - 105);
@@ -279,9 +284,9 @@ public class RRAutonRedFarTruss extends LinearOpMode {
 
             avgLFinal = Math.abs(leftAverage.val[0] - leftTarget);
             avgMFinal = Math.abs(middleAverage.val[0] - middleTarget);
-            avgRFinal = Math.abs(rightAverage.val[0] - rightTarget);
+            //avgRFinal = Math.abs(rightAverage.val[0] - rightTarget);
 
-            if ((avgLFinal < avgMFinal) && (avgLFinal < avgRFinal)) {
+            /*if ((avgLFinal < avgMFinal) && (avgLFinal < avgRFinal)) {
                 telemetry.addLine("LEFT");
                 randomizationResult = 1;
             } else if ((avgMFinal < avgLFinal) && (avgMFinal < avgRFinal)) {
@@ -290,6 +295,17 @@ public class RRAutonRedFarTruss extends LinearOpMode {
             } else {
                 telemetry.addLine("RIGHT");
                 randomizationResult = 3;
+            }*/
+
+            if (avgLFinal > 5 && avgMFinal > 5) {
+                telemetry.addLine("RIGHT");
+                randomizationResult = 3;
+            } else if (avgLFinal < avgMFinal) {
+                telemetry.addLine("LEFT");
+                randomizationResult = 1;
+            } else if (avgMFinal < avgLFinal) {
+                telemetry.addLine("MIDDLE");
+                randomizationResult = 2;
             }
 
             if (scoreRight) telemetry.addData("Score on", "Right");
@@ -300,7 +316,7 @@ public class RRAutonRedFarTruss extends LinearOpMode {
 
             if (gamepad1.dpad_left) leftTarget = leftAverage.val[0];
             if (gamepad1.dpad_up) middleTarget = middleAverage.val[0];
-            if (gamepad1.dpad_right) rightTarget = rightAverage.val[0];
+            //if (gamepad1.dpad_right) rightTarget = rightAverage.val[0];
 
             if (gamepad1.square) parkRight = false;
             else if (gamepad1.circle) parkRight = true;
@@ -308,7 +324,7 @@ public class RRAutonRedFarTruss extends LinearOpMode {
             else if (gamepad1.right_bumper) scoreRight = true;
 
             telemetry.addData("leftAvg", leftAverage.val[0]);
-            telemetry.addData("rightAvg", rightAverage.val[0]);
+            //telemetry.addData("rightAvg", rightAverage.val[0]);
             telemetry.addData("middleAvg", middleAverage.val[0]);
             telemetry.addLine();
             telemetry.addData("left", avgLFinal);

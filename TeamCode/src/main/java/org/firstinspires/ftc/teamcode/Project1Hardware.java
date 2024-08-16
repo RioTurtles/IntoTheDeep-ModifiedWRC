@@ -28,6 +28,9 @@ public class Project1Hardware {
     ServoImplEx lRiggingUp, rRiggingUp;
     DistanceSensor leftDis, rightDis;
     HardwareMap hwmap;
+
+    double armTargetAngle;
+
     public void init(HardwareMap hardwareMap, Telemetry telemetry) {
         motorFL = hardwareMap.get(DcMotor.class, "motorFL");
         motorFR = hardwareMap.get(DcMotor.class, "motorFR");
@@ -60,6 +63,7 @@ public class Project1Hardware {
                 )
         );
         this.telemetry = telemetry;
+        this.armTargetAngle = getArmAngle();
     }
 
     public void reset() {
@@ -117,6 +121,7 @@ public class Project1Hardware {
 
         slider.setTargetPosition(pos + (int) (arm.getCurrentPosition() / 19));
         slider.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        slider.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
         slider.setPower(1);
     }
 
@@ -205,6 +210,7 @@ public class Project1Hardware {
     }
 
     public void setArm(double angle) {
+        armTargetAngle = angle;
         int tmp;
         //arm.setVelocity(1300);
         arm.setPower(1);
@@ -225,6 +231,10 @@ public class Project1Hardware {
         double revolutions = position / CPR;
         double angle = revolutions * 360 - 12;
         return angle;
+    }
+
+    public double getArmError() {
+        return Math.abs(getArmAngle() - armTargetAngle);
     }
 
     public int lengthToEncoderValueSlider(double length) {
@@ -276,6 +286,14 @@ public class Project1Hardware {
         slider.setPower(0);
         slider.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         slider.setTargetPosition(slider.getCurrentPosition());
-        slider.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        slider.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        slider.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+        slider.setPower(0);
+    }
+
+    public void releaseSliderPower() {
+        slider.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        slider.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+        slider.setPower(0);
     }
 }

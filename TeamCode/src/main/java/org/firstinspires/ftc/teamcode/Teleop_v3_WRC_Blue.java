@@ -119,6 +119,8 @@ public class Teleop_v3_WRC_Blue extends LinearOpMode {
                 timer1.reset();
             }
 
+            if (Gamepad2.dpad_up) robot.retractAndResetSlider(() -> sleep(500));
+
             /*if (state == 99){
                 robot.setClawPAngle(90 - robot.getArmAngle() -6);
                 if ( robot.getDis() > 0) {
@@ -138,9 +140,9 @@ public class Teleop_v3_WRC_Blue extends LinearOpMode {
                         //robot.setArm(6);
                         boardHeight = 18;
                     }
-                    //robot.setArm(Math.atan(boardHeight / (robot.getDis() + boardHeight / Math.tan(60))));
+                    robot.setArm(Math.atan(boardHeight / (robot.getDis() + boardHeight / Math.tan(60))));
                     robot.setSliderLength(Math.sqrt(Math.pow(boardHeight, 2) + Math.pow((robot.getDis() + boardHeight / Math.tan(60)), 2)) - );
-                    //robot.setSliderLength();r
+                    robot.setSliderLength();
                 }*/
 
             //boardHeight=10;
@@ -343,7 +345,7 @@ public class Teleop_v3_WRC_Blue extends LinearOpMode {
                             robot.setSlider(0);
                         }
 
-                        if (mosaicScoreHeight == 0) robot.setArm(130);
+                        if (mosaicScoreHeight == 0) robot.setArm(127);
                         else robot.setArm(120);
                     } else if (cycleMode) {
                         //cycle
@@ -447,11 +449,11 @@ public class Teleop_v3_WRC_Blue extends LinearOpMode {
             //Arm height placement
             if (mosaicMode) {
                 // mosaic
-                if (Gamepad2.left_bumper && !lastGamepad2.left_bumper) {
+                if (Gamepad2.right_bumper && !lastGamepad2.right_bumper) {
                     mosaicScoreHeight += 1;
                 }
 
-                if (Gamepad2.right_bumper && !lastGamepad2.right_bumper) {
+                if (Gamepad2.left_bumper && !lastGamepad2.left_bumper) {
                     mosaicScoreHeight -= 1;
                 }
 
