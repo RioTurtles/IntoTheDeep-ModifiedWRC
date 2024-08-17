@@ -261,10 +261,10 @@ public class Project1Hardware {
         return length;
     }
     public void clawPIntake() {
-        setClawPAngle(90 - getArmAngle() * 0.5 - 37);
+        setClawPAngle(90 - getArmAngle() * 0.5 - 33);
     }
     public void clawPIntakeExtend() {
-        setClawPAngle(90 - getArmAngle() * 0.5 - 41);
+        setClawPAngle(90 - getArmAngle() * 0.5 - 35);
     }
     public void clawPScoring() {
         // setClawPAngle(180 - getArmAngle() + 8);
@@ -279,7 +279,7 @@ public class Project1Hardware {
         void call();
     }
 
-    public void retractAndResetSlider(SleepFunction sleepFunction) {
+    /*public void retractAndResetSlider(SleepFunction sleepFunction) {
         slider.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         slider.setPower(-1);
         sleepFunction.call();
@@ -289,6 +289,44 @@ public class Project1Hardware {
         slider.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         slider.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
         slider.setPower(0);
+    }*/
+
+    public void retractAndResetSlider(SleepFunction sleepFunction) {
+        slider.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        slider.setTargetPosition(slider.getCurrentPosition());
+        slider.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        slider.setPower(-0.8);
+        slider.setTargetPosition(-100);
+        sleepFunction.call();
+        slider.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+    }
+
+    /*public void resetSlider(SleepFunction sleepFunction) {
+        slider.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        slider.setTargetPosition(slider.getCurrentPosition());
+        slider.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        slider.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        slider.setTargetPosition(-100);
+        slider.setPower(1);
+        slider.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        sleepFunction.call();
+        slider.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+    }*/
+
+    public void resetSlider() {
+        slider.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+    }
+
+    public void resetRetractSlider(SleepFunction sleepFunction) {
+        slider.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        slider.setTargetPosition(slider.getCurrentPosition());
+        slider.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        slider.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        slider.setTargetPosition(-100);
+        slider.setPower(1);
+        slider.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        sleepFunction.call();
+        slider.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
     }
 
     public void releaseSliderPower() {

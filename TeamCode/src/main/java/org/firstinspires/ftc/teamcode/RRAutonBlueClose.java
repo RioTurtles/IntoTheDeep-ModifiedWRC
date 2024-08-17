@@ -205,11 +205,14 @@ public class RRAutonBlueClose extends LinearOpMode {
 
             if (objective == Objective.PARK) {
                 drive.followTrajectorySequence(park);
+                timer1.reset();
             }
 
             if (objective == Objective.END) {
-                robot.arm.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
-                robot.arm.setPower(0);
+                if (timer1.milliseconds() > 5000) {
+                    robot.arm.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+                    robot.arm.setPower(0);
+                }
                 Storage.robotPose = drive.getPoseEstimate();
             }
 

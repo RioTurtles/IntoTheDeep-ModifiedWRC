@@ -86,19 +86,19 @@ public class RRAutonRedFarStage extends LinearOpMode {
                 .splineToSplineHeading(new Pose2d(-38.39, -15.49, Math.toRadians(127.86)), Math.toRadians(80.00))
                 .build();
 
-        MarkerCallback transitionCallback = () -> robot.setArm(142);
+        MarkerCallback transitionCallback = () -> robot.setArm(140);
         TrajectoryVelocityConstraint param1 = SampleMecanumDrive.getVelocityConstraint(35, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH);
         TrajectoryAccelerationConstraint param2 = SampleMecanumDrive.getAccelerationConstraint(35);
 
         yellowLL = drive.trajectoryBuilder(purpleL.end())
                 .lineToSplineHeading(new Pose2d(30.48, -14.44, Math.toRadians(0.00)))
                 .addSpatialMarker(new Vector2d(30.48, -14.44), transitionCallback)
-                .splineToConstantHeading(new Vector2d(35.20, -26.41), Math.toRadians(-45.00), param1, param2)
+                .splineToConstantHeading(new Vector2d(35.20, -28.41), Math.toRadians(-45.00), param1, param2)
                 .build();
         yellowML = drive.trajectoryBuilder(purpleM.end())
                 .lineToSplineHeading(new Pose2d(30.48, -14.44, Math.toRadians(0.00)))
                 .addSpatialMarker(new Vector2d(30.48, -14.44), transitionCallback)
-                .splineToConstantHeading(new Vector2d(35.20, -33.76), Math.toRadians(-50.00), param1, param2)
+                .splineToConstantHeading(new Vector2d(38.20, -34.96), Math.toRadians(-50.00), param1, param2)
                 .build();
         yellowRL = drive.trajectoryBuilder(purpleR.end())
                 .splineToSplineHeading(new Pose2d(-20.91, -14.44, Math.toRadians(0.00)), Math.toRadians(0.00))
@@ -110,12 +110,12 @@ public class RRAutonRedFarStage extends LinearOpMode {
         yellowLR = drive.trajectoryBuilder(purpleL.end())
                 .lineToSplineHeading(new Pose2d(30.48, -12.84, Math.toRadians(0.00)))
                 .addSpatialMarker(new Vector2d(30.48, -14.44), transitionCallback)
-                .splineToConstantHeading(new Vector2d(35.20, -31.31), Math.toRadians(-45.00), param1, param2)
+                .splineToConstantHeading(new Vector2d(36.20, -30.61), Math.toRadians(-45.00), param1, param2)
                 .build();
         yellowMR = drive.trajectoryBuilder(purpleM.end())
                 .lineToSplineHeading(new Pose2d(30.48, -14.44, Math.toRadians(0.00)))
                 .addSpatialMarker(new Vector2d(30.48, -14.44), transitionCallback)
-                .splineToConstantHeading(new Vector2d(35.20, -36.11), Math.toRadians(-50.00), param1, param2)
+                .splineToConstantHeading(new Vector2d(35.20, -36.21), Math.toRadians(-50.00), param1, param2)
                 .build();
         yellowRR = drive.trajectoryBuilder(purpleR.end())
                 .splineToSplineHeading(new Pose2d(-20.91, -14.44, Math.toRadians(0.00)), Math.toRadians(0.00))
@@ -161,20 +161,22 @@ public class RRAutonRedFarStage extends LinearOpMode {
 
             if (objective == Objective.TRANSITION_TO_PURPLE) {
                 robot.clawPIntake();
-                switch (randomizationResult) {
-                    case 1: robot.setSlider(705); break;
-                    default: case 2: robot.setSlider(345); break;
-                    case 3: robot.setSlider(530); break;
+                if (timer1.milliseconds() > 300) {
+                    switch (randomizationResult) {
+                        case 1: robot.setSlider(700); break;
+                        default: case 2: robot.setSlider(345); break;
+                        case 3: robot.setSlider(530); break;
+                    }
                 }
 
-                if (robot.sliderInPosition(5) || timer1.milliseconds() > 2060) {
+                if (robot.sliderInPosition(5) && timer1.milliseconds() > 1500 || timer1.milliseconds() > 2060) {
                     objective = Objective.SCORE_PURPLE;
                     timer1.reset();
                 }
             }
 
             if (objective == Objective.SCORE_PURPLE) {
-                if (timer1.milliseconds() > 2760 || scoredPurple && timer2.milliseconds() > 300) {
+                if (timer1.milliseconds() > 2760 || (scoredPurple && timer2.milliseconds() > 500)) {
                     robot.bothClawClose();
                     robot.arm.setPower(0);
                     robot.arm.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
@@ -195,10 +197,10 @@ public class RRAutonRedFarStage extends LinearOpMode {
                     yReady = true;
                 }
 
-                if ((robot.getArmAngle() > 135) && yReady) {
-                    robot.setSlider(700);
+                if ((robot.getArmAngle() > 138) && yReady) {
+                    robot.setSlider(595);
 
-                    if (robot.slider.getCurrentPosition() > 695) {
+                    if (robot.slider.getCurrentPosition() > 585) {
                         robot.clawPScoring();
                         timer1.reset();
                         objective = Objective.SCORE_YELLOW;
@@ -228,11 +230,14 @@ public class RRAutonRedFarStage extends LinearOpMode {
 
             if (objective == Objective.PARK) {
                 drive.followTrajectorySequence(park);
+                timer1.reset();
             }
 
             if (objective == Objective.END) {
-                robot.arm.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
-                robot.arm.setPower(0);
+                if (timer1.milliseconds() > 5000) {
+                    robot.arm.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+                    robot.arm.setPower(0);
+                }
                 Storage.robotPose = drive.getPoseEstimate();
             }
 

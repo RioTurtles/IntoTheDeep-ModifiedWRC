@@ -192,12 +192,12 @@ public class RRAutonRedClose extends LinearOpMode {
 
                 if (parkRight) {
                     park = drive.trajectorySequenceBuilder(nowPose)
-                            .lineToLinearHeading(new Pose2d(50.97, -60.18, Math.toRadians(90.00)))
+                            .lineToLinearHeading(new Pose2d(48.97, -60.18, Math.toRadians(90.00)))
                             .addTemporalMarker(() -> objective = Objective.END)
                             .build();
                 } else {
                     park = drive.trajectorySequenceBuilder(nowPose)
-                            .lineToLinearHeading(new Pose2d(50.97, -11.06, Math.toRadians(90.00)))
+                            .lineToLinearHeading(new Pose2d(48.97, -11.06, Math.toRadians(90.00)))
                             .addTemporalMarker(() -> objective = Objective.END)
                             .build();
                 }
@@ -205,11 +205,14 @@ public class RRAutonRedClose extends LinearOpMode {
 
             if (objective == Objective.PARK) {
                 drive.followTrajectorySequence(park);
+                timer1.reset();
             }
 
             if (objective == Objective.END) {
-                robot.arm.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
-                robot.arm.setPower(0);
+                if (timer1.milliseconds() > 5000) {
+                    robot.arm.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+                    robot.arm.setPower(0);
+                }
                 Storage.robotPose = drive.getPoseEstimate();
             }
 

@@ -119,7 +119,8 @@ public class Teleop_v3_WRC_Blue extends LinearOpMode {
                 timer1.reset();
             }
 
-            if (Gamepad2.dpad_up) robot.retractAndResetSlider(() -> sleep(500));
+            if (Gamepad2.dpad_up && !lastGamepad2.dpad_up) robot.resetSlider();
+            if (Gamepad2.dpad_down && !lastGamepad2.dpad_down) robot.resetRetractSlider(() -> sleep(500));
 
             /*if (state == 99){
                 robot.setClawPAngle(90 - robot.getArmAngle() -6);
@@ -131,7 +132,7 @@ public class Teleop_v3_WRC_Blue extends LinearOpMode {
                     if (Gamepad1.dpad_left) {  //High
                         //robot.setArm(23);
                         boardHeight = 57;
-                    }
+                    }[000000000-
                     if (Gamepad1.dpad_down) {  //Middle
                         //robot.setArm(12.5);
                         boardHeight = 37;
@@ -449,11 +450,11 @@ public class Teleop_v3_WRC_Blue extends LinearOpMode {
             //Arm height placement
             if (mosaicMode) {
                 // mosaic
-                if (Gamepad2.right_bumper && !lastGamepad2.right_bumper) {
+                if (Gamepad2.left_bumper && !lastGamepad2.left_bumper) {
                     mosaicScoreHeight += 1;
                 }
 
-                if (Gamepad2.left_bumper && !lastGamepad2.left_bumper) {
+                if (Gamepad2.right_bumper && !lastGamepad2.right_bumper) {
                     mosaicScoreHeight -= 1;
                 }
 

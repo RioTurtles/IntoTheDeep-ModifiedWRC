@@ -112,21 +112,22 @@ public class Teleop_v3_WRC_Red extends LinearOpMode {
 
             if (Gamepad1.options) robot.imu.resetYaw();
 
-            if (Gamepad2.square) robot.droneLaunch();
+            if (Gamepad1.square) robot.droneLaunch();
 
             if (Gamepad2.circle && !lastGamepad2.circle) {
                 state = states.DRAW;
                 timer1.reset();
             }
 
-            if (Gamepad2.dpad_up) robot.retractAndResetSlider(() -> sleep(500));
+            if (Gamepad2.dpad_up && !lastGamepad2.dpad_up) robot.resetSlider();
+            if (Gamepad2.dpad_down && !lastGamepad2.dpad_down) robot.resetRetractSlider(() -> sleep(500));
 
             /*if (state == 99){
                 robot.setClawPAngle(90 - robot.getArmAngle() -6);
                 if ( robot.getDis() > 0) {
                     if (Gamepad1.dpad_up) {  //Max
                         //robot.setArm(37);
-                        boardHeight = 66;
+                        boardHeight = 66;Fdpa
                     }
                     if (Gamepad1.dpad_left) {  //High
                         //robot.setArm(23);

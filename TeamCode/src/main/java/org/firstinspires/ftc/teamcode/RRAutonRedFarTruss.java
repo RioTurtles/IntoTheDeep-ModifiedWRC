@@ -95,11 +95,11 @@ public class RRAutonRedFarTruss extends LinearOpMode {
                 .build();
 
         Vector2d yellowLL = new Vector2d(35.20, -23.99);
-        Vector2d yellowML = new Vector2d(35.20, -31.51);
+        Vector2d yellowML = new Vector2d(35.20, -32.21);
         Vector2d yellowRL = new Vector2d(35.20, -38.66);
 
         Vector2d yellowLR = new Vector2d(35.20, -25.81);
-        Vector2d yellowMR = new Vector2d(35.20, -33.41);
+        Vector2d yellowMR = new Vector2d(35.20, -34.01);
         Vector2d yellowRR = new Vector2d(35.20, -40.36);
 
         waitForStart();
@@ -189,7 +189,7 @@ public class RRAutonRedFarTruss extends LinearOpMode {
                 }
 
                 if ((robot.getArmAngle() > 135) && yReady) {
-                    robot.setSlider(600);
+                    robot.setSlider(650);
 
                     if (robot.slider.getCurrentPosition() > 590 || timer1.milliseconds() > 4000) {
                         timer1.reset();
@@ -207,12 +207,12 @@ public class RRAutonRedFarTruss extends LinearOpMode {
 
                 if (parkRight) {
                     park = drive.trajectorySequenceBuilder(nowPose)
-                            .lineToLinearHeading(new Pose2d(50.97, -62.18, Math.toRadians(90.00)))
+                            .lineToLinearHeading(new Pose2d(48.97, -62.18, Math.toRadians(90.00)))
                             .addTemporalMarker(() -> objective = Objective.END)
                             .build();
                 } else {
                     park = drive.trajectorySequenceBuilder(nowPose)
-                            .lineToLinearHeading(new Pose2d(50.97, -11.06, Math.toRadians(90.00)))
+                            .lineToLinearHeading(new Pose2d(48.97, -11.06, Math.toRadians(90.00)))
                             .addTemporalMarker(() -> objective = Objective.END)
                             .build();
                 }
@@ -220,11 +220,14 @@ public class RRAutonRedFarTruss extends LinearOpMode {
 
             if (objective == Objective.PARK) {
                 drive.followTrajectorySequence(park);
+                timer1.reset();
             }
 
             if (objective == Objective.END) {
-                robot.arm.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
-                robot.arm.setPower(0);
+                if (timer1.milliseconds() > 5000) {
+                    robot.arm.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+                    robot.arm.setPower(0);
+                }
                 Storage.robotPose = drive.getPoseEstimate();
             }
 
