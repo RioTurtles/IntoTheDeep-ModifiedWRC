@@ -71,15 +71,15 @@ public class RRAutonRedClose extends LinearOpMode {
 
         TrajectorySequence purpleL = drive.trajectorySequenceBuilder(startPose)
                 .lineToSplineHeading(new Pose2d(32.45, -32.01, Math.toRadians(0.00)))
-                .addTemporalMarker(() -> objective = Objective.SCORE_PURPLE)
+                .addTemporalMarker(() -> {robot.clawPIntake(); objective = Objective.SCORE_PURPLE;})
                 .build();
         TrajectorySequence purpleM = drive.trajectorySequenceBuilder(startPose)
                 .lineToSplineHeading(new Pose2d(35.20, -25.51, Math.toRadians(0.00)))
-                .addTemporalMarker(() -> objective = Objective.SCORE_PURPLE)
+                .addTemporalMarker(() -> {robot.clawPIntake(); objective = Objective.SCORE_PURPLE;})
                 .build();
         TrajectorySequence purpleR = drive.trajectorySequenceBuilder(startPose)
                 .lineToSplineHeading(new Pose2d(35.20, -32.01, Math.toRadians(0.00)))
-                .addTemporalMarker(() -> objective = Objective.SCORE_PURPLE)
+                .addTemporalMarker(() -> {robot.clawPIntake(); objective = Objective.SCORE_PURPLE;})
                 .build();
 
         yellowLL = drive.trajectorySequenceBuilder(purpleL.end())
@@ -143,7 +143,6 @@ public class RRAutonRedClose extends LinearOpMode {
             }
 
             if (objective == Objective.SCORE_PURPLE) {
-                robot.clawPIntake();
                 switch (randomizationResult) {
                     case 1: robot.setSlider(860); break;
                     default: case 2: robot.setSlider(385); break;

@@ -272,7 +272,7 @@ public class Project1Hardware {
         // setClawPAngle(180);
     }
     public void clawPScoring2() {
-        setClawPAngle(180 - getArmAngle() + 90 + 22);
+        setClawPAngle(180 - getArmAngle() + 90 - 105);
     }
 
     public interface SleepFunction {
@@ -319,7 +319,8 @@ public class Project1Hardware {
 
     public void resetRetractSlider(SleepFunction sleepFunction) {
         slider.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        slider.setTargetPosition(slider.getCurrentPosition());
+        slider.setTargetPosition(0);
+        slider.setPower(1);
         slider.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         slider.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         slider.setTargetPosition(-100);

@@ -78,22 +78,25 @@ public class RRAutonRedFarStage extends LinearOpMode {
 
         TrajectorySequence purpleL = drive.trajectorySequenceBuilder(startPose)
                 .splineToSplineHeading(new Pose2d(-30.22, -10.33, Math.toRadians(55.00)), Math.toRadians(65.00))
+                .addTemporalMarker(robot::clawPIntake)
                 .build();
         TrajectorySequence purpleM = drive.trajectorySequenceBuilder(startPose)
                 .splineToSplineHeading(new Pose2d(-29.84, -8.68, Math.toRadians(62.47)), Math.toRadians(65.00))
+                .addTemporalMarker(robot::clawPIntake)
                 .build();
         TrajectorySequence purpleR = drive.trajectorySequenceBuilder(startPose)
                 .splineToSplineHeading(new Pose2d(-38.39, -15.49, Math.toRadians(127.86)), Math.toRadians(80.00))
+                .addTemporalMarker(robot::clawPIntake)
                 .build();
 
-        MarkerCallback transitionCallback = () -> robot.setArm(140);
+        MarkerCallback transitionCallback = () -> robot.setArm(142);
         TrajectoryVelocityConstraint param1 = SampleMecanumDrive.getVelocityConstraint(35, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH);
         TrajectoryAccelerationConstraint param2 = SampleMecanumDrive.getAccelerationConstraint(35);
 
         yellowLL = drive.trajectoryBuilder(purpleL.end())
                 .lineToSplineHeading(new Pose2d(30.48, -14.44, Math.toRadians(0.00)))
                 .addSpatialMarker(new Vector2d(30.48, -14.44), transitionCallback)
-                .splineToConstantHeading(new Vector2d(35.20, -28.41), Math.toRadians(-45.00), param1, param2)
+                .splineToConstantHeading(new Vector2d(35.20, -29.41), Math.toRadians(-45.00), param1, param2)
                 .build();
         yellowML = drive.trajectoryBuilder(purpleM.end())
                 .lineToSplineHeading(new Pose2d(30.48, -14.44, Math.toRadians(0.00)))
@@ -110,7 +113,7 @@ public class RRAutonRedFarStage extends LinearOpMode {
         yellowLR = drive.trajectoryBuilder(purpleL.end())
                 .lineToSplineHeading(new Pose2d(30.48, -12.84, Math.toRadians(0.00)))
                 .addSpatialMarker(new Vector2d(30.48, -14.44), transitionCallback)
-                .splineToConstantHeading(new Vector2d(36.20, -30.61), Math.toRadians(-45.00), param1, param2)
+                .splineToConstantHeading(new Vector2d(35.20, -30.61), Math.toRadians(-45.00), param1, param2) // Original: x36.20, y-30.61
                 .build();
         yellowMR = drive.trajectoryBuilder(purpleM.end())
                 .lineToSplineHeading(new Pose2d(30.48, -14.44, Math.toRadians(0.00)))
@@ -160,7 +163,6 @@ public class RRAutonRedFarStage extends LinearOpMode {
             }
 
             if (objective == Objective.TRANSITION_TO_PURPLE) {
-                robot.clawPIntake();
                 if (timer1.milliseconds() > 300) {
                     switch (randomizationResult) {
                         case 1: robot.setSlider(700); break;
@@ -197,10 +199,10 @@ public class RRAutonRedFarStage extends LinearOpMode {
                     yReady = true;
                 }
 
-                if ((robot.getArmAngle() > 138) && yReady) {
-                    robot.setSlider(595);
+                if ((robot.getArmAngle() > 140) && yReady) {
+                    robot.setSlider(540);
 
-                    if (robot.slider.getCurrentPosition() > 585) {
+                    if (robot.slider.getCurrentPosition() > 535) {
                         robot.clawPScoring();
                         timer1.reset();
                         objective = Objective.SCORE_YELLOW;

@@ -76,6 +76,7 @@ public class RRAutonRedFarTruss extends LinearOpMode {
                 .lineToLinearHeading(new Pose2d(-44.61, -44.99, Math.toRadians(295.00)))
                 .addTemporalMarker(() -> {
                     timer1.reset();
+                    robot.clawPIntake();
                     objective = Objective.SCORE_PURPLE;
                 })
                 .build();
@@ -83,6 +84,7 @@ public class RRAutonRedFarTruss extends LinearOpMode {
                 .lineToLinearHeading(new Pose2d(-44.61, -44.99, Math.toRadians(260.00)))
                 .addTemporalMarker(() -> {
                     timer1.reset();
+                    robot.clawPIntake();
                     objective = Objective.SCORE_PURPLE;
                 })
                 .build();
@@ -90,16 +92,17 @@ public class RRAutonRedFarTruss extends LinearOpMode {
                 .lineToLinearHeading(new Pose2d(-44.61, -44.99, Math.toRadians(220.00)))
                 .addTemporalMarker(() -> {
                     timer1.reset();
+                    robot.clawPIntake();
                     objective = Objective.SCORE_PURPLE;
                 })
                 .build();
 
         Vector2d yellowLL = new Vector2d(35.20, -23.99);
-        Vector2d yellowML = new Vector2d(35.20, -32.21);
+        Vector2d yellowML = new Vector2d(35.20, -32.91);
         Vector2d yellowRL = new Vector2d(35.20, -38.66);
 
-        Vector2d yellowLR = new Vector2d(35.20, -25.81);
-        Vector2d yellowMR = new Vector2d(35.20, -34.01);
+        Vector2d yellowLR = new Vector2d(35.20, -24.91);
+        Vector2d yellowMR = new Vector2d(35.20, -33.31);
         Vector2d yellowRR = new Vector2d(35.20, -40.36);
 
         waitForStart();
@@ -138,7 +141,6 @@ public class RRAutonRedFarTruss extends LinearOpMode {
             }
 
             if (objective == Objective.TRANSITION_TO_PURPLE) {
-                robot.clawPIntake();
                 switch (randomizationResult) {
                     case 1: robot.setSlider(100); break;
                     default: case 2: robot.setSlider(400); break;
@@ -170,7 +172,7 @@ public class RRAutonRedFarTruss extends LinearOpMode {
                             )
                             .splineToConstantHeading(new Vector2d(13.88, -60.08), Math.toRadians(0.00))
                             .splineToConstantHeading(yellowVector, Math.toRadians(0.00))
-                            .addSpatialMarker(new Vector2d(13.88, -60.08), () -> robot.setArm(141))
+                            .addSpatialMarker(new Vector2d(13.88, -60.08), () -> robot.setArm(142.5))
                             // .addSpatialMarker(new Vector2d(13.88, -60.08), () -> robot.setArm(141))
                             .build();
                 } else {
@@ -189,9 +191,9 @@ public class RRAutonRedFarTruss extends LinearOpMode {
                 }
 
                 if ((robot.getArmAngle() > 135) && yReady) {
-                    robot.setSlider(650);
+                    robot.setSlider(600);
 
-                    if (robot.slider.getCurrentPosition() > 590 || timer1.milliseconds() > 4000) {
+                    if (robot.slider.getCurrentPosition() > 595 || timer1.milliseconds() > 4000) {
                         timer1.reset();
                         objective = Objective.SCORE_YELLOW;
                     }
@@ -203,7 +205,7 @@ public class RRAutonRedFarTruss extends LinearOpMode {
                 else if (timer1.milliseconds() > 450) robot.retractSlider();
                 else if (timer1.milliseconds() > 150) robot.leftClawOpen();
 
-                if (robot.getArmAngle() < 5) objective = Objective.PARK;
+                if (robot.getArmAngle() < 5 && timer1.milliseconds() > 700) objective = Objective.PARK;
 
                 if (parkRight) {
                     park = drive.trajectorySequenceBuilder(nowPose)

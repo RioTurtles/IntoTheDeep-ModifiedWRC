@@ -71,27 +71,27 @@ public class RRAutonBlueClose extends LinearOpMode {
 
         TrajectorySequence purpleL = drive.trajectorySequenceBuilder(startPose)
                 .lineToSplineHeading(new Pose2d(35.20, 32.01, Math.toRadians(0.00)))
-                .addTemporalMarker(() -> objective = Objective.SCORE_PURPLE)
+                .addTemporalMarker(() -> {robot.clawPIntake(); objective = Objective.SCORE_PURPLE;})
                 .build();
         TrajectorySequence purpleM = drive.trajectorySequenceBuilder(startPose)
                 .lineToSplineHeading(new Pose2d(35.20, 25.51, Math.toRadians(0.00)))
-                .addTemporalMarker(() -> objective = Objective.SCORE_PURPLE)
+                .addTemporalMarker(() -> {robot.clawPIntake(); objective = Objective.SCORE_PURPLE;})
                 .build();
         TrajectorySequence purpleR = drive.trajectorySequenceBuilder(startPose)
                 .lineToSplineHeading(new Pose2d(32.45, 32.01, Math.toRadians(0.00)))
-                .addTemporalMarker(() -> objective = Objective.SCORE_PURPLE)
+                .addTemporalMarker(() -> {robot.clawPIntake(); objective = Objective.SCORE_PURPLE;})
                 .build();
 
         yellowLL = drive.trajectorySequenceBuilder(purpleL.end())
-                .lineToConstantHeading(new Vector2d(35.20, 38.71))
+                .lineToConstantHeading(new Vector2d(35.20, 41.71))
                 .addTemporalMarker(() -> yReady = true)
                 .build();
         yellowML = drive.trajectorySequenceBuilder(purpleM.end())
-                .lineToSplineHeading(new Pose2d(35.20, 32.91, Math.toRadians(0.00)))
+                .lineToSplineHeading(new Pose2d(35.20, 36.01, Math.toRadians(0.00)))
                 .addTemporalMarker(() -> yReady = true)
                 .build();
         yellowRL = drive.trajectorySequenceBuilder(purpleR.end())
-                .lineToConstantHeading(new Vector2d(35.20, 26.81))
+                .lineToConstantHeading(new Vector2d(35.20, 28.11))
                 .addTemporalMarker(() -> yReady = true)
                 .build();
 
@@ -104,7 +104,7 @@ public class RRAutonBlueClose extends LinearOpMode {
                 .addTemporalMarker(() -> yReady = true)
                 .build();
         yellowRR = drive.trajectorySequenceBuilder(purpleR.end())
-                .lineToConstantHeading(new Vector2d(35.20, 28.01))
+                .lineToConstantHeading(new Vector2d(35.20, 26.11))
                 .addTemporalMarker(() -> yReady = true)
                 .build();
 
@@ -112,16 +112,16 @@ public class RRAutonBlueClose extends LinearOpMode {
         robot.retractSlider();
         switch (randomizationResult) {
             case 1:
-                if (scoreLeft) yellow = yellowLR; else yellow = yellowLL;
+                if (scoreLeft) yellow = yellowLL; else yellow = yellowLR;
                 purple = purpleL;
                 break;
             default:
             case 2:
-                if (scoreLeft) yellow = yellowMR; else yellow = yellowML;
+                if (scoreLeft) yellow = yellowML; else yellow = yellowMR;
                 purple = purpleM;
                 break;
             case 3:
-                if (scoreLeft) yellow = yellowRR; else yellow = yellowRL;
+                if (scoreLeft) yellow = yellowRL; else yellow = yellowRR;
                 purple = purpleR;
                 break;
         }
@@ -143,7 +143,6 @@ public class RRAutonBlueClose extends LinearOpMode {
             }
 
             if (objective == Objective.SCORE_PURPLE) {
-                robot.clawPIntake();
                 switch (randomizationResult) {
                     case 1: robot.setSlider(0); break;
                     default: case 2: robot.setSlider(400); break;
@@ -162,12 +161,12 @@ public class RRAutonBlueClose extends LinearOpMode {
                     drive.followTrajectorySequence(yellow);
                 } else if (timer1.milliseconds() > 0) {
                     robot.retractSlider();
-                    robot.setArm(143);
+                    robot.setArm(148);
                 }
 
-                if (robot.getArmAngle() > 125) robot.setSlider(460);
+                if (robot.getArmAngle() > 125) robot.setSlider(520);
 
-                if (robot.slider.getCurrentPosition() > 455 && yReady) {
+                if (robot.slider.getCurrentPosition() > 515 && yReady) {
                     robot.clawPScoring();
                     timer1.reset();
                     objective = Objective.SCORE_YELLOW;

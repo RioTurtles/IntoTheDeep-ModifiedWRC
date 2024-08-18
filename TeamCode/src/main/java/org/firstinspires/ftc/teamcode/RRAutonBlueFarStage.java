@@ -28,7 +28,6 @@ import org.openftc.easyopencv.OpenCvCameraRotation;
 import org.openftc.easyopencv.OpenCvPipeline;
 import org.openftc.easyopencv.OpenCvWebcam;
 
-@Disabled
 @Autonomous(name="2+0 Blue Far, Stage Door")
 public class RRAutonBlueFarStage extends LinearOpMode {
     Objective objective = Objective.INITIALISE;
@@ -80,12 +79,15 @@ public class RRAutonBlueFarStage extends LinearOpMode {
 
         TrajectorySequence purpleL = drive.trajectorySequenceBuilder(startPose)
                 .splineToSplineHeading(new Pose2d(-38.39, 15.49, Math.toRadians(234.14)), Math.toRadians(280.00))
+                .addTemporalMarker(robot::clawPIntake)
                 .build();
         TrajectorySequence purpleM = drive.trajectorySequenceBuilder(startPose)
                 .splineToSplineHeading(new Pose2d(-29.84, 8.68, Math.toRadians(297.53)), Math.toRadians(295.00))
+                .addTemporalMarker(robot::clawPIntake)
                 .build();
         TrajectorySequence purpleR = drive.trajectorySequenceBuilder(startPose)
                 .splineToSplineHeading(new Pose2d(-30.22, 10.33, Math.toRadians(305.00)), Math.toRadians(295.00))
+                .addTemporalMarker(robot::clawPIntake)
                 .build();
 
         MarkerCallback transitionCallback = () -> {robot.setClawPAngle(180); robot.setArm(147.5);};
@@ -96,34 +98,35 @@ public class RRAutonBlueFarStage extends LinearOpMode {
                 .splineToSplineHeading(new Pose2d(-20.91, 14.44, Math.toRadians(0.00)), Math.toRadians(0.00))
                 .splineTo(new Vector2d(30.48, 14.44), Math.toRadians(0.00))
                 .addSpatialMarker(new Vector2d(30.48, 14.44), transitionCallback)
-                .splineToConstantHeading(new Vector2d(35.20, 39.01), Math.toRadians(-60.00), param1, param2)
+                .splineToConstantHeading(new Vector2d(35.20, 39.46), Math.toRadians(-60.00), param1, param2)
                 .build();
         yellowML = drive.trajectoryBuilder(purpleM.end())
                 .lineToSplineHeading(new Pose2d(30.48, 14.44, Math.toRadians(0.00)))
                 .addSpatialMarker(new Vector2d(30.48, 14.44), transitionCallback)
-                .splineToConstantHeading(new Vector2d(35.20, 33.51), Math.toRadians(-50.00), param1, param2)
+                .splineToConstantHeading(new Vector2d(35.20, 33.01), Math.toRadians(-50.00), param1, param2)
                 .build();
         yellowRL = drive.trajectoryBuilder(purpleR.end())
                 .lineToSplineHeading(new Pose2d(30.48, 14.44, Math.toRadians(0.00)))
                 .addSpatialMarker(new Vector2d(30.48, 14.44), transitionCallback)
-                .splineToConstantHeading(new Vector2d(35.20, 27.61), Math.toRadians(-45.00), param1, param2)
+                .splineToConstantHeading(new Vector2d(35.20, 29.01), Math.toRadians(-45.00), param1, param2)
                 .build();
+
 
         yellowLR = drive.trajectoryBuilder(purpleL.end())
                 .splineToSplineHeading(new Pose2d(-20.91, 14.44, Math.toRadians(0.00)), Math.toRadians(0.00))
                 .splineTo(new Vector2d(30.48, 14.44), Math.toRadians(0.00))
                 .addSpatialMarker(new Vector2d(30.48, 14.44), transitionCallback)
-                .splineToConstantHeading(new Vector2d(35.20, 41.61), Math.toRadians(-60.00), param1, param2)
+                .splineToConstantHeading(new Vector2d(36.10, 36.86), Math.toRadians(-60.00), param1, param2)
                 .build();
         yellowMR = drive.trajectoryBuilder(purpleM.end())
                 .lineToSplineHeading(new Pose2d(30.48, 14.44, Math.toRadians(0.00)))
                 .addSpatialMarker(new Vector2d(30.48, 14.44), transitionCallback)
-                .splineToConstantHeading(new Vector2d(35.20, 36.51), Math.toRadians(-50.00), param1, param2)
+                .splineToConstantHeading(new Vector2d(35.20, 31.51), Math.toRadians(-50.00), param1, param2)
                 .build();
         yellowRR = drive.trajectoryBuilder(purpleR.end())
                 .lineToSplineHeading(new Pose2d(30.48, 12.84, Math.toRadians(0.00)))
                 .addSpatialMarker(new Vector2d(30.48, 14.44), transitionCallback)
-                .splineToConstantHeading(new Vector2d(35.20, 30.31), Math.toRadians(-45.00), param1, param2)
+                .splineToConstantHeading(new Vector2d(35.20, 26.31), Math.toRadians(-45.00), param1, param2)
                 .build();
 
         waitForStart();
@@ -162,7 +165,6 @@ public class RRAutonBlueFarStage extends LinearOpMode {
             }
 
             if (objective == Objective.TRANSITION_TO_PURPLE) {
-                robot.clawPIntake();
                 switch (randomizationResult) {
                     case 1: robot.setSlider(550); break;
                     default: case 2: robot.setSlider(350); break;
@@ -182,10 +184,10 @@ public class RRAutonBlueFarStage extends LinearOpMode {
                     robot.arm.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
                     objective = Objective.PATH_TO_YELLOW;
                 } else if (timer1.milliseconds() > 2360 || scoredPurple) {
-                    robot.clawPScoring();
+                    robot.clawPScoring2();
                     robot.retractSlider();
                 } else if (timer1.milliseconds() > 0) {
-                    robot.rightClawOpen();
+                    robot.leftClawOpen();
                     scoredPurple = true;
                     timer2.reset();
                 }
@@ -198,9 +200,9 @@ public class RRAutonBlueFarStage extends LinearOpMode {
                 }
 
                 if ((robot.getArmAngle() > 135) && yReady) {
-                    robot.setSlider(430);
+                    robot.setSlider(655);
 
-                    if (robot.slider.getCurrentPosition() > 427) {
+                    if (robot.slider.getCurrentPosition() > 650) {
                         timer1.reset();
                         objective = Objective.SCORE_YELLOW;
                     }
@@ -210,7 +212,7 @@ public class RRAutonBlueFarStage extends LinearOpMode {
             if (objective == Objective.SCORE_YELLOW) {
                 if (timer1.milliseconds() > 705) {robot.setArm(0); robot.bothClawClose();}
                 else if (timer1.milliseconds() > 450) robot.retractSlider();
-                else if (timer1.milliseconds() > 150) robot.leftClawOpen();
+                else if (timer1.milliseconds() > 150) robot.rightClawOpen();
 
                 if (robot.getArmAngle() < 5) objective = Objective.PARK;
 

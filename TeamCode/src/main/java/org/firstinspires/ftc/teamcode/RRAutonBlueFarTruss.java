@@ -32,7 +32,7 @@ public class RRAutonBlueFarTruss extends LinearOpMode {
     int randomizationResult = 2;
     boolean yReady, scoredPurple;
     boolean scoreRight = true;
-    boolean parkRight;
+    boolean parkLeft;
 
     TrajectorySequence purple, park;
     Trajectory yellow;
@@ -77,6 +77,7 @@ public class RRAutonBlueFarTruss extends LinearOpMode {
                 .lineToLinearHeading(new Pose2d(-44.61, 44.99, Math.toRadians(135.00)))
                 .addTemporalMarker(() -> {
                     timer1.reset();
+                    robot.clawPIntake();
                     objective = Objective.SCORE_PURPLE;
                 })
                 .build();
@@ -84,24 +85,26 @@ public class RRAutonBlueFarTruss extends LinearOpMode {
                 .lineToLinearHeading(new Pose2d(-44.61, 44.99, Math.toRadians(115.00)))
                 .addTemporalMarker(() -> {
                     timer1.reset();
+                    robot.clawPIntake();
                     objective = Objective.SCORE_PURPLE;
                 })
                 .build();
         TrajectorySequence purpleR = drive.trajectorySequenceBuilder(startPose)
-                .lineToLinearHeading(new Pose2d(-44.61, 44.99, Math.toRadians(80.00)))
+                .lineToLinearHeading(new Pose2d(-44.61, 44.99, Math.toRadians(73.00)))
                 .addTemporalMarker(() -> {
                     timer1.reset();
+                    robot.clawPIntake();
                     objective = Objective.SCORE_PURPLE;
                 })
                 .build();
 
         Vector2d yellowLL = new Vector2d(35.20, 39.46);
-        Vector2d yellowML = new Vector2d(35.20, 32.01);
-        Vector2d yellowRL = new Vector2d(35.20, 24.01);
+        Vector2d yellowML = new Vector2d(35.20, 33.01);
+        Vector2d yellowRL = new Vector2d(35.20, 23.01);
 
-        Vector2d yellowLR = new Vector2d(35.20, 41.36);
-        Vector2d yellowMR = new Vector2d(35.20, 34.21);
-        Vector2d yellowRR = new Vector2d(35.20, 26.01);
+        Vector2d yellowLR = new Vector2d(35.20, 39.36);
+        Vector2d yellowMR = new Vector2d(35.20, 34.01);
+        Vector2d yellowRR = new Vector2d(35.20, 23.31);
 
         waitForStart();
         robot.retractSlider();
@@ -139,14 +142,13 @@ public class RRAutonBlueFarTruss extends LinearOpMode {
             }
 
             if (objective == Objective.TRANSITION_TO_PURPLE) {
-                robot.clawPIntake();
                 switch (randomizationResult) {
                     case 1: robot.setSlider(650); break;
-                    default: case 2: robot.setSlider(400); break;
+                    default: case 2: robot.setSlider(500); break;
                     case 3: robot.setSlider(100); break;
                 }
 
-                if (robot.sliderInPosition(5) || timer1.milliseconds() > 3000) {
+                if (robot.sliderInPosition(3) || timer1.milliseconds() > 3000) {
                     objective = Objective.SCORE_PURPLE;
                     timer1.reset();
                 }
@@ -159,20 +161,20 @@ public class RRAutonBlueFarTruss extends LinearOpMode {
                     objective = Objective.PATH_TO_YELLOW;
                 } else if (timer1.milliseconds() > 1360 || scoredPurple) {
                     robot.setClawPAngle(160);
-                    robot.bothClawClose();
                     robot.retractSlider();
 
                     yellow = drive.trajectoryBuilder(nowPose)
                             .splineToSplineHeading(
-                                    new Pose2d(-32.51, 60.08, Math.toRadians(0.00)),
+                                    new Pose2d(-32.51, 58.08, Math.toRadians(0.00)),
                                     Math.toRadians(0.00),
                                     SampleMecanumDrive.getVelocityConstraint(30, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
                                     SampleMecanumDrive.getAccelerationConstraint(17.5)
                             )
-                            .splineToConstantHeading(new Vector2d(13.88, 60.08), Math.toRadians(0.00))
+                            .splineToConstantHeading(new Vector2d(13.88, 58.08), Math.toRadians(0.00))
                             .splineToConstantHeading(yellowVector, Math.toRadians(0.00))
-                            .addSpatialMarker(new Vector2d(13.88, 60.08), () -> robot.setArm(138))
+                            .addSpatialMarker(new Vector2d(13.88, 58.08), () -> robot.setArm(143))
                             .build();
+                    robot.bothClawClose();
                 } else if (timer1.milliseconds() > 0) {
                     robot.leftClawOpen();
                     scoredPurple = true;
@@ -188,9 +190,9 @@ public class RRAutonBlueFarTruss extends LinearOpMode {
                 }
 
                 if ((robot.getArmAngle() > 135) && yReady) {
-                    robot.setSlider(650);
+                    robot.setSlider(655);
 
-                    if (robot.slider.getCurrentPosition() > 467) {
+                    if (robot.slider.getCurrentPosition() > 635) {
                         timer1.reset();
                         objective = Objective.SCORE_YELLOW;
                     }
@@ -199,12 +201,12 @@ public class RRAutonBlueFarTruss extends LinearOpMode {
 
             if (objective == Objective.SCORE_YELLOW) {
                 if (timer1.milliseconds() > 705) {robot.setArm(0); robot.bothClawClose();}
-                else if (timer1.milliseconds() > 450) robot.retractSlider();
+                else if (timer1.milliseconds() > 600) robot.retractSlider();
                 else if (timer1.milliseconds() > 150) robot.rightClawOpen();
 
                 if (robot.getArmAngle() < 5) objective = Objective.PARK;
 
-                if (parkRight) {
+                if (parkLeft) {
                     park = drive.trajectorySequenceBuilder(nowPose)
                             .lineToLinearHeading(new Pose2d(48.97, 62.18, Math.toRadians(90.00)))
                             .addTemporalMarker(() -> objective = Objective.END)
@@ -232,7 +234,7 @@ public class RRAutonBlueFarTruss extends LinearOpMode {
 
             drive.update();
             telemetry.addData("Objective", objective);
-            if (parkRight) telemetry.addData("Park", "Right");
+            if (parkLeft) telemetry.addData("Park", "Right");
             else telemetry.addData("Park", "Left");
             telemetry.addLine();
             telemetry.addData("X", nowPose.getX());
@@ -312,16 +314,16 @@ public class RRAutonBlueFarTruss extends LinearOpMode {
 
             if (scoreRight) telemetry.addData("Score on", "Right");
             else telemetry.addData("Score on", "Left");
-            if (parkRight) telemetry.addData("Park", "Right");
-            else telemetry.addData("Park", "Left");
+            if (parkLeft) telemetry.addData("Park", "Left");
+            else telemetry.addData("Park", "Right");
             telemetry.addLine();
 
             if (gamepad1.dpad_right) rightTarget = rightAverage.val[0];
             if (gamepad1.dpad_up) middleTarget = middleAverage.val[0];
             //if (gamepad1.dpad_right) rightTarget = rightAverage.val[0];
 
-            if (gamepad1.square) parkRight = false;
-            else if (gamepad1.circle) parkRight = true;
+            if (gamepad1.square) parkLeft = true;
+            else if (gamepad1.circle) parkLeft = false;
             if (gamepad1.left_bumper) scoreRight = false;
             else if (gamepad1.right_bumper) scoreRight = true;
 
