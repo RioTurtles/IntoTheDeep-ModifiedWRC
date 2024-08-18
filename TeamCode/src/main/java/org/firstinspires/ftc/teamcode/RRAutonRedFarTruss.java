@@ -73,7 +73,7 @@ public class RRAutonRedFarTruss extends LinearOpMode {
         drive.setPoseEstimate(startPose);
 
         TrajectorySequence purpleL = drive.trajectorySequenceBuilder(startPose)
-                .lineToLinearHeading(new Pose2d(-44.61, -44.99, Math.toRadians(295.00)))
+                .lineToLinearHeading(new Pose2d(-44.61, -46.99, Math.toRadians(295.00)))
                 .addTemporalMarker(() -> {
                     timer1.reset();
                     robot.clawPIntake();
@@ -97,12 +97,12 @@ public class RRAutonRedFarTruss extends LinearOpMode {
                 })
                 .build();
 
-        Vector2d yellowLL = new Vector2d(35.20, -23.99);
-        Vector2d yellowML = new Vector2d(35.20, -32.91);
+        Vector2d yellowLL = new Vector2d(35.20, -23.79);
+        Vector2d yellowML = new Vector2d(36.20, -32.51);
         Vector2d yellowRL = new Vector2d(35.20, -38.66);
 
-        Vector2d yellowLR = new Vector2d(35.20, -24.91);
-        Vector2d yellowMR = new Vector2d(35.20, -33.31);
+        Vector2d yellowLR = new Vector2d(35.20, -24.61);
+        Vector2d yellowMR = new Vector2d(35.20, -33.11);
         Vector2d yellowRR = new Vector2d(35.20, -40.36);
 
         waitForStart();
@@ -172,7 +172,7 @@ public class RRAutonRedFarTruss extends LinearOpMode {
                             )
                             .splineToConstantHeading(new Vector2d(13.88, -60.08), Math.toRadians(0.00))
                             .splineToConstantHeading(yellowVector, Math.toRadians(0.00))
-                            .addSpatialMarker(new Vector2d(13.88, -60.08), () -> robot.setArm(142.5))
+                            .addSpatialMarker(new Vector2d(13.88, -60.08), () -> robot.setArm(143.5))
                             // .addSpatialMarker(new Vector2d(13.88, -60.08), () -> robot.setArm(141))
                             .build();
                 } else {
@@ -191,9 +191,9 @@ public class RRAutonRedFarTruss extends LinearOpMode {
                 }
 
                 if ((robot.getArmAngle() > 135) && yReady) {
-                    robot.setSlider(600);
+                    robot.setSlider(570);
 
-                    if (robot.slider.getCurrentPosition() > 595 || timer1.milliseconds() > 4000) {
+                    if (robot.slider.getCurrentPosition() > 565 || timer1.milliseconds() > 4000) {
                         timer1.reset();
                         objective = Objective.SCORE_YELLOW;
                     }
