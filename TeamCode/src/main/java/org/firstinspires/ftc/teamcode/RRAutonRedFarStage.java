@@ -104,7 +104,7 @@ public class RRAutonRedFarStage extends LinearOpMode {
                 .splineToSplineHeading(new Pose2d(-20.91, -14.44, Math.toRadians(0.00)), Math.toRadians(0.00))
                 .splineTo(new Vector2d(30.48, -14.44), Math.toRadians(0.00))
                 .addSpatialMarker(new Vector2d(30.48, -14.44), transitionCallback)
-                .splineToConstantHeading(new Vector2d(35.20, -39.51), Math.toRadians(-60.00), param1, param2)
+                .splineToConstantHeading(new Vector2d(37.20, -40.27), Math.toRadians(-60.00), param1, param2)
                 .build();
 
         yellowLR = drive.trajectoryBuilder(purpleL.end())
@@ -121,7 +121,7 @@ public class RRAutonRedFarStage extends LinearOpMode {
                 .splineToSplineHeading(new Pose2d(-20.91, -14.44, Math.toRadians(0.00)), Math.toRadians(0.00))
                 .splineTo(new Vector2d(30.48, -14.44), Math.toRadians(0.00))
                 .addSpatialMarker(new Vector2d(30.48, -14.44), transitionCallback)
-                .splineToConstantHeading(new Vector2d(35.20, -42.31), Math.toRadians(-60.00), param1, param2)
+                .splineToConstantHeading(new Vector2d(37.20, -42.31), Math.toRadians(-60.00), param1, param2)
                 .build();
 
         waitForStart();

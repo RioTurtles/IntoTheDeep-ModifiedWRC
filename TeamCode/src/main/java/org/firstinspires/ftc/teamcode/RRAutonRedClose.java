@@ -91,7 +91,7 @@ public class RRAutonRedClose extends LinearOpMode {
                 .addTemporalMarker(() -> yReady = true)
                 .build();
         yellowRL = drive.trajectorySequenceBuilder(purpleR.end())
-                .lineToConstantHeading(new Vector2d(35.20, -38.71))
+                .lineToConstantHeading(new Vector2d(35.20, -38.01))
                 .addTemporalMarker(() -> yReady = true)
                 .build();
 
