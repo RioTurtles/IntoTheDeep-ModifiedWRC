@@ -87,11 +87,11 @@ public class RRAutonRedClose extends LinearOpMode {
                 .addTemporalMarker(() -> yReady = true)
                 .build();
         yellowML = drive.trajectorySequenceBuilder(purpleM.end())
-                .lineToConstantHeading(new Vector2d(35.20, -31.91))
+                .lineToConstantHeading(new Vector2d(35.20, -32.51))
                 .addTemporalMarker(() -> yReady = true)
                 .build();
         yellowRL = drive.trajectorySequenceBuilder(purpleR.end())
-                .lineToConstantHeading(new Vector2d(35.20, -38.01))
+                .lineToConstantHeading(new Vector2d(35.20, -38.61))
                 .addTemporalMarker(() -> yReady = true)
                 .build();
 
@@ -161,7 +161,7 @@ public class RRAutonRedClose extends LinearOpMode {
                     drive.followTrajectorySequence(yellow);
                 } else if (timer1.milliseconds() > 0) {
                     robot.retractSlider();
-                    robot.setArm(147);
+                    robot.setArm(149);
                 }
 
                 if (robot.getArmAngle() > 125) robot.setSlider(540);
