@@ -264,8 +264,17 @@ public class Project1Hardware {
         setClawPAngle(90 - getArmAngle() * 0.5 - 33);
     }
     public void clawPIntakeExtend() {
-        setClawPAngle(90 - getArmAngle() * 0.5 - 35);
+        setClawPAngle(90 - getArmAngle() * 0.5 - 38);
     }
+
+    /*public void clawPIntakeExtendDynamic() {
+        setClawPAngle(
+                (90 - getArmAngle() * 0.5 - 33)
+                + ((90 - getArmAngle() * 0.5 - 33) - (90 - getArmAngle() * 0.5 - 38))
+                * slider.getCurrentPosition() / 700
+        );
+    }*/
+
     public void clawPScoring() {
         // setClawPAngle(180 - getArmAngle() + 8);
          setClawPAngle(180 - getArmAngle() + 90 + 35);
@@ -313,10 +322,6 @@ public class Project1Hardware {
         slider.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
     }*/
 
-    public void resetSlider() {
-        slider.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-    }
-
     public void resetRetractSlider(SleepFunction sleepFunction) {
         slider.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         slider.setTargetPosition(0);
@@ -328,6 +333,29 @@ public class Project1Hardware {
         slider.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         sleepFunction.call();
         slider.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+    }
+
+    public void resetArm(SleepFunction sleepFunction) {
+//        arm.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+//        arm.setTargetPosition(0);
+//        arm.setPower(1);
+//        arm.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+//        arm.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+//        setArm(getArmAngle() - 10.0);
+//        arm.setPower(1);
+//        arm.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        arm.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        arm.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        arm.setPower(-0.5);
+        sleepFunction.call();
+        arm.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+    }
+
+    public void resetArmEncoder(SleepFunction sleepFunction) {
+        arm.setPower(0);
+        arm.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+        sleepFunction.call();
+        arm.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
     }
 
     public void releaseSliderPower() {

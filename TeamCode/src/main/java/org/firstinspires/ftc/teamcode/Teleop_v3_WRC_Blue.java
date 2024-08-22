@@ -55,6 +55,7 @@ public class Teleop_v3_WRC_Blue extends LinearOpMode {
     boolean mosaicMode = true, cycleMode = false;
     double boardHeading = -Math.PI / 2;
     boolean scoring_extend = false;
+    boolean droneConfirmed = false;
     PIDController heading_pid = new PIDController(kP, kI, kD);
 
     @Override
@@ -112,15 +113,20 @@ public class Teleop_v3_WRC_Blue extends LinearOpMode {
 
             if (Gamepad1.options) robot.imu.resetYaw();
 
-            if (Gamepad2.square) robot.droneLaunch();
+            if (Gamepad2.square && !lastGamepad2.square) {
+                if (!droneConfirmed) droneConfirmed = true;
+                else robot.droneLaunch();
+            }
 
             if (Gamepad2.circle && !lastGamepad2.circle) {
                 state = states.DRAW;
                 timer1.reset();
             }
 
-            if (Gamepad1.dpad_up && !lastGamepad1.dpad_up) robot.resetSlider();
-            if (Gamepad1.dpad_down && !lastGamepad1.dpad_down) robot.resetRetractSlider(() -> sleep(300));
+            // Reset slider
+            if (Gamepad2.dpad_down && !lastGamepad2.dpad_down) robot.resetRetractSlider(() -> sleep(300));
+            // Reset arm
+            if (Gamepad2.dpad_up && !lastGamepad2.dpad_up) robot.resetArm(() -> sleep(300));
 
             /*if (state == 99){
                 robot.setClawPAngle(90 - robot.getArmAngle() -6);
@@ -184,7 +190,7 @@ public class Teleop_v3_WRC_Blue extends LinearOpMode {
                     robot.arm.setPower(0);
                     robot.arm.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
 
-                    if (timer1.milliseconds() > 100) {
+                    if (timer1.milliseconds() > 400) {
                         robot.bothClawOpen();
                     }
                     if (Gamepad1.right_trigger > 0 && !(lastGamepad1.right_trigger > 0)) {
@@ -289,7 +295,7 @@ public class Teleop_v3_WRC_Blue extends LinearOpMode {
 
                 //Retract slider and pixels possessed
                 case READY_SCORE:
-                    if (timer1.milliseconds() > 300) {
+                    if (timer1.milliseconds() > 1000) {
                         robot.arm.setPower(0);
                         robot.arm.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
                     }
