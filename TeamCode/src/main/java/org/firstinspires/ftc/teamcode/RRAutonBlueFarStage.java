@@ -8,7 +8,6 @@ import com.acmerobotics.roadrunner.trajectory.Trajectory;
 import com.acmerobotics.roadrunner.trajectory.constraints.TrajectoryAccelerationConstraint;
 import com.acmerobotics.roadrunner.trajectory.constraints.TrajectoryVelocityConstraint;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
-import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.util.ElapsedTime;
@@ -28,14 +27,14 @@ import org.openftc.easyopencv.OpenCvCameraRotation;
 import org.openftc.easyopencv.OpenCvPipeline;
 import org.openftc.easyopencv.OpenCvWebcam;
 
-@Autonomous(name="2+0 Blue Far, Stage Door")
+@Autonomous(name="2+0 BLUE Far, Stage Door")
 public class RRAutonBlueFarStage extends LinearOpMode {
     Objective objective = Objective.INITIALISE;
     OpenCvWebcam webcam;
     int randomizationResult = 2;
     boolean yReady, scoredPurple;
     boolean scoreRight = true;
-    boolean parkRight;
+    boolean parkLeft;
 
     TrajectorySequence purple, park;
     Trajectory yellow;
@@ -216,7 +215,7 @@ public class RRAutonBlueFarStage extends LinearOpMode {
 
                 if (robot.getArmAngle() < 5) objective = Objective.PARK;
 
-                if (parkRight) {
+                if (parkLeft) {
                     park = drive.trajectorySequenceBuilder(nowPose)
                             .lineToLinearHeading(new Pose2d(48.97, 62.18, Math.toRadians(90.00)))
                             .addTemporalMarker(() -> objective = Objective.END)
@@ -244,8 +243,8 @@ public class RRAutonBlueFarStage extends LinearOpMode {
 
             drive.update();
             telemetry.addData("Objective", objective);
-            if (parkRight) telemetry.addData("Park", "Right");
-            else telemetry.addData("Park", "Left");
+            if (parkLeft) telemetry.addData("Park", "Left");
+            else telemetry.addData("Park", "Right");
             telemetry.addLine();
             telemetry.addData("X", nowPose.getX());
             telemetry.addData("Y", nowPose.getY());
@@ -324,7 +323,7 @@ public class RRAutonBlueFarStage extends LinearOpMode {
 
             if (scoreRight) telemetry.addData("Score on", "Right");
             else telemetry.addData("Score on", "Left");
-            if (parkRight) telemetry.addData("Park", "Right");
+            if (parkLeft) telemetry.addData("Park", "Right");
             else telemetry.addData("Park", "Left");
             telemetry.addLine();
 
@@ -332,8 +331,8 @@ public class RRAutonBlueFarStage extends LinearOpMode {
             if (gamepad1.dpad_up) middleTarget = middleAverage.val[0];
             //if (gamepad1.dpad_right) rightTarget = rightAverage.val[0];
 
-            if (gamepad1.square) parkRight = false;
-            else if (gamepad1.circle) parkRight = true;
+            if (gamepad1.square) parkLeft = false;
+            else if (gamepad1.circle) parkLeft = true;
             if (gamepad1.left_bumper) scoreRight = false;
             else if (gamepad1.right_bumper) scoreRight = true;
 

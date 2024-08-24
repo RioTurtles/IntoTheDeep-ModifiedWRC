@@ -25,7 +25,7 @@ import org.openftc.easyopencv.OpenCvPipeline;
 import org.openftc.easyopencv.OpenCvWebcam;
 
 
-@Autonomous(name="2+0 Blue Far, Truss")
+@Autonomous(name="2+0 BLUE Far, Truss")
 public class RRAutonBlueFarTruss extends LinearOpMode {
     Objective objective = Objective.INITIALISE;
     OpenCvWebcam webcam;
@@ -234,8 +234,8 @@ public class RRAutonBlueFarTruss extends LinearOpMode {
 
             drive.update();
             telemetry.addData("Objective", objective);
-            if (parkLeft) telemetry.addData("Park", "Right");
-            else telemetry.addData("Park", "Left");
+            if (parkLeft) telemetry.addData("Park", "Left");
+            else telemetry.addData("Park", "Right");
             telemetry.addLine();
             telemetry.addData("X", nowPose.getX());
             telemetry.addData("Y", nowPose.getY());

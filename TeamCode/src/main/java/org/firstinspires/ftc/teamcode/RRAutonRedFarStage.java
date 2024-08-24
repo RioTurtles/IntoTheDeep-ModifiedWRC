@@ -27,7 +27,7 @@ import org.openftc.easyopencv.OpenCvCameraRotation;
 import org.openftc.easyopencv.OpenCvPipeline;
 import org.openftc.easyopencv.OpenCvWebcam;
 
-@Autonomous(name="2+0 Red Far, Stage Door")
+@Autonomous(name="2+0 RED Far, Stage Door")
 public class RRAutonRedFarStage extends LinearOpMode {
     Objective objective = Objective.INITIALISE;
     OpenCvWebcam webcam;

@@ -22,7 +22,7 @@ import org.openftc.easyopencv.OpenCvCameraRotation;
 import org.openftc.easyopencv.OpenCvPipeline;
 import org.openftc.easyopencv.OpenCvWebcam;
 
-@Autonomous(name="2+0 Red Close")
+@Autonomous(name="2+0 RED Close")
 public class RRAutonRedClose extends LinearOpMode {
     Objective objective = Objective.INITIALISE;
     OpenCvWebcam webcam;
