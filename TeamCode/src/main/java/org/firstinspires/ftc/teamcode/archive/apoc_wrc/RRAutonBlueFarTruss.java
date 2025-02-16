@@ -1,10 +1,11 @@
-package org.firstinspires.ftc.teamcode;
+package org.firstinspires.ftc.teamcode.archive.apoc_wrc;
 
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.roadrunner.geometry.Pose2d;
 import com.acmerobotics.roadrunner.geometry.Vector2d;
 import com.acmerobotics.roadrunner.trajectory.Trajectory;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.util.ElapsedTime;
@@ -24,14 +25,15 @@ import org.openftc.easyopencv.OpenCvCameraRotation;
 import org.openftc.easyopencv.OpenCvPipeline;
 import org.openftc.easyopencv.OpenCvWebcam;
 
-@Autonomous(name="2+0 RED Far, Truss")
-public class RRAutonRedFarTruss extends LinearOpMode {
+@Disabled
+@Autonomous(name="2+0 BLUE Far, Truss")
+public class RRAutonBlueFarTruss extends LinearOpMode {
     Objective objective = Objective.INITIALISE;
     OpenCvWebcam webcam;
     int randomizationResult = 2;
     boolean yReady, scoredPurple;
     boolean scoreRight = true;
-    boolean parkRight;
+    boolean parkLeft;
 
     TrajectorySequence purple, park;
     Trajectory yellow;
@@ -39,7 +41,7 @@ public class RRAutonRedFarTruss extends LinearOpMode {
 
     @Override
     public void runOpMode() throws InterruptedException {
-        Storage.allianceSide = 1;
+        Storage.allianceSide = -1;
         Project1Hardware robot = new Project1Hardware();
         robot.init(hardwareMap, telemetry);
         robot.reset();
@@ -49,7 +51,7 @@ public class RRAutonRedFarTruss extends LinearOpMode {
         ElapsedTime timer1 = new ElapsedTime();
         ElapsedTime timer2 = new ElapsedTime();
         SampleMecanumDrive drive = new SampleMecanumDrive(hardwareMap);
-        Pose2d startPose = new Pose2d(-40.33, -62.80, Math.toRadians(90.00));
+        Pose2d startPose = new Pose2d(-40.33, 62.80, Math.toRadians(-90.00));
         Pose2d nowPose;
 
         WebcamName webcamName = hardwareMap.get(WebcamName.class, "Webcam 1");
@@ -73,7 +75,7 @@ public class RRAutonRedFarTruss extends LinearOpMode {
         drive.setPoseEstimate(startPose);
 
         TrajectorySequence purpleL = drive.trajectorySequenceBuilder(startPose)
-                .lineToLinearHeading(new Pose2d(-44.61, -46.99, Math.toRadians(295.00)))
+                .lineToLinearHeading(new Pose2d(-44.61, 44.99, Math.toRadians(135.00)))
                 .addTemporalMarker(() -> {
                     timer1.reset();
                     robot.clawPIntake();
@@ -81,7 +83,7 @@ public class RRAutonRedFarTruss extends LinearOpMode {
                 })
                 .build();
         TrajectorySequence purpleM = drive.trajectorySequenceBuilder(startPose)
-                .lineToLinearHeading(new Pose2d(-44.61, -44.99, Math.toRadians(260.00)))
+                .lineToLinearHeading(new Pose2d(-44.61, 44.99, Math.toRadians(115.00)))
                 .addTemporalMarker(() -> {
                     timer1.reset();
                     robot.clawPIntake();
@@ -89,7 +91,7 @@ public class RRAutonRedFarTruss extends LinearOpMode {
                 })
                 .build();
         TrajectorySequence purpleR = drive.trajectorySequenceBuilder(startPose)
-                .lineToLinearHeading(new Pose2d(-44.61, -44.99, Math.toRadians(220.00)))
+                .lineToLinearHeading(new Pose2d(-44.61, 44.99, Math.toRadians(73.00)))
                 .addTemporalMarker(() -> {
                     timer1.reset();
                     robot.clawPIntake();
@@ -97,13 +99,13 @@ public class RRAutonRedFarTruss extends LinearOpMode {
                 })
                 .build();
 
-        Vector2d yellowLL = new Vector2d(35.20, -23.79);
-        Vector2d yellowML = new Vector2d(36.20, -32.51);
-        Vector2d yellowRL = new Vector2d(35.20, -38.66);
+        Vector2d yellowLL = new Vector2d(35.20, 39.46);
+        Vector2d yellowML = new Vector2d(35.20, 33.01);
+        Vector2d yellowRL = new Vector2d(35.20, 23.01);
 
-        Vector2d yellowLR = new Vector2d(35.20, -24.61);
-        Vector2d yellowMR = new Vector2d(35.20, -33.11);
-        Vector2d yellowRR = new Vector2d(35.20, -40.36);
+        Vector2d yellowLR = new Vector2d(35.20, 39.36);
+        Vector2d yellowMR = new Vector2d(35.20, 34.01);
+        Vector2d yellowRR = new Vector2d(35.20, 23.31);
 
         waitForStart();
         robot.retractSlider();
@@ -142,41 +144,40 @@ public class RRAutonRedFarTruss extends LinearOpMode {
 
             if (objective == Objective.TRANSITION_TO_PURPLE) {
                 switch (randomizationResult) {
-                    case 1: robot.setSlider(100); break;
-                    default: case 2: robot.setSlider(400); break;
-                    case 3: robot.setSlider(550); break;
+                    case 1: robot.setSlider(650); break;
+                    default: case 2: robot.setSlider(500); break;
+                    case 3: robot.setSlider(100); break;
                 }
 
-                if (robot.sliderInPosition(5) || timer1.milliseconds() > 3000) {
+                if (robot.sliderInPosition(3) || timer1.milliseconds() > 3000) {
                     objective = Objective.SCORE_PURPLE;
                     timer1.reset();
                 }
             }
 
             if (objective == Objective.SCORE_PURPLE) {
-                if (timer1.milliseconds() > 1760 || (scoredPurple && timer2.milliseconds() > 100)) {
+                if (timer1.milliseconds() > 1760 || scoredPurple && timer2.milliseconds() > 300) {
                     robot.arm.setPower(0);
                     robot.arm.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
                     objective = Objective.PATH_TO_YELLOW;
-                } else if (timer1.milliseconds() > 1360 || (scoredPurple && timer2.milliseconds() > 100)) {
+                } else if (timer1.milliseconds() > 1360 || scoredPurple) {
                     robot.setClawPAngle(160);
-                    robot.bothClawClose();
                     robot.retractSlider();
 
                     yellow = drive.trajectoryBuilder(nowPose)
                             .splineToSplineHeading(
-                                    new Pose2d(-32.51, -60.08, Math.toRadians(0.00)),
+                                    new Pose2d(-32.51, 58.08, Math.toRadians(0.00)),
                                     Math.toRadians(0.00),
                                     SampleMecanumDrive.getVelocityConstraint(30, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
                                     SampleMecanumDrive.getAccelerationConstraint(17.5)
                             )
-                            .splineToConstantHeading(new Vector2d(13.88, -60.08), Math.toRadians(0.00))
+                            .splineToConstantHeading(new Vector2d(13.88, 58.08), Math.toRadians(0.00))
                             .splineToConstantHeading(yellowVector, Math.toRadians(0.00))
-                            .addSpatialMarker(new Vector2d(13.88, -60.08), () -> robot.setArm(143.5))
-                            // .addSpatialMarker(new Vector2d(13.88, -60.08), () -> robot.setArm(141))
+                            .addSpatialMarker(new Vector2d(13.88, 58.08), () -> robot.setArm(143))
                             .build();
-                } else {
-                    robot.rightClawOpen();
+                    robot.bothClawClose();
+                } else if (timer1.milliseconds() > 0) {
+                    robot.leftClawOpen();
                     scoredPurple = true;
                     timer2.reset();
                 }
@@ -187,13 +188,12 @@ public class RRAutonRedFarTruss extends LinearOpMode {
                     drive.followTrajectory(yellow);
                     robot.clawPScoring();
                     yReady = true;
-                    timer1.reset();
                 }
 
                 if ((robot.getArmAngle() > 135) && yReady) {
-                    robot.setSlider(570);
+                    robot.setSlider(655);
 
-                    if (robot.slider.getCurrentPosition() > 565 || timer1.milliseconds() > 4000) {
+                    if (robot.slider.getCurrentPosition() > 635) {
                         timer1.reset();
                         objective = Objective.SCORE_YELLOW;
                     }
@@ -202,19 +202,19 @@ public class RRAutonRedFarTruss extends LinearOpMode {
 
             if (objective == Objective.SCORE_YELLOW) {
                 if (timer1.milliseconds() > 705) {robot.setArm(0); robot.bothClawClose();}
-                else if (timer1.milliseconds() > 450) robot.retractSlider();
-                else if (timer1.milliseconds() > 150) robot.leftClawOpen();
+                else if (timer1.milliseconds() > 600) robot.retractSlider();
+                else if (timer1.milliseconds() > 150) robot.rightClawOpen();
 
-                if (robot.getArmAngle() < 5 && timer1.milliseconds() > 700) objective = Objective.PARK;
+                if (robot.getArmAngle() < 5) objective = Objective.PARK;
 
-                if (parkRight) {
+                if (parkLeft) {
                     park = drive.trajectorySequenceBuilder(nowPose)
-                            .lineToLinearHeading(new Pose2d(48.97, -62.18, Math.toRadians(90.00)))
+                            .lineToLinearHeading(new Pose2d(48.97, 62.18, Math.toRadians(90.00)))
                             .addTemporalMarker(() -> objective = Objective.END)
                             .build();
                 } else {
                     park = drive.trajectorySequenceBuilder(nowPose)
-                            .lineToLinearHeading(new Pose2d(48.97, -11.06, Math.toRadians(90.00)))
+                            .lineToLinearHeading(new Pose2d(48.97, 11.06, Math.toRadians(90.00)))
                             .addTemporalMarker(() -> objective = Objective.END)
                             .build();
                 }
@@ -235,8 +235,8 @@ public class RRAutonRedFarTruss extends LinearOpMode {
 
             drive.update();
             telemetry.addData("Objective", objective);
-            if (parkRight) telemetry.addData("Park", "Right");
-            else telemetry.addData("Park", "Left");
+            if (parkLeft) telemetry.addData("Park", "Left");
+            else telemetry.addData("Park", "Right");
             telemetry.addLine();
             telemetry.addData("X", nowPose.getX());
             telemetry.addData("Y", nowPose.getY());
@@ -258,28 +258,28 @@ public class RRAutonRedFarTruss extends LinearOpMode {
             Imgproc.cvtColor(input, YCbCr, Imgproc.COLOR_RGB2YCrCb);
             telemetry.addLine("Pipeline running.");
 
-            /*Rect leftRect = new Rect(0, 100, 100, 79);
-            Rect middleRect = new Rect(280, 100, 100, 79);
-            Rect rightRect = new Rect(539, 150, 100, 79);*/
+            /*Rect middleRect = new Rect(0, 100, 100, 79);
+            Rect rightRect = new Rect(280, 100, 100, 79);
+            Rect middleRect = new Rect(539, 150, 100, 79);*/
 
-            Rect leftRect = new Rect(70, 130, 85, 64);
-            Rect middleRect = new Rect(375, 140, 90, 70);
-            //Rect rightRect = new Rect(539, 150, 100, 79);
+            Rect middleRect = new Rect(200, 130, 85, 64);
+            Rect rightRect = new Rect(510, 140, 90, 70);
+            //Rect middleRect = new Rect(539, 150, 100, 79);
 
             input.copyTo(output);
-            Imgproc.rectangle(output, leftRect, rectColour, 2);
             Imgproc.rectangle(output, middleRect, rectColour, 2);
-            //Imgproc.rectangle(output, rightRect, rectColour, 2);
+            Imgproc.rectangle(output, rightRect, rectColour, 2);
+            //Imgproc.rectangle(output, middleRect, rectColour, 2);
 
-            leftCrop = YCbCr.submat(leftRect);
+            rightCrop = YCbCr.submat(rightRect);
             middleCrop = YCbCr.submat(middleRect);
-            //rightCrop = YCbCr.submat(rightRect);
+            //rightCrop = YCbCr.submat(middleRect);
 
-            Core.extractChannel(leftCrop, leftCrop,2);  // Channel 2 = red
-            Core.extractChannel(middleCrop, middleCrop, 2);
+            Core.extractChannel(rightCrop, rightCrop,1);  // Channel 2 = red
+            Core.extractChannel(middleCrop, middleCrop, 1);
             //Core.extractChannel(rightCrop, rightCrop, 0);
 
-            Scalar leftAverage = Core.mean(leftCrop);
+            Scalar rightAverage = Core.mean(rightCrop);
             Scalar middleAverage = Core.mean(middleCrop);
             //Scalar rightAverage = Core.mean(rightCrop);
 
@@ -287,7 +287,7 @@ public class RRAutonRedFarTruss extends LinearOpMode {
 //            middleAverageFinal = Math.abs(middleAverage.val[0] - 105);
 //            rightAverageFinal = Math.abs(rightAverage.val[0] - 105);
 
-            avgLFinal = Math.abs(leftAverage.val[0] - leftTarget);
+            avgRFinal = Math.abs(rightAverage.val[0] - rightTarget);
             avgMFinal = Math.abs(middleAverage.val[0] - middleTarget);
             //avgRFinal = Math.abs(rightAverage.val[0] - rightTarget);
 
@@ -302,34 +302,34 @@ public class RRAutonRedFarTruss extends LinearOpMode {
                 randomizationResult = 3;
             }*/
 
-            if (avgLFinal > 5 && avgMFinal > 5) {
-                telemetry.addLine("RIGHT");
-                randomizationResult = 3;
-            } else if (avgLFinal < avgMFinal) {
+            if (avgRFinal > 5 && avgMFinal > 5) {
                 telemetry.addLine("LEFT");
                 randomizationResult = 1;
-            } else if (avgMFinal < avgLFinal) {
+            } else if (avgRFinal < avgMFinal) {
+                telemetry.addLine("RIGHT");
+                randomizationResult = 3;
+            } else if (avgMFinal < avgRFinal) {
                 telemetry.addLine("MIDDLE");
                 randomizationResult = 2;
             }
 
             if (scoreRight) telemetry.addData("Score on", "Right");
             else telemetry.addData("Score on", "Left");
-            if (parkRight) telemetry.addData("Park", "Right");
-            else telemetry.addData("Park", "Left");
+            if (parkLeft) telemetry.addData("Park", "Left");
+            else telemetry.addData("Park", "Right");
             telemetry.addLine();
 
-            if (gamepad1.dpad_left) leftTarget = leftAverage.val[0];
+            if (gamepad1.dpad_right) rightTarget = rightAverage.val[0];
             if (gamepad1.dpad_up) middleTarget = middleAverage.val[0];
             //if (gamepad1.dpad_right) rightTarget = rightAverage.val[0];
 
-            if (gamepad1.square) parkRight = false;
-            else if (gamepad1.circle) parkRight = true;
+            if (gamepad1.square) parkLeft = true;
+            else if (gamepad1.circle) parkLeft = false;
             if (gamepad1.left_bumper) scoreRight = false;
             else if (gamepad1.right_bumper) scoreRight = true;
 
-            telemetry.addData("leftAvg", leftAverage.val[0]);
-            //telemetry.addData("rightAvg", rightAverage.val[0]);
+            telemetry.addData("rightAvg", rightAverage.val[0]);
+            //telemetry.addData("leftAvg", leftAverage.val[0]);
             telemetry.addData("middleAvg", middleAverage.val[0]);
             telemetry.addLine();
             telemetry.addData("left", avgLFinal);

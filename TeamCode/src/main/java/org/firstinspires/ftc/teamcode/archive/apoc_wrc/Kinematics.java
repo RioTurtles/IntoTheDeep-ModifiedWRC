@@ -1,8 +1,7 @@
-package org.firstinspires.ftc.teamcode;
-import androidx.annotation.NonNull;
+package org.firstinspires.ftc.teamcode.archive.apoc_wrc;
 
 import com.acmerobotics.dashboard.config.Config;
-import com.arcrobotics.ftclib.hardware.SensorDistanceEx;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
@@ -15,11 +14,10 @@ import com.arcrobotics.ftclib.controller.PIDController;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 
-import java.net.CookieManager;
-
 @Config
+@Disabled
 @TeleOp
-public class Teleop_Kinematics extends LinearOpMode {
+public class Kinematics extends LinearOpMode {
     public enum states {
         INIT,
         GROUND,
@@ -38,11 +36,11 @@ public class Teleop_Kinematics extends LinearOpMode {
     double avgDis = 0;
     double disError = 0;
     double disLastError = 0;
-    public static long extension = 0, armAngle = 0;
+    double extension = 0, armAngle = 0;
     double extension_1 = 0, armAngle_1 = 0;
-    public static int extension2 =0, armAngle2=0;
     public static double  kP = 2, kI = 0.1, kD = 0.08;
     public static double clawPAngle = 174;
+    public static double multiplier = 7.5;
 
     int position;
 
@@ -331,11 +329,11 @@ public class Teleop_Kinematics extends LinearOpMode {
                     /*extension = Math.sqrt(Math.pow((avgDis - distanceOffset), 2) + Math.pow((boardHeight[scoreHeight] - (Math.sqrt(3) * 24.60 / 3)), 2) + ((avgDis - distanceOffset) * (boardHeight[scoreHeight] - (Math.sqrt(3) * 24.60 /  3)))) - 40;
                     armAngle = Math.toDegrees(180) - (Math.asin(((Math.sqrt(3) * boardHeight[scoreHeight]) - 24.6)/ (2 * (40 + extension))));*/
 
-                    extension = Math.round(Math.sqrt(900 + (avgDis + 8) * (avgDis + 8) + (30 * (avgDis + 8))) - 36);
-                    armAngle = Math.round(180 - Math.toDegrees(Math.asin((15 * Math.sqrt(3)) / (36 + extension))));
+                    extension = Math.sqrt(Math.pow(boardHeight[scoreHeight], 2) + (avgDis + 8.1) * (avgDis + 8.1) + (30 * (avgDis + 8))) - 35;
+                    armAngle = 180 - Math.toDegrees(Math.asin((15 * Math.sqrt(3)) / (35 + extension)));
 
                     if (avgDis < 60) {
-                        robot.setArm(-armAngle_1);
+                        robot.setArm(armAngle);
                     }
 
                     /*if (scoreHeight == 0) maxDistance = 0;
@@ -358,7 +356,7 @@ public class Teleop_Kinematics extends LinearOpMode {
                     }
 
                     if (scoring_extend) {
-                        robot.setSliderLength(extension_1);
+                        robot.setSliderLength(extension * multiplier);
                     } else {
                         robot.setSlider(-1);
                     }
@@ -540,7 +538,17 @@ public class Teleop_Kinematics extends LinearOpMode {
                 }
             }*/
 
+            if (Gamepad1.dpad_left && !lastGamepad1.dpad_left) {
+                riggingState += 1;
+            }
 
+            if (Gamepad1.dpad_right && !lastGamepad1.dpad_right) {
+                riggingState -= 1;
+            }
+
+            /*if (Gamepad1.dpad_left && Gamepad1.dpad_right) {
+                robot.retractRiggingServo();
+            }*/
 
             if (riggingState > 3) {
                 riggingState = 3;
@@ -574,15 +582,8 @@ public class Teleop_Kinematics extends LinearOpMode {
                 pivot = -align_output;
             }
 
-            extension = Math.round(Math.sqrt(900 + (avgDis + 8) * (avgDis + 8) + (30 * (avgDis + 8))) - 36);
-            armAngle = Math.round(180 - Math.toDegrees(Math.asin((15 * Math.sqrt(3)) / (36 + extension))));
 
-            if (gamepad1.dpad_left){
-                robot.setArm(armAngle);
-            }
-            if (gamepad1.dpad_right){
-                robot.setSlider(robot.lengthToEncoderValueSlider(extension2));
-            }
+
 
 
             /*telemetry.addData("Encoder Angle (Degrees)", angle);

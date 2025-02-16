@@ -1,6 +1,9 @@
-package org.firstinspires.ftc.teamcode;
+package org.firstinspires.ftc.teamcode.archive.apoc_wrc;
 
+import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.config.Config;
+import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
@@ -14,8 +17,9 @@ import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 
 @Config
+@Disabled
 @TeleOp (group = "Peasant Rabbits 2024")
-public class Teleop_Test extends LinearOpMode {
+public class Teleop_v3_WRC_Red extends LinearOpMode {
     public enum states {
         INIT,
         GROUND,
@@ -23,11 +27,10 @@ public class Teleop_Test extends LinearOpMode {
         GROUND_GRIP,
         EXTEND_GRIP,
         READY_SCORE,
-        AUTO_ALIGN,
         SCORING,
         SIMPLE_SCORING,
         RETURN_TO_INIT,
-        PICK
+        DRAW
     }
 
     double direction_y, direction_x, pivot, heading;
@@ -47,19 +50,21 @@ public class Teleop_Test extends LinearOpMode {
 
     int[] mosaicScoreSliderLength = {0, 200, 300, 400, 500, 600, 700, 800, 900};
     double[] cycleScoreArmAngle = {145, 140, 135, 130, 125, 120, 115, 110};
-    double[] pickArmAngle = {160, 155, 145, 140, 135, 130, 125, 120, 115, 110};
+    double[] drawArmAngle = {160, 155, 150, 145, 140, 135, 130, 125, 120};
     int mosaicScoreHeight = 0;
     int  cycleScoreHeight = 0;
-    int pickScoreHeight = 0;
+    int drawScoreHeight = 0;
     boolean mosaicMode = true, cycleMode = false;
     double boardHeading = -Math.PI / 2;
     boolean scoring_extend = false;
+    boolean droneConfirmed = false;
     PIDController heading_pid = new PIDController(kP, kI, kD);
 
     @Override
     public void runOpMode() throws InterruptedException {
         Project1Hardware robot = new Project1Hardware();
         MecanumDrive drivetrain = new MecanumDrive(robot);
+        MultipleTelemetry telemetry1 = new MultipleTelemetry(telemetry, FtcDashboard.getInstance().getTelemetry());
         robot.init(hardwareMap, telemetry);
         robot.reset();
 
@@ -74,7 +79,7 @@ public class Teleop_Test extends LinearOpMode {
 
         robot.bothClawClose();
         robot.setArm(-12);
-        robot.setClawPAngle(0);
+        robot.setClawPAngle(180);
         robot.setSlider(0);
 
         waitForStart();
@@ -110,15 +115,23 @@ public class Teleop_Test extends LinearOpMode {
 
             if (Gamepad1.options) robot.imu.resetYaw();
 
-            if (Gamepad2.square) robot.droneLaunch();
+            if (Gamepad2.square && !lastGamepad2.square) {
+                if (!droneConfirmed) droneConfirmed = true;
+                else robot.droneLaunch();
+            }
 
             if (Gamepad2.circle && !lastGamepad2.circle) {
-                state = states.PICK;
+                state = states.DRAW;
                 timer1.reset();
             }
 
+            // Reset slider
+            if (Gamepad2.dpad_down && !lastGamepad2.dpad_down) robot.resetRetractSlider(() -> sleep(300));
+            // Reset arm
+            if (Gamepad2.dpad_up && !lastGamepad2.dpad_up) robot.resetArm(() -> sleep(300));
+
             /*if (state == 99){
-                robot.setclawPAngle(90 - robot.getArmAngle() -6);
+                robot.setClawPAngle(90 - robot.getArmAngle() -6);
                 if ( robot.getDis() > 0) {
                     if (Gamepad1.dpad_up) {  //Max
                         //robot.setArm(37);
@@ -136,9 +149,9 @@ public class Teleop_Test extends LinearOpMode {
                         //robot.setArm(6);
                         boardHeight = 18;
                     }
-                    //robot.setArm(Math.atan(boardHeight / (robot.getDis() + boardHeight / Math.tan(60))));
+                    robot.setArm(Math.atan(boardHeight / (robot.getDis() + boardHeight / Math.tan(60))));
                     robot.setSliderLength(Math.sqrt(Math.pow(boardHeight, 2) + Math.pow((robot.getDis() + boardHeight / Math.tan(60)), 2)) - );
-                    //robot.setSliderLength();r
+                    robot.setSliderLength();
                 }*/
 
             //boardHeight=10;
@@ -179,7 +192,7 @@ public class Teleop_Test extends LinearOpMode {
                     robot.arm.setPower(0);
                     robot.arm.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
 
-                    if (timer1.milliseconds() > 100) {
+                    if (timer1.milliseconds() > 400) {
                         robot.bothClawOpen();
                     }
                     if (Gamepad1.right_trigger > 0 && !(lastGamepad1.right_trigger > 0)) {
@@ -284,7 +297,7 @@ public class Teleop_Test extends LinearOpMode {
 
                 //Retract slider and pixels possessed
                 case READY_SCORE:
-                    if (timer1.milliseconds() > 300) {
+                    if (timer1.milliseconds() > 1000) {
                         robot.arm.setPower(0);
                         robot.arm.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
                     }
@@ -342,7 +355,7 @@ public class Teleop_Test extends LinearOpMode {
                             robot.setSlider(0);
                         }
 
-                        if (mosaicScoreHeight == 0) robot.setArm(140);
+                        if (mosaicScoreHeight == 0) robot.setArm(127);
                         else robot.setArm(120);
                     } else if (cycleMode) {
                         //cycle
@@ -402,7 +415,7 @@ public class Teleop_Test extends LinearOpMode {
                         robot.setArm(0);
                     }
                     // robot.arm.setVelocity(1600);
-
+                    
                     if (robot.getArmAngle() > 70 && robot.getArmAngle() < 100) {
                         robot.bothClawClose();
                     }
@@ -417,11 +430,11 @@ public class Teleop_Test extends LinearOpMode {
                     }
                     break;
 
-                case PICK:
-                    robot.setArm(pickArmAngle[pickScoreHeight]);
-                    if (Gamepad1.right_trigger > 0 && !(lastGamepad1.right_trigger > 0)) pickScoreHeight += 1;
-                    if (Gamepad1.left_trigger > 0 && !(lastGamepad1.left_trigger > 0)) pickScoreHeight -= 1;
-                    ;
+                case DRAW:
+                    robot.setArm(drawArmAngle[drawScoreHeight]);
+                    if (Gamepad1.right_trigger > 0 && !(lastGamepad1.right_trigger > 0)) drawScoreHeight += 1;
+                    if (Gamepad1.left_trigger > 0 && !(lastGamepad1.left_trigger > 0)) drawScoreHeight -= 1;
+
                     if (robot.getArmAngle() > 90) robot.setClawPAngle(80);
 
                     if (Gamepad1.triangle && !lastGamepad1.triangle && robot.getArmAngle() > 100) {
@@ -477,7 +490,6 @@ public class Teleop_Test extends LinearOpMode {
             if (mosaicScoreHeight < 0) {
                 mosaicScoreHeight = 0;
             }
-
             if (mosaicScoreHeight > 8) {
                 mosaicScoreHeight = 8;
             }
@@ -485,17 +497,15 @@ public class Teleop_Test extends LinearOpMode {
             if (cycleScoreHeight < 0) {
                 cycleScoreHeight = 0;
             }
-
             if (cycleScoreHeight > 7) {
                 cycleScoreHeight = 7;
             }
 
-            if (pickScoreHeight < 0) {
-                pickScoreHeight = 0;
+            if (drawScoreHeight < 0) {
+                drawScoreHeight = 0;
             }
-
-            if (pickScoreHeight > 8) {
-                pickScoreHeight = 8;
+            if (drawScoreHeight > 8) {
+                drawScoreHeight = 8;
             }
 
             //Rigging
@@ -540,6 +550,10 @@ public class Teleop_Test extends LinearOpMode {
                 }
             }
 
+            if (riggingState > 0) {
+                pivot = Gamepad1.right_stick_x * 0.8;
+            }
+
             if (Gamepad1.dpad_left && !lastGamepad1.dpad_left) {
                 riggingState += 1;
             }
@@ -547,6 +561,10 @@ public class Teleop_Test extends LinearOpMode {
             if (Gamepad1.dpad_right && !lastGamepad1.dpad_right) {
                 riggingState -= 1;
             }
+
+            /*if (Gamepad1.dpad_left && Gamepad1.dpad_right) {
+                robot.retractRiggingServo();
+            }*/
 
             if (riggingState > 3) {
                 riggingState = 3;

@@ -1,14 +1,20 @@
-package org.firstinspires.ftc.teamcode;
+package org.firstinspires.ftc.teamcode.archive.apoc_wrc;
 
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.roadrunner.geometry.Pose2d;
 import com.acmerobotics.roadrunner.geometry.Vector2d;
+import com.acmerobotics.roadrunner.trajectory.MarkerCallback;
+import com.acmerobotics.roadrunner.trajectory.Trajectory;
+import com.acmerobotics.roadrunner.trajectory.constraints.TrajectoryAccelerationConstraint;
+import com.acmerobotics.roadrunner.trajectory.constraints.TrajectoryVelocityConstraint;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
+import org.firstinspires.ftc.teamcode.drive.DriveConstants;
 import org.firstinspires.ftc.teamcode.drive.SampleMecanumDrive;
 import org.firstinspires.ftc.teamcode.trajectorysequence.TrajectorySequence;
 import org.opencv.core.Core;
@@ -22,18 +28,20 @@ import org.openftc.easyopencv.OpenCvCameraRotation;
 import org.openftc.easyopencv.OpenCvPipeline;
 import org.openftc.easyopencv.OpenCvWebcam;
 
-@Autonomous(name="2+0 BLUE Close")
-public class RRAutonBlueClose extends LinearOpMode {
+@Disabled
+@Autonomous(name="2+0 BLUE Far, Stage Door")
+public class RRAutonBlueFarStage extends LinearOpMode {
     Objective objective = Objective.INITIALISE;
     OpenCvWebcam webcam;
     int randomizationResult = 2;
     boolean yReady, scoredPurple;
-    boolean scoreLeft = true;
-    boolean parkLeft = true;
+    boolean scoreRight = true;
+    boolean parkLeft;
 
-    TrajectorySequence purple, yellow, park;
-    TrajectorySequence yellowLL, yellowML, yellowRL;
-    TrajectorySequence yellowLR, yellowMR, yellowRR;
+    TrajectorySequence purple, park;
+    Trajectory yellow;
+    Trajectory yellowLL, yellowML, yellowRL;
+    Trajectory yellowLR, yellowMR, yellowRR;
 
     @Override
     public void runOpMode() throws InterruptedException {
@@ -45,8 +53,9 @@ public class RRAutonBlueClose extends LinearOpMode {
         robot.bothClawClose();
 
         ElapsedTime timer1 = new ElapsedTime();
+        ElapsedTime timer2 = new ElapsedTime();
         SampleMecanumDrive drive = new SampleMecanumDrive(hardwareMap);
-        Pose2d startPose = new Pose2d(15.43, 62.80, Math.toRadians(-90.00));
+        Pose2d startPose = new Pose2d(-40.33, 62.80, Math.toRadians(-90.00));
         Pose2d nowPose;
 
         WebcamName webcamName = hardwareMap.get(WebcamName.class, "Webcam 1");
@@ -70,58 +79,71 @@ public class RRAutonBlueClose extends LinearOpMode {
         drive.setPoseEstimate(startPose);
 
         TrajectorySequence purpleL = drive.trajectorySequenceBuilder(startPose)
-                .lineToSplineHeading(new Pose2d(35.20, 32.01, Math.toRadians(0.00)))
-                .addTemporalMarker(() -> {robot.clawPIntake(); objective = Objective.SCORE_PURPLE;})
+                .splineToSplineHeading(new Pose2d(-38.39, 15.49, Math.toRadians(234.14)), Math.toRadians(280.00))
+                .addTemporalMarker(robot::clawPIntake)
                 .build();
         TrajectorySequence purpleM = drive.trajectorySequenceBuilder(startPose)
-                .lineToSplineHeading(new Pose2d(35.20, 25.51, Math.toRadians(0.00)))
-                .addTemporalMarker(() -> {robot.clawPIntake(); objective = Objective.SCORE_PURPLE;})
+                .splineToSplineHeading(new Pose2d(-29.84, 8.68, Math.toRadians(297.53)), Math.toRadians(295.00))
+                .addTemporalMarker(robot::clawPIntake)
                 .build();
         TrajectorySequence purpleR = drive.trajectorySequenceBuilder(startPose)
-                .lineToSplineHeading(new Pose2d(32.45, 32.01, Math.toRadians(0.00)))
-                .addTemporalMarker(() -> {robot.clawPIntake(); objective = Objective.SCORE_PURPLE;})
+                .splineToSplineHeading(new Pose2d(-30.22, 10.33, Math.toRadians(305.00)), Math.toRadians(295.00))
+                .addTemporalMarker(robot::clawPIntake)
                 .build();
 
-        yellowLL = drive.trajectorySequenceBuilder(purpleL.end())
-                .lineToConstantHeading(new Vector2d(35.20, 41.71))
-                .addTemporalMarker(() -> yReady = true)
+        MarkerCallback transitionCallback = () -> {robot.setClawPAngle(180); robot.setArm(147.5);};
+        TrajectoryVelocityConstraint param1 = SampleMecanumDrive.getVelocityConstraint(35, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH);
+        TrajectoryAccelerationConstraint param2 = SampleMecanumDrive.getAccelerationConstraint(35);
+
+        yellowLL = drive.trajectoryBuilder(purpleL.end())
+                .splineToSplineHeading(new Pose2d(-20.91, 14.44, Math.toRadians(0.00)), Math.toRadians(0.00))
+                .splineTo(new Vector2d(30.48, 14.44), Math.toRadians(0.00))
+                .addSpatialMarker(new Vector2d(30.48, 14.44), transitionCallback)
+                .splineToConstantHeading(new Vector2d(35.20, 39.46), Math.toRadians(-60.00), param1, param2)
                 .build();
-        yellowML = drive.trajectorySequenceBuilder(purpleM.end())
-                .lineToSplineHeading(new Pose2d(35.20, 36.01, Math.toRadians(0.00)))
-                .addTemporalMarker(() -> yReady = true)
+        yellowML = drive.trajectoryBuilder(purpleM.end())
+                .lineToSplineHeading(new Pose2d(30.48, 14.44, Math.toRadians(0.00)))
+                .addSpatialMarker(new Vector2d(30.48, 14.44), transitionCallback)
+                .splineToConstantHeading(new Vector2d(35.20, 33.01), Math.toRadians(-50.00), param1, param2)
                 .build();
-        yellowRL = drive.trajectorySequenceBuilder(purpleR.end())
-                .lineToConstantHeading(new Vector2d(35.20, 28.11))
-                .addTemporalMarker(() -> yReady = true)
+        yellowRL = drive.trajectoryBuilder(purpleR.end())
+                .lineToSplineHeading(new Pose2d(30.48, 14.44, Math.toRadians(0.00)))
+                .addSpatialMarker(new Vector2d(30.48, 14.44), transitionCallback)
+                .splineToConstantHeading(new Vector2d(35.20, 29.01), Math.toRadians(-45.00), param1, param2)
                 .build();
 
-        yellowLR = drive.trajectorySequenceBuilder(purpleL.end())
-                .lineToConstantHeading(new Vector2d(35.20, 37.51))
-                .addTemporalMarker(() -> yReady = true)
+
+        yellowLR = drive.trajectoryBuilder(purpleL.end())
+                .splineToSplineHeading(new Pose2d(-20.91, 14.44, Math.toRadians(0.00)), Math.toRadians(0.00))
+                .splineTo(new Vector2d(30.48, 14.44), Math.toRadians(0.00))
+                .addSpatialMarker(new Vector2d(30.48, 14.44), transitionCallback)
+                .splineToConstantHeading(new Vector2d(36.10, 36.86), Math.toRadians(-60.00), param1, param2)
                 .build();
-        yellowMR = drive.trajectorySequenceBuilder(purpleM.end())
-                .lineToConstantHeading(new Vector2d(35.20, 30.81))
-                .addTemporalMarker(() -> yReady = true)
+        yellowMR = drive.trajectoryBuilder(purpleM.end())
+                .lineToSplineHeading(new Pose2d(30.48, 14.44, Math.toRadians(0.00)))
+                .addSpatialMarker(new Vector2d(30.48, 14.44), transitionCallback)
+                .splineToConstantHeading(new Vector2d(35.20, 31.51), Math.toRadians(-50.00), param1, param2)
                 .build();
-        yellowRR = drive.trajectorySequenceBuilder(purpleR.end())
-                .lineToConstantHeading(new Vector2d(35.20, 26.11))
-                .addTemporalMarker(() -> yReady = true)
+        yellowRR = drive.trajectoryBuilder(purpleR.end())
+                .lineToSplineHeading(new Pose2d(30.48, 12.84, Math.toRadians(0.00)))
+                .addSpatialMarker(new Vector2d(30.48, 14.44), transitionCallback)
+                .splineToConstantHeading(new Vector2d(35.20, 26.31), Math.toRadians(-45.00), param1, param2)
                 .build();
 
         waitForStart();
         robot.retractSlider();
         switch (randomizationResult) {
             case 1:
-                if (scoreLeft) yellow = yellowLL; else yellow = yellowLR;
+                if (scoreRight) yellow = yellowLR; else yellow = yellowLL;
                 purple = purpleL;
                 break;
             default:
             case 2:
-                if (scoreLeft) yellow = yellowML; else yellow = yellowMR;
+                if (scoreRight) yellow = yellowMR; else yellow = yellowML;
                 purple = purpleM;
                 break;
             case 3:
-                if (scoreLeft) yellow = yellowRL; else yellow = yellowRR;
+                if (scoreRight) yellow = yellowRR; else yellow = yellowRL;
                 purple = purpleR;
                 break;
         }
@@ -139,64 +161,70 @@ public class RRAutonBlueClose extends LinearOpMode {
 
             if (objective == Objective.PATH_TO_PURPLE) {
                 drive.followTrajectorySequence(purple);
+                objective = Objective.TRANSITION_TO_PURPLE;
                 timer1.reset();
             }
 
-            if (objective == Objective.SCORE_PURPLE) {
+            if (objective == Objective.TRANSITION_TO_PURPLE) {
                 switch (randomizationResult) {
-                    case 1: robot.setSlider(0); break;
-                    default: case 2: robot.setSlider(400); break;
-                    case 3: robot.setSlider(875); break;
+                    case 1: robot.setSlider(550); break;
+                    default: case 2: robot.setSlider(350); break;
+                    case 3: robot.setSlider(650); break;
                 }
 
-                if ((timer1.milliseconds() > 1500) || scoredPurple) {
+                if (robot.sliderInPosition(5) || timer1.milliseconds() > 2060) {
+                    objective = Objective.SCORE_PURPLE;
                     timer1.reset();
-                    objective = Objective.TRANSITION_TO_YELLOW;
-                } else if (robot.sliderInPosition(5) && timer1.milliseconds() > 500 || timer1.milliseconds() > 1200
-                ) {robot.leftClawOpen(); scoredPurple = true;}
+                }
             }
 
-            if (objective == Objective.TRANSITION_TO_YELLOW) {
-                if (timer1.milliseconds() > 100) {
-                    drive.followTrajectorySequence(yellow);
-                } else if (timer1.milliseconds() > 0) {
+            if (objective == Objective.SCORE_PURPLE) {
+                if (timer1.milliseconds() > 2760 || scoredPurple && timer2.milliseconds() > 300) {
+                    robot.bothClawClose();
+                    robot.arm.setPower(0);
+                    robot.arm.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+                    objective = Objective.PATH_TO_YELLOW;
+                } else if (timer1.milliseconds() > 2360 || scoredPurple) {
+                    robot.clawPScoring2();
                     robot.retractSlider();
-                    robot.setArm(148);
+                } else if (timer1.milliseconds() > 0) {
+                    robot.leftClawOpen();
+                    scoredPurple = true;
+                    timer2.reset();
+                }
+            }
+
+            if (objective == Objective.PATH_TO_YELLOW) {
+                if (!yReady) {
+                    drive.followTrajectory(yellow);
+                    yReady = true;
                 }
 
-                if (robot.getArmAngle() > 125) robot.setSlider(520);
+                if ((robot.getArmAngle() > 135) && yReady) {
+                    robot.setSlider(655);
 
-                if (robot.slider.getCurrentPosition() > 515 && yReady) {
-                    robot.clawPScoring();
-                    timer1.reset();
-                    objective = Objective.SCORE_YELLOW;
+                    if (robot.slider.getCurrentPosition() > 650) {
+                        timer1.reset();
+                        objective = Objective.SCORE_YELLOW;
+                    }
                 }
-
-                robot.setClawPAngle(160);
             }
 
             if (objective == Objective.SCORE_YELLOW) {
-                if (timer1.milliseconds() > 600) {
-                    timer1.reset();
-                    objective = Objective.TRANSITION_TO_PARK;
-                } else if (timer1.milliseconds() > 300) robot.rightClawOpen();
-            }
+                if (timer1.milliseconds() > 705) {robot.setArm(0); robot.bothClawClose();}
+                else if (timer1.milliseconds() > 450) robot.retractSlider();
+                else if (timer1.milliseconds() > 150) robot.rightClawOpen();
 
-            if (objective == Objective.TRANSITION_TO_PARK) {
-                robot.setArm(0);
-                robot.setClawPAngle(180);
-                robot.retractSlider();
-                if (robot.getArmAngle() < 130) robot.bothClawClose();
                 if (robot.getArmAngle() < 5) objective = Objective.PARK;
 
                 if (parkLeft) {
                     park = drive.trajectorySequenceBuilder(nowPose)
-                            .lineToLinearHeading(new Pose2d(48.97, 62.18, Math.toRadians(-90.00)))
+                            .lineToLinearHeading(new Pose2d(48.97, 62.18, Math.toRadians(90.00)))
                             .addTemporalMarker(() -> objective = Objective.END)
                             .build();
                 } else {
                     park = drive.trajectorySequenceBuilder(nowPose)
-                            .lineToLinearHeading(new Pose2d(48.97, 11.06, Math.toRadians(-90.00)))
+                            .lineToLinearHeading(new Pose2d(48.97, 11.06, Math.toRadians(90.00)))
                             .addTemporalMarker(() -> objective = Objective.END)
                             .build();
                 }
@@ -217,8 +245,8 @@ public class RRAutonBlueClose extends LinearOpMode {
 
             drive.update();
             telemetry.addData("Objective", objective);
-            if (parkLeft) telemetry.addData("Park", "Right");
-            else telemetry.addData("Park", "Left");
+            if (parkLeft) telemetry.addData("Park", "Left");
+            else telemetry.addData("Park", "Right");
             telemetry.addLine();
             telemetry.addData("X", nowPose.getX());
             telemetry.addData("Y", nowPose.getY());
@@ -240,28 +268,28 @@ public class RRAutonBlueClose extends LinearOpMode {
             Imgproc.cvtColor(input, YCbCr, Imgproc.COLOR_RGB2YCrCb);
             telemetry.addLine("Pipeline running.");
 
-            /*Rect leftRect = new Rect(0, 100, 100, 79);
-            Rect middleRect = new Rect(280, 100, 100, 79);
-            Rect rightRect = new Rect(539, 150, 100, 79);*/
+            /*Rect middleRect = new Rect(0, 100, 100, 79);
+            Rect rightRect = new Rect(280, 100, 100, 79);
+            Rect middleRect = new Rect(539, 150, 100, 79);*/
 
-            Rect leftRect = new Rect(70, 130, 85, 64);
-            Rect middleRect = new Rect(375, 140, 90, 70);
-            //Rect rightRect = new Rect(539, 150, 100, 79);
+            Rect middleRect = new Rect(200, 130, 85, 64);
+            Rect rightRect = new Rect(510, 140, 90, 70);
+            //Rect middleRect = new Rect(539, 150, 100, 79);
 
             input.copyTo(output);
-            Imgproc.rectangle(output, leftRect, rectColour, 2);
             Imgproc.rectangle(output, middleRect, rectColour, 2);
-            //Imgproc.rectangle(output, rightRect, rectColour, 2);
+            Imgproc.rectangle(output, rightRect, rectColour, 2);
+            //Imgproc.rectangle(output, middleRect, rectColour, 2);
 
-            leftCrop = YCbCr.submat(leftRect);
+            rightCrop = YCbCr.submat(rightRect);
             middleCrop = YCbCr.submat(middleRect);
-            //rightCrop = YCbCr.submat(rightRect);
+            //rightCrop = YCbCr.submat(middleRect);
 
-            Core.extractChannel(leftCrop, leftCrop,2);  // Channel 2 = red
-            Core.extractChannel(middleCrop, middleCrop, 2);
+            Core.extractChannel(rightCrop, rightCrop,1);  // Channel 2 = red
+            Core.extractChannel(middleCrop, middleCrop, 1);
             //Core.extractChannel(rightCrop, rightCrop, 0);
 
-            Scalar leftAverage = Core.mean(leftCrop);
+            Scalar rightAverage = Core.mean(rightCrop);
             Scalar middleAverage = Core.mean(middleCrop);
             //Scalar rightAverage = Core.mean(rightCrop);
 
@@ -269,7 +297,7 @@ public class RRAutonBlueClose extends LinearOpMode {
 //            middleAverageFinal = Math.abs(middleAverage.val[0] - 105);
 //            rightAverageFinal = Math.abs(rightAverage.val[0] - 105);
 
-            avgLFinal = Math.abs(leftAverage.val[0] - leftTarget);
+            avgRFinal = Math.abs(rightAverage.val[0] - rightTarget);
             avgMFinal = Math.abs(middleAverage.val[0] - middleTarget);
             //avgRFinal = Math.abs(rightAverage.val[0] - rightTarget);
 
@@ -284,34 +312,34 @@ public class RRAutonBlueClose extends LinearOpMode {
                 randomizationResult = 3;
             }*/
 
-            if (avgLFinal > 5 && avgMFinal > 5) {
-                telemetry.addLine("RIGHT");
-                randomizationResult = 3;
-            } else if (avgLFinal < avgMFinal) {
+            if (avgRFinal > 5 && avgMFinal > 5) {
                 telemetry.addLine("LEFT");
                 randomizationResult = 1;
-            } else if (avgMFinal < avgLFinal) {
+            } else if (avgRFinal < avgMFinal) {
+                telemetry.addLine("RIGHT");
+                randomizationResult = 3;
+            } else if (avgMFinal < avgRFinal) {
                 telemetry.addLine("MIDDLE");
                 randomizationResult = 2;
             }
 
-            if (scoreLeft) telemetry.addData("Score on", "Left");
-            else telemetry.addData("Score on", "Right");
-            if (parkLeft) telemetry.addData("Park", "Left");
-            else telemetry.addData("Park", "Right");
+            if (scoreRight) telemetry.addData("Score on", "Right");
+            else telemetry.addData("Score on", "Left");
+            if (parkLeft) telemetry.addData("Park", "Right");
+            else telemetry.addData("Park", "Left");
             telemetry.addLine();
 
-            if (gamepad1.dpad_left) leftTarget = leftAverage.val[0];
+            if (gamepad1.dpad_right) rightTarget = rightAverage.val[0];
             if (gamepad1.dpad_up) middleTarget = middleAverage.val[0];
             //if (gamepad1.dpad_right) rightTarget = rightAverage.val[0];
 
-            if (gamepad1.square) parkLeft = true;
-            else if (gamepad1.circle) parkLeft = false;
-            if (gamepad1.left_bumper) scoreLeft = true;
-            else if (gamepad1.right_bumper) scoreLeft = false;
+            if (gamepad1.square) parkLeft = false;
+            else if (gamepad1.circle) parkLeft = true;
+            if (gamepad1.left_bumper) scoreRight = false;
+            else if (gamepad1.right_bumper) scoreRight = true;
 
-            telemetry.addData("leftAvg", leftAverage.val[0]);
-            //telemetry.addData("rightAvg", rightAverage.val[0]);
+            telemetry.addData("rightAvg", rightAverage.val[0]);
+            //telemetry.addData("leftAvg", leftAverage.val[0]);
             telemetry.addData("middleAvg", middleAverage.val[0]);
             telemetry.addLine();
             telemetry.addData("left", avgLFinal);
@@ -331,10 +359,10 @@ public class RRAutonBlueClose extends LinearOpMode {
     enum Objective {
         INITIALISE,
         PATH_TO_PURPLE,
+        TRANSITION_TO_PURPLE,
         SCORE_PURPLE,
-        TRANSITION_TO_YELLOW,
+        PATH_TO_YELLOW,
         SCORE_YELLOW,
-        TRANSITION_TO_PARK,
         PARK,
         END
     }
