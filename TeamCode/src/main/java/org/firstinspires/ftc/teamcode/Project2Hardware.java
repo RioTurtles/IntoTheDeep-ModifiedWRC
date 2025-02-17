@@ -46,13 +46,14 @@ public class Project2Hardware {
                 RevHubOrientationOnRobot.UsbFacingDirection.LEFT
         )));
 
-        drivetrain = new MecanumDrive(frontLeft, frontLeft, backLeft, backRight);
+        reset();
+
+        drivetrain = new MecanumDrive(frontLeft, frontRight, backLeft, backRight);
         this.armTargetAngle = getArmAngle();
         this.scoringMode = ScoringMode.BASKET;
         this.scoringHeight = ScoringHeight.HIGH;
         this.clawClosed = false;
 
-        reset();
     }
 
     private void reset() {
@@ -70,11 +71,11 @@ public class Project2Hardware {
         backRight.setMode(DcMotorEx.RunMode.RUN_WITHOUT_ENCODER);
 
         frontLeft.setDirection(DcMotorSimple.Direction.REVERSE);
-        frontRight.setDirection(DcMotorSimple.Direction.FORWARD);
+        frontRight.setDirection(DcMotorSimple.Direction.REVERSE);
         backLeft.setDirection(DcMotorSimple.Direction.REVERSE);
         backRight.setDirection(DcMotorSimple.Direction.FORWARD);
 
-        slider.setDirection(DcMotorEx.Direction.FORWARD);
+        slider.setDirection(DcMotorEx.Direction.REVERSE);
         arm.setDirection(DcMotorEx.Direction.FORWARD);
         claw.setDirection(Servo.Direction.FORWARD);
 
@@ -92,8 +93,13 @@ public class Project2Hardware {
         slider.setPower(1);
     }
 
+    public int getSlider() {
+        return (int) (slider.getCurrentPosition() - (arm.getCurrentPosition() / 19));
+    }
+
     public boolean sliderInPosition(int tolerance) {
-        return Math.abs(slider.getCurrentPosition() - slider.getTargetPosition()) < tolerance;
+        return Math.abs(lengthToEncoderValueSlider(getSliderLength()) - slider.getTargetPosition())
+                < tolerance;
     }
 
     public void setScoringArm(double angle) {
@@ -211,13 +217,13 @@ class MecanumDrive{
     double sin, cos, theta, max, power;
     double vertical, horizontal, pivot, heading;
     double powerFL, powerFR, powerBL, powerBR;
-    DcMotor fl, fr, bl, br;
+    DcMotor frontLeft, frontRight, backLeft, backRight;
 
     public MecanumDrive(DcMotor fl, DcMotor fr, DcMotor bl, DcMotor br) {
-        this.fl = fl;
-        this.fr = fr;
-        this.bl = bl;
-        this.br = br;
+        this.frontLeft = fl;
+        this.frontRight = fr;
+        this.backLeft = bl;
+        this.backRight = br;
     }
 
     public void remote(double vertical, double horizontal, double pivot, double heading) {
@@ -238,35 +244,35 @@ class MecanumDrive{
         powerBL = power * -(sin/max) - pivot;
         powerBR = power * -(cos/max) + pivot;
 
-        fl.setPower(-powerFL);
-        fr.setPower(-powerFR);
-        bl.setPower(powerBL);
-        br.setPower(powerBR);
+        frontLeft.setPower(-powerFL);
+        frontRight.setPower(-powerFR);
+        backLeft.setPower(powerBL);
+        backRight.setPower(powerBR);
 
-        fl.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        fr.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        bl.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        br.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        frontLeft.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        frontRight.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        backLeft.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        backRight.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
     }
 
     @Deprecated
     public void remote2(double vertical, double horizontal, double pivot, double heading) {
-        fl.setDirection(DcMotor.Direction.FORWARD);
-        fr.setDirection(DcMotor.Direction.REVERSE);
-        bl.setDirection(DcMotor.Direction.FORWARD);
-        br.setDirection(DcMotor.Direction.REVERSE);
+        frontLeft.setDirection(DcMotor.Direction.FORWARD);
+        frontRight.setDirection(DcMotor.Direction.REVERSE);
+        backLeft.setDirection(DcMotor.Direction.FORWARD);
+        backRight.setDirection(DcMotor.Direction.REVERSE);
 
         this.vertical = vertical;
         this.horizontal = horizontal;
         this.pivot = pivot;
-        this.heading = heading+(Math.PI/2);
+        this.heading = heading + (Math.PI/2);
 
         theta = 2 * Math.PI + Math.atan2(vertical,horizontal) - heading;
-        power = Math.hypot(horizontal,vertical);
+        power = Math.hypot(horizontal, vertical);
 
         sin = Math.sin(theta - Math.PI/4);
         cos = Math.cos(theta - Math.PI/4);
-        max = Math.max(Math.abs(sin),Math.abs(cos));
+        max = Math.max(Math.abs(sin), Math.abs(cos));
 
 
 //        FLPower = power * (cos/max) + pivot;
@@ -279,19 +285,19 @@ class MecanumDrive{
         powerBL = power * (sin/max) - pivot;
         powerBR = power * (cos/max) + pivot;
 
-        fl.setPower(powerFL);
-        fr.setPower(powerFR);
-        bl.setPower(powerBL);
-        br.setPower(powerBR);
+        frontLeft.setPower(powerFL);
+        frontRight.setPower(powerFR);
+        backLeft.setPower(powerBL);
+        backRight.setPower(powerBR);
 
-        fl.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        fr.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        bl.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        br.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        frontLeft.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        frontRight.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        backLeft.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        backRight.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
     }
 
     @Deprecated
-    public void part1(double theta, double pivot, double power){
+    public void part1(double theta, double pivot, double power) {
         theta = 2 * Math.PI + (theta / 360 * 2 * Math.PI) - Math.PI / 2;
 
         sin = Math.sin(theta -Math.PI/4);
@@ -303,15 +309,15 @@ class MecanumDrive{
         powerBL = power * -(sin/max) - pivot;
         powerBR = power * -(cos/max) + pivot;
 
-        fl.setPower(-powerFL);
-        fr.setPower(-powerFR);
-        bl.setPower(powerBL);
-        br.setPower(powerBR);
+        frontLeft.setPower(-powerFL);
+        frontRight.setPower(-powerFR);
+        backLeft.setPower(powerBL);
+        backRight.setPower(powerBR);
 
-        fl.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        fr.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        bl.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        br.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        frontLeft.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        frontRight.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        backLeft.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        backRight.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
     }
 
     @Deprecated
@@ -321,19 +327,19 @@ class MecanumDrive{
         cos = Math.cos(theta - Math.PI/4);
         max = Math.max(Math.abs(sin), Math.abs(cos));
 
-        int FL = fl.getCurrentPosition();
-        int FR = fr.getCurrentPosition();
-        int BL = bl.getCurrentPosition();
-        int BR = br.getCurrentPosition();
+        int FL = frontLeft.getCurrentPosition();
+        int FR = frontRight.getCurrentPosition();
+        int BL = backLeft.getCurrentPosition();
+        int BR = backRight.getCurrentPosition();
 
         double orig = FL;
         double cur = orig;
 
         while (Math.abs(cur - orig) <= distance) {
-            FL = fl.getCurrentPosition();
-            FR = fr.getCurrentPosition();
-            BL = bl.getCurrentPosition();
-            BR = br.getCurrentPosition();
+            FL = frontLeft.getCurrentPosition();
+            FR = frontRight.getCurrentPosition();
+            BL = backLeft.getCurrentPosition();
+            BR = backRight.getCurrentPosition();
 
             cur = FL;
 
@@ -342,15 +348,15 @@ class MecanumDrive{
             powerBL = power * -(sin/max) + pivot;
             powerBR = power * cos/max + pivot;
 
-            fl.setPower(-powerFL);
-            fr.setPower(-powerFR);
-            bl.setPower(powerBL);
-            br.setPower(powerBR);
+            frontLeft.setPower(-powerFL);
+            frontRight.setPower(-powerFR);
+            backLeft.setPower(powerBL);
+            backRight.setPower(powerBR);
 
-            fl.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-            fr.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-            bl.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-            br.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+            frontLeft.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+            frontRight.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+            backLeft.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+            backRight.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         }
     }
 }

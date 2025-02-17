@@ -1,0 +1,8 @@
+            port
+frontLeft	C1
+backLeft	C0
+frontRight	E1
+backRight	E0
+arm		    C2
+slider		E2
+claw		E0
