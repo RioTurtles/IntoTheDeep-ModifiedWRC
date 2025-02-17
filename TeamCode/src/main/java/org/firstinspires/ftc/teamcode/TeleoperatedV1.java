@@ -20,7 +20,7 @@ public class TeleoperatedV1 extends LinearOpMode {
 
         Double autoAlignTarget;
         double vertical, horizontal, pivot, heading;
-        boolean returning = false, chambered = false;
+        boolean returning = false;
 
         waitForStart();
         while (opModeIsActive()) {
@@ -139,12 +139,7 @@ public class TeleoperatedV1 extends LinearOpMode {
                 robot.arm.setPower(1);
                 if (!returning) {  // Forward
                     robot.setSlider(900);  // TODO: adjust slider value
-
-                    if (robot.sliderInPosition(5)) {
-                        if (robot.scoringMode == ScoringMode.BASKET) state = State.SCORING_BASKET;
-                        else state = State.SCORING_CHAMBER;
-                        chambered = false;
-                    }
+                    if (robot.sliderInPosition(5)) state = State.SCORING;
                 } else {  // Reverse
                     robot.setSlider(0);
                     if (robot.sliderInPosition(5)) state = State.TRANSFER_ARM;
@@ -154,30 +149,9 @@ public class TeleoperatedV1 extends LinearOpMode {
                 if (gamepad.right_bumper && !lastGamepad.right_bumper) returning = false;
             }
 
-            else if (state == State.SCORING_BASKET) {
+            else if (state == State.SCORING) {
                 if (gamepad.right_trigger > 0 && !(lastGamepad.right_trigger > 0)) {
                     if (robot.clawClosed) robot.clawOpen(); else robot.clawClose();
-                }
-
-                if ((gamepad.left_bumper && !lastGamepad.left_bumper
-                        || (gamepad.right_bumper && !lastGamepad.right_bumper))) {
-                    returning = true;
-                    state = State.TRANSFER_SLIDER;
-                }
-            }
-
-            else if (state == State.SCORING_CHAMBER) {
-                if (gamepad.right_trigger > 0 && !(lastGamepad.right_trigger > 0)) {
-                    // TODO: adjust
-                    if (!chambered) {
-                        robot.setSliderLength(robot.getSliderLength() - 10); chambered = true;
-                    } else {
-                        robot.setSliderLength(robot.getSliderLength() + 10); chambered = false;
-                    }
-                }
-
-                if (robot.sliderInPosition(5)) {
-                    if (chambered) robot.clawOpen(); else robot.clawClose();
                 }
 
                 if ((gamepad.left_bumper && !lastGamepad.left_bumper
@@ -253,7 +227,6 @@ public class TeleoperatedV1 extends LinearOpMode {
         TRANSFER_EXTEND,
         TRANSFER_ARM,
         TRANSFER_SLIDER,
-        SCORING_BASKET,
-        SCORING_CHAMBER
+        SCORING
     }
 }
