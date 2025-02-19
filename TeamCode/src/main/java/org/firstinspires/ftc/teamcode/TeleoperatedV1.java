@@ -68,13 +68,16 @@ public class TeleoperatedV1 extends LinearOpMode {
 
                 // While holding -> keep going
                 if (gamepad.right_trigger > 0) {
-                    if (robot.getSlider() < 900) {
+                    if (robot.getSlider() < 1400) {
                         robot.slider.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-                        if (gamepad.left_trigger > 0) robot.slider.setPower(1);
-                        else robot.slider.setPower(0.5);
+                        robot.slider.setPower(1);
                     }
                 } else if (gamepad.left_trigger > 0) {
-                    if (robot.getSlider() > 0) {
+                    if (robot.getSlider() < 300) {  // Go back to INTAKE state
+                        timer1.reset();
+                        robot.setSlider(0);
+                        state = State.INTAKE;
+                    } else if (robot.getSlider() > 0) {
                         robot.slider.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
                         robot.slider.setPower(-0.5);
                     }
@@ -93,7 +96,7 @@ public class TeleoperatedV1 extends LinearOpMode {
                     // Slider retracts in the INTAKE state.
                 }
 
-                if (gamepad.right_bumper) {
+                if (gamepad.right_bumper && !lastGamepad.right_bumper) {
                     if (robot.clawClosed) robot.clawOpen(); else robot.clawClose();
                 }
 
@@ -118,7 +121,7 @@ public class TeleoperatedV1 extends LinearOpMode {
 
                 if (!returning) {  // Forward
                     if (robot.sliderInPosition(5)) {
-                        robot.setArm(75);
+                        robot.setArm(Project2Hardware.BASKET_ANGLE);
 
                         if (gamepad.right_bumper && !lastGamepad.right_bumper)
                             state = State.TRANSFER_SLIDER;
@@ -138,12 +141,15 @@ public class TeleoperatedV1 extends LinearOpMode {
             else if (state == State.TRANSFER_SLIDER) {
                 robot.arm.setPower(1);
                 if (!returning) {  // Forward
-                    robot.setSlider(900);  // TODO: adjust slider value
+                    robot.setSlider(1400);  // TODO: adjust slider value
                     if (robot.sliderInPosition(5)) state = State.SCORING;
                 } else {  // Reverse
                     robot.setSlider(0);
                     if (robot.sliderInPosition(5)) state = State.TRANSFER_ARM;
                 }
+
+                if (gamepad.right_trigger > 0 && !(lastGamepad.right_trigger > 0))
+                    state = State.SCORING;
 
                 if (gamepad.left_bumper && !lastGamepad.left_bumper) returning = true;
                 if (gamepad.right_bumper && !lastGamepad.right_bumper) returning = false;

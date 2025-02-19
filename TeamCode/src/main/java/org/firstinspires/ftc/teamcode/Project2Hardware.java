@@ -28,8 +28,9 @@ public class Project2Hardware {
     ScoringMode scoringMode;
     ScoringHeight scoringHeight;
     double armTargetAngle;
-
     boolean clawClosed;
+
+    public static final double BASKET_ANGLE = 75.5;
 
     public Project2Hardware(@NonNull HardwareMap hardwareMap) {
         frontLeft = hardwareMap.get(DcMotor.class, "frontLeft");
@@ -85,7 +86,7 @@ public class Project2Hardware {
 
     // Regular methods.
     public void setSlider(int pos) {
-        if (pos > 900) pos = 900;
+        if (pos > 1375) pos = 1375;
 
         slider.setTargetPosition(pos + (arm.getCurrentPosition() / 19));
         slider.setMode(DcMotor.RunMode.RUN_TO_POSITION);
@@ -169,16 +170,6 @@ public class Project2Hardware {
         double revolutions = position / CPR;
         return revolutions * 35.65 * Math.PI;
     }
-
-//    public void clawPIntakeExtendDynamic() {
-//        setClawPAngle(
-//                (90 - getArmAngle() * 0.5 - 33)
-//                + ((90 - getArmAngle() * 0.5 - 33) - (90 - getArmAngle() * 0.5 - 38))
-//                * slider.getCurrentPosition() / 700
-//        );
-//    }
-    
-    public interface SleepFunction {void call();}
 
     public void powerResetArm() {
         arm.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
