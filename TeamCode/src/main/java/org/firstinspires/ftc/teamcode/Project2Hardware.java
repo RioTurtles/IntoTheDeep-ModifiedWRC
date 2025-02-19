@@ -30,7 +30,7 @@ public class Project2Hardware {
     double armTargetAngle;
     boolean clawClosed;
 
-    public static final double BASKET_ANGLE = 75.5;
+    public static final double BASKET_ANGLE = 77.5;
 
     public Project2Hardware(@NonNull HardwareMap hardwareMap) {
         frontLeft = hardwareMap.get(DcMotor.class, "frontLeft");

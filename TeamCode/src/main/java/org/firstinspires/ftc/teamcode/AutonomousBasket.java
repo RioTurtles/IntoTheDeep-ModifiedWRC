@@ -14,7 +14,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 @Autonomous
 public class AutonomousBasket extends LinearOpMode {
-    Objective objective = Objective.INITIALISE;
+    State state = State.INITIALISE;
 
     @Override
     public void runOpMode() throws InterruptedException {
@@ -23,16 +23,21 @@ public class AutonomousBasket extends LinearOpMode {
         ElapsedTime autonomous = new ElapsedTime();
         ElapsedTime timer1 = new ElapsedTime();
         Pose2d startPose = new Pose2d(-38.49, -62.66, Math.toRadians(270.00));
-        Pose2d basketPose = new Pose2d(-56.88, -56.88, Math.toRadians(45.00));
+        Pose2d basketPose = new Pose2d(-57.58, -57.58, Math.toRadians(45.00));
         Pose2d currentPose;
-        AtomicBoolean run = new AtomicBoolean(false);
+
+        AtomicBoolean run1 = new AtomicBoolean(false);
+        AtomicBoolean run2 = new AtomicBoolean(false);
+        AtomicBoolean run3Async = new AtomicBoolean(false);
 
         Pose2d[] poses = {
                 new Pose2d(-48.28, -44.40, Math.toRadians(270.00)),
                 new Pose2d(-59.98, -44.40, Math.toRadians(270.00)),
-                new Pose2d(-58.86, -39.14, Math.toRadians(315.00)),
+                new Pose2d(-58.36, -39.14, Math.toRadians(315.00)),
                 new Pose2d(-35.58, -13.24, Math.toRadians(0.00))  // Unused pose, failsafe
         };
+
+        int[] sliders = {420, 470, 200, 200};  // Last value is unused; failsafe
 
         int cycles = 0;
 
@@ -41,18 +46,13 @@ public class AutonomousBasket extends LinearOpMode {
 
         drive.setPoseEstimate(startPose);
 
-        TrajectorySequence preload = drive.trajectorySequenceBuilder(startPose)
+        TrajectorySequence preloadArm = drive.trajectorySequenceBuilder(startPose)
                 .addTemporalMarker(() -> robot.setArm(Project2Hardware.BASKET_ANGLE))
                 .back(5)
-                .lineToSplineHeading(basketPose)
-                .addTemporalMarker(() -> {
-                    if (robot.getArmError() <= 3)
-                        robot.setSlider(1400);
-                    run.set(true);
-                })
+                .addTemporalMarker(() -> run1.set(true))
                 .build();
 
-        TrajectorySequence pathPickup = null, pathReturn = null;
+        TrajectorySequence preloadSlider = null, pathPickup = null, pathReturn = null;
         Trajectory park;
 
         waitForStart();
@@ -63,109 +63,169 @@ public class AutonomousBasket extends LinearOpMode {
         while (opModeIsActive()) {
             currentPose = drive.getPoseEstimate();
 
-            if (objective == Objective.INITIALISE) {
-                if (!run.get()) drive.followTrajectorySequence(preload);
-                if (autonomous.milliseconds() > 5000) {
-                    run.set(false);
-                    objective = Objective.SCORE_PRELOAD;
+            if (state == State.INITIALISE) {
+                preloadSlider = drive.trajectorySequenceBuilder(currentPose)
+                        .lineToSplineHeading(basketPose)
+                        .build();
+
+                if (!run1.get()) drive.followTrajectorySequence(preloadArm);
+                if (robot.getArmError() <= 5 || autonomous.milliseconds() > 2000) {
+                    robot.setSlider(1400);
+                    run1.set(false);
+                    state = State.INITIALISE_SLIDER;
                     timer1.reset();
-                } else {
-                    robot.drivetrain.remote(0.04, 0, 0, 0);
                 }
             }
 
-            else if (objective == Objective.SCORE_PRELOAD) {
+            else if (state == State.INITIALISE_SLIDER) {
+                drive.followTrajectorySequence(preloadSlider);
+                robot.clawOpen();
+                state = State.SCORE_PRELOAD;
+                timer1.reset();
+            }
+
+            else if (state == State.SCORE_PRELOAD) {
+                TrajectorySequence forward = drive.trajectorySequenceBuilder(currentPose)
+                        .forward(3.5)
+                        .addTemporalMarker(() -> run2.set(true))
+                        .build();
+
+                pathPickup = drive.trajectorySequenceBuilder(forward.end())
+                        .lineToSplineHeading(poses[0])
+                        .addTemporalMarker(() -> {robot.setSlider(sliders[0]); timer1.reset();})
+                        .addTemporalMarker(() -> run1.set(true))
+                        .addTemporalMarker(1.0, 0.0, () -> run3Async.set(false))
+                        .build();
+
                 if (timer1.milliseconds() > 300) {
-                    robot.setSlider(0);
-                    if (robot.sliderInPosition(5)) {
+                    if (!run2.get()) {
+                        drive.followTrajectorySequence(forward);
+                        robot.setSlider(0);
+                        run3Async.set(false);
+                    }
+
+                    if (!run3Async.get()) {
+                        drive.followTrajectorySequenceAsync(pathPickup);
+                        run3Async.set(true);
+                    }
+
+                    if (robot.sliderInPosition(5) || timer1.milliseconds() > 5000) {
                         robot.setArm(0);
-                        if (robot.getArmError() <= 3) {
-                            objective = Objective.PATH_TO_PICKUP;
+                        if (robot.getArmError() <= 3 || timer1.milliseconds() > 6500) {
+                            state = State.PATH_TO_PICKUP;
                             timer1.reset();
                         }
                     }
                 }
-                else robot.clawOpen();
-
-                pathPickup = drive.trajectorySequenceBuilder(currentPose)
-                        .lineToSplineHeading(poses[0])
-                        .addTemporalMarker(() -> {robot.setSlider(560); timer1.reset();})
-                        .addTemporalMarker(() -> run.set(true))
-                        .build();
             }
 
-            else if (objective == Objective.PATH_TO_PICKUP) {
+            else if (state == State.PATH_TO_PICKUP) {
                 robot.arm.setPower(0);
-                if (!run.get()) drive.followTrajectorySequence(pathPickup);
+                if (!run1.get()) drive.followTrajectorySequence(pathPickup);
                 if (robot.sliderInPosition(5) || timer1.milliseconds() > 1000) {
                     robot.clawClose();
-                    objective = Objective.PATH_TO_BASKET;
+                    run1.set(false);
+                    state = State.CYCLE_TRANSITION;
                     timer1.reset();
-                    run.set(false);
                 }
 
                 pathReturn = drive.trajectorySequenceBuilder(currentPose)
-                        .addTemporalMarker(() -> robot.setArm(Project2Hardware.BASKET_ANGLE))
                         .lineToSplineHeading(basketPose)
                         .addTemporalMarker(() -> {robot.setSlider(1400); timer1.reset();})
                         .build();
             }
 
-            else if (objective == Objective.PATH_TO_BASKET) {
+            else if (state == State.CYCLE_TRANSITION) {
                 if (timer1.milliseconds() > 300) {
                     robot.setSlider(0);
-                    if (robot.sliderInPosition(5) || timer1.milliseconds() > 8000) {
-                        drive.followTrajectorySequence(pathReturn);
-                        objective = Objective.SCORE;
+                    if (robot.sliderInPosition(5) || timer1.milliseconds() > 2400) {
+                        robot.setArm(Project2Hardware.BASKET_ANGLE);
+                        robot.setSlider(1400);
+                        state = State.PATH_TO_BASKET;
                         timer1.reset();
                     }
                 }
             }
 
-            else if (objective == Objective.SCORE) {
-                if (robot.sliderInPosition(5) || timer1.milliseconds() > 8000) {
+            else if (state == State.PATH_TO_BASKET) {
+                run1.set(false);
+                run2.set(false);
+                run3Async.set(false);
+                drive.followTrajectorySequence(pathReturn);
+                state = State.SCORE;
+            }
+
+            else if (state == State.SCORE) {
+                if (robot.sliderInPosition(5) || timer1.milliseconds() > 500) {
                     robot.clawOpen();
                     timer1.reset();
-                    objective = Objective.RETURN;
+                    state = State.RETRACT;
                 }
             }
 
-            else if (objective == Objective.RETURN) {
-                if (timer1.milliseconds() > 300) {
-                    cycles++;
-                    robot.setSlider(0);
-                    if (robot.sliderInPosition(5) || autonomous.milliseconds() > 6300) {
-                        robot.setArm(0);
-                        if (robot.getArmError() <= 3 || autonomous.milliseconds() > 8000) {
-                            if (cycles < 3) objective = Objective.PATH_TO_PICKUP;
-                            else objective = Objective.PARK;
-                            timer1.reset();
-                        }
-                    }
+            else if (state == State.RETRACT) {
+                TrajectorySequence forward = drive.trajectorySequenceBuilder(currentPose)
+                        .forward(5)
+                        .build();
 
-                    pathPickup = drive.trajectorySequenceBuilder(currentPose)
+                if (timer1.milliseconds() > 300) {
+                    drive.followTrajectorySequence(forward);
+                    state = State.RETURN;
+
+                    cycles++;
+                    int finalCycles = cycles;
+                    pathPickup = drive.trajectorySequenceBuilder(forward.end())
                             .lineToSplineHeading(poses[cycles])
-                            .addTemporalMarker(() -> {robot.setSlider(1000); timer1.reset();})
+                            .addTemporalMarker(() -> robot.setSlider(sliders[finalCycles]))
+                            .addTemporalMarker(() -> run1.set(true))
                             .build();
                 }
                 else robot.clawOpen();
             }
 
-            else if (objective == Objective.PARK) {
+            else if (state == State.RETURN) {
+                if (!run3Async.get()) {
+                    drive.followTrajectorySequenceAsync(pathPickup);
+                    run3Async.set(true);
+                }
+
+                robot.setSlider(0);
+
+                if (robot.sliderInPosition(5) || timer1.milliseconds() > 4000) {
+                    robot.setArm(0);
+                    if (robot.getArmError() <= 3 || timer1.milliseconds() > 6000) {
+                        if (cycles < 3) state = State.RETURN_SLIDER_RESTORE;
+                        else state = State.PARK;
+                        timer1.reset();
+                        run3Async.set(false);
+                    }
+                }
+            }
+
+            else if (state == State.RETURN_SLIDER_RESTORE) {
+                robot.setSlider(sliders[cycles]);
+                if (robot.sliderInPosition(5) || timer1.milliseconds() > 1000) {
+                    robot.clawClose();
+                    state = State.CYCLE_TRANSITION;
+                    timer1.reset();
+                }
+            }
+
+            else if (state == State.PARK) {
                 park = drive.trajectoryBuilder(currentPose)
-                        .lineToSplineHeading(new Pose2d(-35.58, -13.24, Math.toRadians(0.00)))
+                        .lineToSplineHeading(new Pose2d(-33.58, -13.24, Math.toRadians(0.00)))
                         .addTemporalMarker(0.6,  0, () -> {
                             robot.arm.setPower(1);
                             robot.setArm(90);
                         })
-                        .splineToConstantHeading(new Vector2d(-23.94, -12.95), Math.toRadians(0.00))
+                        .splineToConstantHeading(new Vector2d(-21.94, -12.95), Math.toRadians(0.00))
                         .build();
                 drive.followTrajectory(park);
-                objective = Objective.END;
+                state = State.END;
             }
 
             drive.update();
-            telemetry.addData("Objective", objective);
+            telemetry.addData("Objective", state);
             telemetry.addLine();
             telemetry.addData("X", currentPose.getX());
             telemetry.addData("Y", currentPose.getY());
@@ -175,15 +235,19 @@ public class AutonomousBasket extends LinearOpMode {
         }
     }
 
-    enum Objective {
+    enum State {
         INITIALISE,
+        INITIALISE_SLIDER,
         PATH_TO_PRELOAD,
         SCORE_PRELOAD,
         // ---
         PATH_TO_PICKUP,
+        CYCLE_TRANSITION,
         PATH_TO_BASKET,
         SCORE,
+        RETRACT,
         RETURN,
+        RETURN_SLIDER_RESTORE,
         // ---
         PARK,
         END

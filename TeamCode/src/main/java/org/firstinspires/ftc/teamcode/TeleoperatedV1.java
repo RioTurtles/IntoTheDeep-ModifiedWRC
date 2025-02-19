@@ -190,6 +190,8 @@ public class TeleoperatedV1 extends LinearOpMode {
                 if (resultant1 == autoAlignTarget) pivot = Math.toRadians(smallerAngle);
                 else if (resultant2 == autoAlignTarget) pivot = Math.toRadians(-smallerAngle);
 
+                pivot *= 0.6;  // Adjust kP here
+
                 heading = 0;
                 vertical *= 0.8;
                 horizontal *= 0.2;
