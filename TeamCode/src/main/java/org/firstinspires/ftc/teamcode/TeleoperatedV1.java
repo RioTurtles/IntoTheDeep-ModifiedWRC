@@ -66,17 +66,22 @@ public class TeleoperatedV1 extends LinearOpMode {
                 returning = false;
                 robot.arm.setPower(0);
 
+                final int LIMIT = 975;
+                final int CONTROL = 100;
+
                 // While holding -> keep going
-                if (gamepad.right_trigger > 0) {
-                    if (robot.getSlider() < 1400) {
+                if (gamepad.right_trigger > 0 && robot.getSlider() < (LIMIT - 50)) {
                         robot.slider.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-                        robot.slider.setPower(1);
-                    }
+                        if (robot.getSlider() > (LIMIT - CONTROL)) robot.slider.setPower(
+                                Math.pow((double) Math.abs(robot.getSlider() - LIMIT) / LIMIT, 4)
+                        );
+                        else robot.slider.setPower(1);
                 } else if (gamepad.left_trigger > 0) {
                     if (robot.getSlider() < 300) {  // Go back to INTAKE state
-                        timer1.reset();
+                        robot.slider.setPower(-1);
                         robot.setSlider(0);
                         state = State.INTAKE;
+                        timer1.reset();
                     } else if (robot.getSlider() > 0) {
                         robot.slider.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
                         robot.slider.setPower(-0.5);
@@ -141,7 +146,10 @@ public class TeleoperatedV1 extends LinearOpMode {
             else if (state == State.TRANSFER_SLIDER) {
                 robot.arm.setPower(1);
                 if (!returning) {  // Forward
-                    robot.setSlider(1400);  // TODO: adjust slider value
+                    switch (robot.scoringHeight) {
+                        case HIGH: robot.setSlider(Project2Hardware.SLIDER_HIGH); break;
+                        case LOW: robot.setSlider(Project2Hardware.SLIDER_LOW); break;
+                    }
                     if (robot.sliderInPosition(5)) state = State.SCORING;
                 } else {  // Reverse
                     robot.setSlider(0);
@@ -165,12 +173,17 @@ public class TeleoperatedV1 extends LinearOpMode {
                     returning = true;
                     state = State.TRANSFER_SLIDER;
                 }
+
+                switch (robot.scoringHeight) {
+                    case HIGH: robot.setSlider(Project2Hardware.SLIDER_HIGH); break;
+                    case LOW: robot.setSlider(Project2Hardware.SLIDER_LOW); break;
+                }
             }
 
-            if (gamepad.dpad_up) autoAlignTarget = 0.0;  // Chamber alignment
-            else if (gamepad.dpad_left) autoAlignTarget = 135.0;  // Basket alignment
-            else if (gamepad.dpad_right) autoAlignTarget = 90.0;  // Submersible alignment
-            else if (gamepad.dpad_down) autoAlignTarget = 180.0;  // Observation alignment
+            if (operator.triangle) autoAlignTarget = 0.0;  // Forward
+            else if (operator.square) autoAlignTarget = 135.0;  // Basket alignment
+            else if (operator.circle) autoAlignTarget = -90.0;  // Submersible alignment
+            else if (operator.cross) autoAlignTarget = 180.0;  // Backwards
             else autoAlignTarget = null;
 
             if (Objects.nonNull(autoAlignTarget)) {
@@ -190,24 +203,32 @@ public class TeleoperatedV1 extends LinearOpMode {
                 if (resultant1 == autoAlignTarget) pivot = Math.toRadians(smallerAngle);
                 else if (resultant2 == autoAlignTarget) pivot = Math.toRadians(-smallerAngle);
 
-                pivot *= 0.6;  // Adjust kP here
+                pivot *= 0.2;  // Adjust kP here
 
                 heading = 0;
                 vertical *= 0.8;
                 horizontal *= 0.2;
             }
 
-            // Mode switching & height switching
-            if (gamepad.square || operator.square) robot.scoringMode = ScoringMode.BASKET;
-            if (gamepad.circle || operator.circle) robot.scoringMode = ScoringMode.CHAMBER;
-            if (operator.triangle) robot.scoringHeight = ScoringHeight.HIGH;
-            if (operator.cross) robot.scoringHeight = ScoringHeight.LOW;
+            // Height switching
+            if (operator.options) robot.scoringHeight = ScoringHeight.HIGH;
+            if (operator.share) robot.scoringHeight = ScoringHeight.LOW;
 
             // Emergency resets
-            if (gamepad.dpad_right && !lastGamepad.dpad_right) robot.powerResetSlider();
-            if (!gamepad.dpad_right && lastGamepad.dpad_right) robot.resetSlider();
-            if (gamepad.dpad_down && !lastGamepad.dpad_down) robot.powerResetArm();
-            if (!gamepad.dpad_down && lastGamepad.dpad_down) robot.resetArm();
+            if (operator.dpad_right) robot.powerResetSlider();
+            if (!operator.dpad_right && lastOperator.dpad_right) robot.resetSlider();
+            if (operator.dpad_down) {
+                robot.powerResetArm();
+                if (!operator.right_bumper) robot.clawOpen();
+            }
+            if (!operator.dpad_down && lastOperator.dpad_down) robot.resetArm();
+
+            if (operator.left_bumper && operator.right_bumper && operator.touchpad) {
+                state = State.INIT;
+                robot.arm.setPower(0);
+                robot.slider.setPower(0);
+                robot.clawOpen();
+            }
 
             if (gamepad.touchpad) robot.imu.resetYaw();
             robot.drivetrain.remote(vertical, horizontal, pivot, heading);

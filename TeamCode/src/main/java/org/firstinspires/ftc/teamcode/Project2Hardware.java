@@ -31,6 +31,8 @@ public class Project2Hardware {
     boolean clawClosed;
 
     public static final double BASKET_ANGLE = 77.5;
+    public static final int SLIDER_HIGH = 1400;
+    public static final int SLIDER_LOW = 675;
 
     public Project2Hardware(@NonNull HardwareMap hardwareMap) {
         frontLeft = hardwareMap.get(DcMotor.class, "frontLeft");
@@ -177,6 +179,7 @@ public class Project2Hardware {
     }
 
     public void powerResetSlider() {
+        slider.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
         slider.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         slider.setPower(-0.8);
     }
@@ -198,6 +201,7 @@ public class Project2Hardware {
     }
 
     public void clawOpen() {claw.setPosition(0.55); clawClosed = false;}
+    public void clawCloseRare() {claw.setPosition(0.3); clawClosed = true;}
     public void clawClose() {claw.setPosition(0.16); clawClosed = true;}
     public String getClawString() {if (clawClosed) return "CLOSED"; else return "OPEN";}
     public String getScoringState() {return scoringMode + " | " + scoringHeight;}

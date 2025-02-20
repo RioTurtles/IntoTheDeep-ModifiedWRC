@@ -33,11 +33,11 @@ public class AutonomousBasket extends LinearOpMode {
         Pose2d[] poses = {
                 new Pose2d(-48.28, -44.40, Math.toRadians(270.00)),
                 new Pose2d(-59.98, -44.40, Math.toRadians(270.00)),
-                new Pose2d(-58.36, -39.14, Math.toRadians(315.00)),
+                new Pose2d(-52.36, -26.14, Math.toRadians(0.00)),
                 new Pose2d(-35.58, -13.24, Math.toRadians(0.00))  // Unused pose, failsafe
         };
 
-        int[] sliders = {420, 470, 200, 200};  // Last value is unused; failsafe
+        int[] sliders = {430, 470, 330, 330};  // Last value is unused; failsafe
 
         int cycles = 0;
 
@@ -53,7 +53,7 @@ public class AutonomousBasket extends LinearOpMode {
                 .build();
 
         TrajectorySequence preloadSlider = null, pathPickup = null, pathReturn = null;
-        Trajectory park;
+        Trajectory parkCont;
 
         waitForStart();
         autonomous.reset();
@@ -123,7 +123,8 @@ public class AutonomousBasket extends LinearOpMode {
                 robot.arm.setPower(0);
                 if (!run1.get()) drive.followTrajectorySequence(pathPickup);
                 if (robot.sliderInPosition(5) || timer1.milliseconds() > 1000) {
-                    robot.clawClose();
+                    // Intake from ground; adjust if needed
+                    if (cycles != 2) robot.clawClose(); else robot.clawCloseRare();
                     run1.set(false);
                     state = State.CYCLE_TRANSITION;
                     timer1.reset();
@@ -189,16 +190,22 @@ public class AutonomousBasket extends LinearOpMode {
                     run3Async.set(true);
                 }
 
-                robot.setSlider(0);
 
-                if (robot.sliderInPosition(5) || timer1.milliseconds() > 4000) {
-                    robot.setArm(0);
-                    if (robot.getArmError() <= 3 || timer1.milliseconds() > 6000) {
-                        if (cycles < 3) state = State.RETURN_SLIDER_RESTORE;
-                        else state = State.PARK;
-                        timer1.reset();
-                        run3Async.set(false);
+                if (cycles < 3) {
+                    robot.setSlider(0);
+                    if (robot.sliderInPosition(5) || timer1.milliseconds() > 4000) {
+                        robot.setArm(0);
+                        if (robot.getArmError() <= 3 || timer1.milliseconds() > 6000) {
+                            state = State.RETURN_SLIDER_RESTORE;
+                            timer1.reset();
+                            run3Async.set(false);
+                        }
                     }
+                } else {
+                    robot.setSlider(200);
+                    state = State.PARK;
+                    timer1.reset();
+                    run3Async.set(false);
                 }
             }
 
@@ -212,15 +219,22 @@ public class AutonomousBasket extends LinearOpMode {
             }
 
             else if (state == State.PARK) {
-                park = drive.trajectoryBuilder(currentPose)
+                parkCont = drive.trajectoryBuilder(currentPose)
                         .lineToSplineHeading(new Pose2d(-33.58, -13.24, Math.toRadians(0.00)))
-                        .addTemporalMarker(0.6,  0, () -> {
-                            robot.arm.setPower(1);
-                            robot.setArm(90);
-                        })
                         .splineToConstantHeading(new Vector2d(-21.94, -12.95), Math.toRadians(0.00))
+                        .addTemporalMarker(1.0, 0.0, () -> robot.arm.setPower(0))
                         .build();
-                drive.followTrajectory(park);
+
+                TrajectorySequence park = drive.trajectorySequenceBuilder(currentPose)
+                        .addTemporalMarker(() -> {
+                            robot.arm.setPower(1);
+                            robot.setArm(100);
+                            robot.setSlider(200);
+                        })
+                        .addTrajectory(parkCont)
+                        .build();
+
+                drive.followTrajectorySequence(park);
                 state = State.END;
             }
 
