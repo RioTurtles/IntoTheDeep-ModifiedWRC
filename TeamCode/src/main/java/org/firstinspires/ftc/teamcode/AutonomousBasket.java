@@ -26,6 +26,8 @@ public class AutonomousBasket extends LinearOpMode {
         Pose2d basketPose = new Pose2d(-57.58, -57.58, Math.toRadians(45.00));
         Pose2d currentPose;
 
+        state = State.INITIALISE;
+
         AtomicBoolean run1 = new AtomicBoolean(false);
         AtomicBoolean run2 = new AtomicBoolean(false);
         AtomicBoolean run3Async = new AtomicBoolean(false);

@@ -31,8 +31,12 @@ public class Project2Hardware {
     boolean clawClosed;
 
     public static final double BASKET_ANGLE = 77.5;
+    public static final double CHAMBER_ANGLE = 66.8;
+    public static final double CHAMBERED_ANGLE = 62;
     public static final int SLIDER_HIGH = 1400;
     public static final int SLIDER_LOW = 675;
+    public static final int SLIDER_CHAMBER = 540;
+    public static final int SLIDER_CHAMBERED = 230;
 
     public Project2Hardware(@NonNull HardwareMap hardwareMap) {
         frontLeft = hardwareMap.get(DcMotor.class, "frontLeft");
@@ -178,10 +182,21 @@ public class Project2Hardware {
         arm.setPower(-0.8);
     }
 
+    public void powerResetArmR() {
+        arm.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        arm.setPower(0.8);
+    }
+
     public void powerResetSlider() {
         slider.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
         slider.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         slider.setPower(-0.8);
+    }
+
+    public void powerResetSliderR() {
+        slider.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+        slider.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        slider.setPower(0.8);
     }
 
     public void resetArm() {
