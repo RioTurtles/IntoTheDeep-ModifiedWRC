@@ -22,7 +22,7 @@ public class AutonomousChamber extends LinearOpMode {
         ElapsedTime timer1 = new ElapsedTime();
 
         Pose2d currentPose, startPose = new Pose2d(8.85, -62.87, Math.toRadians(270.00));
-        Vector2d chamberPose = new Vector2d(0.47, -31.63);
+        Vector2d chamberPose = new Vector2d(0.47, -32.63);
 
         AtomicBoolean run1Async = new AtomicBoolean(false);
 

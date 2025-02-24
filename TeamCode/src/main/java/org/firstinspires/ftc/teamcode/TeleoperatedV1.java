@@ -148,7 +148,7 @@ public class TeleoperatedV1 extends LinearOpMode {
                         state = State.TRANSFER_SLIDER;
                 } else {  // Reverse
                     robot.setArm(0);
-                    robot.clawOpen();
+                    if (robot.scoringMode == ScoringMode.BASKET) robot.clawOpen();
                     if (robot.getArmError() <= 2
                             || (gamepad.left_trigger > 0 && !(lastGamepad.left_trigger > 0)))
                         state = State.INTAKE;
@@ -202,6 +202,15 @@ public class TeleoperatedV1 extends LinearOpMode {
 
             else if (state == State.SCORING_BASKET) {
                 robot.setArm(Project2Hardware.BASKET_ANGLE + armTargetOffset);
+
+                switch (robot.scoringHeight) {
+                    case HIGH:
+                        robot.setSlider(Project2Hardware.SLIDER_HIGH + sliderTargetOffset);
+                        break;
+                    case LOW:
+                        robot.setSlider(Project2Hardware.SLIDER_LOW + sliderTargetOffset);
+                        break;
+                }
 
                 if (gamepad.right_trigger > 0 && !(lastGamepad.right_trigger > 0)) {
                     if (robot.clawClosed) robot.clawOpen(); else robot.clawClose();

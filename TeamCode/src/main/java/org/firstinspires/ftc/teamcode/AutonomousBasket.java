@@ -23,7 +23,7 @@ public class AutonomousBasket extends LinearOpMode {
         ElapsedTime autonomous = new ElapsedTime();
         ElapsedTime timer1 = new ElapsedTime();
         Pose2d startPose = new Pose2d(-38.49, -62.66, Math.toRadians(270.00));
-        Pose2d basketPose = new Pose2d(-57.58, -57.58, Math.toRadians(45.00));
+        Pose2d basketPose = new Pose2d(-56.58, -58.58, Math.toRadians(45.00));
         Pose2d currentPose;
 
         state = State.INITIALISE;
@@ -34,12 +34,12 @@ public class AutonomousBasket extends LinearOpMode {
 
         Pose2d[] poses = {
                 new Pose2d(-48.28, -44.40, Math.toRadians(270.00)),
-                new Pose2d(-59.98, -44.40, Math.toRadians(270.00)),
+                new Pose2d(-57.98, -44.40, Math.toRadians(270.00)),
                 new Pose2d(-52.36, -26.14, Math.toRadians(0.00)),
                 new Pose2d(-35.58, -13.24, Math.toRadians(0.00))  // Unused pose, failsafe
         };
 
-        int[] sliders = {430, 470, 330, 330};  // Last value is unused; failsafe
+        int[] sliders = {420, 450, 315, 315};  // Last value is unused; failsafe
 
         int cycles = 0;
 
