@@ -56,9 +56,9 @@ public class TeleoperatedV1 extends LinearOpMode {
                     robot.extendSlider();
                 }
 
-                if (gamepad.left_trigger > 0 && lastGamepad.left_trigger > 0) robot.extendSlider();
+                if (gamepad.left_bumper && lastGamepad.left_bumper) robot.extendSlider();
 
-                if (!(gamepad.left_trigger > 0) && lastGamepad.left_trigger > 0) {
+                if (!gamepad.left_bumper && lastGamepad.left_bumper) {
                     robot.clawOpen();
                     robot.retractSlider();
                 }
