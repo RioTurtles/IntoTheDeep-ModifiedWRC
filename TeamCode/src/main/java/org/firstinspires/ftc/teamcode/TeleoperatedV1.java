@@ -394,6 +394,7 @@ public class TeleoperatedV1 extends LinearOpMode {
                     robot.drivetrain.remote(vertical, horizontal, pivot, heading);
                 }
             } else robot.drivetrain.remote(vertical, horizontal, pivot, heading);
+            drive.update();
 
             if (returning) telemetry.addData("State", state + " | *");
             else telemetry.addData("State", state);

@@ -22,7 +22,7 @@ public class AutonomousChamber extends LinearOpMode {
         ElapsedTime timer1 = new ElapsedTime();
 
         Pose2d currentPose, startPose = new Pose2d(8.85, -62.87, Math.toRadians(270.00));
-        Vector2d chamberPose = new Vector2d(0.47, -32.63);
+        Vector2d chamberPose = new Vector2d(0.47, -33.63);
 
         AtomicBoolean run1Async = new AtomicBoolean(false);
 
@@ -74,10 +74,11 @@ public class AutonomousChamber extends LinearOpMode {
                      timer1.reset();
                  }
 
-                transition = drive.trajectoryBuilder(currentPose)
-                        .splineTo(new Vector2d(31.76, -36.42), Math.toRadians(0.00))
-                        .splineTo(new Vector2d(32.21, -12.76), Math.toRadians(74.74))
-                        .splineToSplineHeading(new Pose2d(46.66, -12.76, Math.toRadians(270.00)), Math.toRadians(270.00))
+                transition = drive.trajectoryBuilder(new Pose2d(1.47, -33.63, Math.toRadians(270.00)))
+                        .splineToConstantHeading(new Vector2d(6.67, -40.53), Math.toRadians(-18.89))
+                        .splineToConstantHeading(new Vector2d(32.17, -40.53), Math.toRadians(180.00))
+                        .splineToConstantHeading(new Vector2d(36.63, -12.98), Math.toRadians(90.00))
+                        .splineToConstantHeading(new Vector2d(44.47, -13.19), Math.toRadians(0.00))
                         .build();
             }
 
@@ -86,20 +87,23 @@ public class AutonomousChamber extends LinearOpMode {
                     if (!run1Async.get()) {drive.followTrajectoryAsync(transition); run1Async.set(true);}
 
                     robot.setSlider(0);
-                    if (robot.sliderInPosition(15)) robot.setArm(0);
+                    if (robot.sliderInPosition(15)) {
+                        robot.setArm(0);
+                        if (robot.getArmError() <= 5) robot.clawClose();
+                    }
 
-                    if (!drive.isBusy()) state = State.PUSH;
+                    if (!drive.isBusy()) {
+                        robot.setSlider(900);
+                        state = State.PUSH;
+                    }
                 }
-                push = drive.trajectorySequenceBuilder(currentPose)
-                        .lineToConstantHeading(new Vector2d(46.11, -57.10))
-                        .lineToConstantHeading(new Vector2d(48.71, -12.76))
-                        .splineTo(new Vector2d(55.42, -12.76), Math.toRadians(-1.44))
-                        .lineToConstantHeading(new Vector2d(57.84, -57.10))
-                        .lineToConstantHeading(new Vector2d(57.84, -12.76))
-                        .splineToConstantHeading(new Vector2d(62.31, -12.76), Math.toRadians(-1.20))
-                        .lineToConstantHeading(new Vector2d(62.31, -56.17))
+                push = drive.trajectorySequenceBuilder(new Pose2d(44.47, -13.19, Math.toRadians(270.00)))
+                        .lineToConstantHeading(new Vector2d(49.19, -60.28))
+                        .lineToConstantHeading(new Vector2d(51.60, -12.14))
+                        .lineToConstantHeading(new Vector2d(56.09, -60.07))
+                        .lineToConstantHeading(new Vector2d(61.53, -11.72))
+                        .lineToConstantHeading(new Vector2d(64.88, -60.28))
                         .build();
-
             }
 
             if (state == State.PUSH) {
