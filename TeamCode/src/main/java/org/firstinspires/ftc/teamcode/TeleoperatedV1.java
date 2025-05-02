@@ -1,10 +1,14 @@
 package org.firstinspires.ftc.teamcode;
 
+import com.acmerobotics.roadrunner.geometry.Pose2d;
+import com.acmerobotics.roadrunner.trajectory.Trajectory;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.Gamepad;
 import com.qualcomm.robotcore.util.ElapsedTime;
+
+import org.firstinspires.ftc.teamcode.drive.SampleMecanumDriveCancelable;
 
 import java.util.Objects;
 
@@ -13,7 +17,9 @@ public class TeleoperatedV1 extends LinearOpMode {
     @Override
     public void runOpMode() throws InterruptedException {
         Project2Hardware robot = new Project2Hardware(hardwareMap);
+        SampleMecanumDriveCancelable drive = new SampleMecanumDriveCancelable(hardwareMap);
         State state = State.INIT;
+        RRAutoPath autoPath = RRAutoPath.DISABLED;
         Gamepad gamepad = new Gamepad(), lastGamepad = new Gamepad();
         Gamepad operator = new Gamepad(), lastOperator = new Gamepad();
         ElapsedTime timer1 = new ElapsedTime();
@@ -27,6 +33,7 @@ public class TeleoperatedV1 extends LinearOpMode {
         boolean returning = false, chambered = false;
 
         waitForStart();
+        drive.setPoseEstimate(PoseStorage.pose);
         while (opModeIsActive()) {
             lastGamepad.copy(gamepad); gamepad.copy(gamepad1);
             lastOperator.copy(operator); operator.copy(gamepad2);
@@ -48,7 +55,7 @@ public class TeleoperatedV1 extends LinearOpMode {
                 robot.arm.setPower(0);
                 robot.slider.setPower(1);
 
-                if (timer1.milliseconds() > 150) robot.retractSlider();
+                if (timer1.milliseconds() > 150 && !lastGamepad.left_bumper) robot.retractSlider();
 
                 if (gamepad.right_trigger > 0 && !(lastGamepad.right_trigger > 0)) {
                     robot.clawOpen();
@@ -278,7 +285,7 @@ public class TeleoperatedV1 extends LinearOpMode {
                 if (robot.getArmError() <= 10 || operator.right_bumper) robot.setSlider(200);
             }
 
-            if (operator.triangle) autoAlignTarget = 180.0;  // Forward
+            if (operator.triangle) autoAlignTarget = 45.0;  // Observation zone alignment
             else if (operator.square) autoAlignTarget = -45.0;  // Basket alignment
             else if (operator.circle) autoAlignTarget = 90.0;  // Submersible alignment
             else if (operator.cross) autoAlignTarget = 0.0;  // Backwards
@@ -352,13 +359,51 @@ public class TeleoperatedV1 extends LinearOpMode {
             }
 
             if (gamepad.touchpad) robot.imu.resetYaw();
-            robot.drivetrain.remote(vertical, horizontal, pivot, heading);
+
+            if (gamepad.dpad_down && !lastGamepad.dpad_down && autoPath == RRAutoPath.DISABLED) {
+                autoPath = RRAutoPath.BASKET;
+                Pose2d currentPose = drive.getPoseEstimate();
+                Trajectory trajectory;
+                if (currentPose.getX() > -37 && currentPose.getY() > -14) {
+                    // Avoid collision with submersible pole
+                    trajectory = drive.trajectoryBuilder(currentPose)
+                            .lineToSplineHeading(new Pose2d(-36.21, -9.21, Math.toRadians(225.00)))
+                            .splineToSplineHeading(new Pose2d(-53.79, -55.26, Math.toRadians(225.00)), Math.toRadians(270.00))
+                            .build();
+                } else {
+                    trajectory = drive.trajectoryBuilder(currentPose)
+                            .lineToSplineHeading(new Pose2d(-53.79, -55.26, Math.toRadians(225.00)))
+                            .build();
+                }
+                drive.followTrajectoryAsync(trajectory);
+
+            } else if (gamepad.dpad_up && !lastGamepad.dpad_up && autoPath == RRAutoPath.DISABLED) {
+                autoPath = RRAutoPath.CHAMBER;
+                Pose2d currentPose = drive.getPoseEstimate();
+                Trajectory trajectory = drive.trajectoryBuilder(currentPose)
+                        .lineToSplineHeading(new Pose2d(0.00, -34.12, Math.toRadians(270.00)))
+                        .build();
+                drive.followTrajectoryAsync(trajectory);
+            }
+
+            if (drive.isBusy()) {
+                if (gamepad.left_stick_x > 0 || gamepad.left_stick_y > 0
+                        || gamepad.right_stick_x > 0 || gamepad.right_stick_y > 0) {
+                    drive.breakFollowing();
+                    autoPath = RRAutoPath.DISABLED;
+                    robot.drivetrain.remote(vertical, horizontal, pivot, heading);
+                }
+            } else robot.drivetrain.remote(vertical, horizontal, pivot, heading);
 
             if (returning) telemetry.addData("State", state + " | *");
             else telemetry.addData("State", state);
             telemetry.addData("Scoring", robot.getScoringState());
             telemetry.addData("Arm offset", armTargetOffset);
             telemetry.addData("Slider offset", sliderTargetOffset);
+            telemetry.addLine();
+            telemetry.addData("x", drive.getPoseEstimate().getX());
+            telemetry.addData("y", drive.getPoseEstimate().getY());
+            telemetry.addData("heading", drive.getPoseEstimate().getHeading());
             telemetry.addLine();
             telemetry.addData("Claw", robot.getClawString());
             telemetry.addData("Slider", robot.getSlider());
@@ -377,8 +422,6 @@ public class TeleoperatedV1 extends LinearOpMode {
         INIT,
         INTAKE,
         INTAKE_EXTEND,
-        INTAKE_LIMELIGHT_NEURAL,
-        INTAKE_LIMELIGHT_COLOUR,
         TRANSFER_EXTEND,
         TRANSFER_ARM,
         TRANSFER_SLIDER,
@@ -386,4 +429,6 @@ public class TeleoperatedV1 extends LinearOpMode {
         SCORING_CHAMBER,
         ASCENT
     }
+
+    enum RRAutoPath {BASKET, CHAMBER, DISABLED}
 }

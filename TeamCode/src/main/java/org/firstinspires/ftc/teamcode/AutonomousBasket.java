@@ -249,6 +249,9 @@ public class AutonomousBasket extends LinearOpMode {
             telemetry.addData("H(R)", currentPose.getHeading());
             telemetry.update();
         }
+
+        drive.setWeightedDrivePower(new Pose2d());
+        PoseStorage.pose = drive.getPoseEstimate();
     }
 
     enum State {
