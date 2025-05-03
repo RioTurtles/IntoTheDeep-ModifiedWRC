@@ -34,12 +34,12 @@ public class AutonomousBasket extends LinearOpMode {
 
         Pose2d[] poses = {
                 new Pose2d(-48.28, -44.40, Math.toRadians(270.00)),
-                new Pose2d(-57.98, -44.40, Math.toRadians(270.00)),
+                new Pose2d(-58.98, -44.40, Math.toRadians(270.00)),
                 new Pose2d(-52.36, -26.14, Math.toRadians(0.00)),
                 new Pose2d(-35.58, -13.24, Math.toRadians(0.00))  // Unused pose, failsafe
         };
 
-        int[] sliders = {420, 450, 315, 315};  // Last value is unused; failsafe
+        int[] sliders = {420, 450, 410, 315};  // Last value is unused; failsafe
 
         int cycles = 0;
 
